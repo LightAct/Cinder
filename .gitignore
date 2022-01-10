@@ -70,7 +70,8 @@ cinderConfig.cmake
 # CinderBlocks
 blocks/
 !blocks/[__AppTemplates,Box2D,Cairo,FMOD,LocationManager,MotionManager,OSC,QuickTime,TUIO]
-!blocks/[IMGUI,IMGUILINK]
+!blocks/IMGUI
+!blocks/IMGUILINK
 
 #ImGui stored settings
 imgui.ini
