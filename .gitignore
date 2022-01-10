@@ -73,3 +73,6 @@ blocks/
 
 #ImGui stored settings
 imgui.ini
+
+# ignore samples
+samples/

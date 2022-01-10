@@ -330,7 +330,7 @@
     <ClCompile>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir);..\..\include;..\..\include\imgui;..\..\include\msw\png;..\..\include\msw;..\..\include\oggvorbis;..\..\src\AntTweakBar;..\..\src\libtess2;..\..\src\linebreak;..\..\src\r8brain;..\..\include\ANGLE;..\..\include\tinyexr;..\..\src\zlib;..\..\include\freetype;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);..\..\include;..\..\include\msw\png;..\..\include\msw;..\..\include\oggvorbis;..\..\src\AntTweakBar;..\..\src\libtess2;..\..\src\linebreak;..\..\src\r8brain;..\..\include\ANGLE;..\..\include\tinyexr;..\..\src\zlib;..\..\include\freetype;..\..\blocks\IMGUI;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;NOMINMAX;_WIN32_WINNT=0x0601;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);FT2_BUILD_LIBRARY=1;FT_DEBUG_LEVEL_TRACE=1</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -517,7 +517,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>$(SolutionDir);..\..\include;..\..\include\imgui;..\..\include\msw\png;..\..\include\msw;..\..\include\oggvorbis;..\..\src\AntTweakBar;..\..\src\libtess2;..\..\src\linebreak;..\..\src\r8brain;..\..\include\ANGLE;..\..\include\tinyexr;..\..\src\zlib;..\..\include\freetype;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir);..\..\include;..\..\include\msw\png;..\..\include\msw;..\..\include\oggvorbis;..\..\src\AntTweakBar;..\..\src\libtess2;..\..\src\linebreak;..\..\src\r8brain;..\..\include\ANGLE;..\..\include\tinyexr;..\..\src\zlib;..\..\include\freetype;..\..\blocks\IMGUI;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;NOMINMAX;_WIN32_WINNT=0x0601;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions);FT2_BUILD_LIBRARY=1;FT_DEBUG_LEVEL_TRACE=1</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -607,6 +607,13 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\blocks\IMGUILINK\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="..\..\blocks\IMGUILINK\imgui_stdlib.cpp" />
+    <ClCompile Include="..\..\blocks\IMGUI\imgui.cpp" />
+    <ClCompile Include="..\..\blocks\IMGUI\imgui_demo.cpp" />
+    <ClCompile Include="..\..\blocks\IMGUI\imgui_draw.cpp" />
+    <ClCompile Include="..\..\blocks\IMGUI\imgui_tables.cpp" />
+    <ClCompile Include="..\..\blocks\IMGUI\imgui_widgets.cpp" />
     <ClCompile Include="..\..\src\AntTweakBar\LoadOGLCore.cpp" />
     <ClCompile Include="..\..\src\AntTweakBar\TwDirect3D11.cpp" />
     <ClCompile Include="..\..\src\AntTweakBar\TwOpenGLCore.cpp" />
@@ -927,13 +934,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_ANGLE|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\src\glad\glad_wgl.c" />
-    <ClCompile Include="..\..\src\imgui\imgui.cpp" />
-    <ClCompile Include="..\..\src\imgui\imgui_demo.cpp" />
-    <ClCompile Include="..\..\src\imgui\imgui_draw.cpp" />
-    <ClCompile Include="..\..\src\imgui\imgui_freetype.cpp" />
-    <ClCompile Include="..\..\src\imgui\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="..\..\src\imgui\imgui_stdlib.cpp" />
-    <ClCompile Include="..\..\src\imgui\imgui_widgets.cpp" />
     <ClCompile Include="..\..\src\jsoncpp\jsoncpp.cpp" />
     <ClCompile Include="..\..\src\libtess2\bucketalloc.c" />
     <ClCompile Include="..\..\src\libtess2\dict.c" />
@@ -1002,6 +1002,14 @@
     <ClCompile Include="..\..\src\zlib\zutil.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\blocks\IMGUILINK\imgui_impl_opengl3.h" />
+    <ClInclude Include="..\..\blocks\IMGUILINK\imgui_stdlib.h" />
+    <ClInclude Include="..\..\blocks\IMGUI\imconfig.h" />
+    <ClInclude Include="..\..\blocks\IMGUI\imgui.h" />
+    <ClInclude Include="..\..\blocks\IMGUI\imgui_internal.h" />
+    <ClInclude Include="..\..\blocks\IMGUI\imstb_rectpack.h" />
+    <ClInclude Include="..\..\blocks\IMGUI\imstb_textedit.h" />
+    <ClInclude Include="..\..\blocks\IMGUI\imstb_truetype.h" />
     <ClInclude Include="..\..\include\cinder\app\App.h" />
     <ClInclude Include="..\..\include\cinder\app\AppBase.h" />
     <ClInclude Include="..\..\include\cinder\app\AppScreenSaver.h" />
@@ -1235,15 +1243,6 @@
     <ClInclude Include="..\..\include\freetype\tttables.h" />
     <ClInclude Include="..\..\include\freetype\tttags.h" />
     <ClInclude Include="..\..\include\freetype\ttunpat.h" />
-    <ClInclude Include="..\..\include\imgui\imconfig.h" />
-    <ClInclude Include="..\..\include\imgui\imgui.h" />
-    <ClInclude Include="..\..\include\imgui\imgui_freetype.h" />
-    <ClInclude Include="..\..\include\imgui\imgui_impl_opengl3.h" />
-    <ClInclude Include="..\..\include\imgui\imgui_internal.h" />
-    <ClInclude Include="..\..\include\imgui\imgui_stdlib.h" />
-    <ClInclude Include="..\..\include\imgui\imstb_rectpack.h" />
-    <ClInclude Include="..\..\include\imgui\imstb_textedit.h" />
-    <ClInclude Include="..\..\include\imgui\imstb_truetype.h" />
     <ClInclude Include="..\..\include\jsoncpp\json-forwards.h" />
     <ClInclude Include="..\..\include\jsoncpp\json.h" />
     <ClInclude Include="..\..\include\rapidxml\rapidxml.hpp" />

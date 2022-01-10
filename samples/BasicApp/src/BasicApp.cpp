@@ -1,6 +1,7 @@
 #include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
+#include "cinder/CinderImGui.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -18,6 +19,7 @@ class BasicApp : public App {
 
 	// Cinder will call 'draw' each time the contents of the window need to be redrawn.
 	void draw() override;
+	void setup() override;
 
   private:
 	// This will maintain a list of points which we will draw line segments between
@@ -54,6 +56,10 @@ void BasicApp::keyDown( KeyEvent event )
 	}
 }
 
+void BasicApp::setup() {
+	ImGui::Initialize();
+}
+
 void BasicApp::draw()
 {
 	// Clear the contents of the window. This call will clear
@@ -74,6 +80,9 @@ void BasicApp::draw()
 		gl::vertex( point );
 	}
 	gl::end();
+
+	ImGui::ShowDemoWindow();
+
 }
 
 // This line tells Cinder to actually create and run the application.

@@ -1,5 +1,5 @@
 #include "cinder/CinderImGui.h"
-#include "imgui/imgui_impl_opengl3.h"
+#include "../blocks/IMGUILINK/imgui_impl_opengl3.h"
 
 #include "cinder/app/App.h"
 #include "cinder/Log.h"
@@ -558,6 +558,9 @@ bool ImGui::Initialize( const ImGui::Options& options )
 	ImGuiIO& io = ImGui::GetIO();
 	if( options.isKeyboardEnabled() ) io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
 	if( options.isGamepadEnabled() ) io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; // Enable Gamepad Controls	
+	
+	io.ConfigFlags |= ImGuiConfigFlags_::ImGuiConfigFlags_DockingEnable;
+
 	ci::app::WindowRef window = options.getWindow();
 	io.DisplaySize = ci::vec2( window->toPixels( window->getSize() ) );
 	io.DeltaTime = 1.0f / 60.0f;
