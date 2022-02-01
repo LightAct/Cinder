@@ -1062,12 +1062,6 @@
     <ClCompile Include="..\..\src\cinder\MediaTime.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\blocks\IMGUILINK\imgui_impl_opengl3.cpp">
-      <Filter>Resource Files\imguilink</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\blocks\IMGUILINK\imgui_stdlib.cpp">
-      <Filter>Resource Files\imguilink</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\blocks\IMGUI\imgui.cpp">
       <Filter>Resource Files\imgui</Filter>
     </ClCompile>
@@ -1082,6 +1076,12 @@
     </ClCompile>
     <ClCompile Include="..\..\blocks\IMGUI\imgui_widgets.cpp">
       <Filter>Resource Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\blocks\IMGUILINK\imgui_impl_opengl3.cpp">
+      <Filter>Resource Files\imguilink</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\blocks\IMGUILINK\imgui_stdlib.cpp">
+      <Filter>Resource Files\imguilink</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2249,12 +2249,6 @@
     <ClInclude Include="..\..\include\cinder\MediaTime.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\blocks\IMGUILINK\imgui_impl_opengl3.h">
-      <Filter>Resource Files\imguilink</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\blocks\IMGUILINK\imgui_stdlib.h">
-      <Filter>Resource Files\imguilink</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\blocks\IMGUI\imconfig.h">
       <Filter>Resource Files\imgui</Filter>
     </ClInclude>
@@ -2272,6 +2266,12 @@
     </ClInclude>
     <ClInclude Include="..\..\blocks\IMGUI\imstb_truetype.h">
       <Filter>Resource Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\blocks\IMGUILINK\imgui_impl_opengl3.h">
+      <Filter>Resource Files\imguilink</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\blocks\IMGUILINK\imgui_stdlib.h">
+      <Filter>Resource Files\imguilink</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
