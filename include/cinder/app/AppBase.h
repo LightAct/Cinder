@@ -389,9 +389,6 @@ class CI_API AppBase {
 	//!	\return the selected file path, or an empty fs::path if the user cancelled or this operation isn't supported on the current platform.
 	fs::path getSaveFilePath( const fs::path &initialPath = fs::path(), const std::vector<std::string> &extensions = std::vector<std::string>() );
 
-	//! Adding directory path shortcut
-	fs::path getOpenDirectoryPath(const fs::path& initialPath = fs::path()) { return AppBase::get()->getFolderPath(initialPath); }
-
 	//! Returns a reference to an output console, which is by default an alias to std::cout. Other platforms may override to use other necessary console mechanisms.
 	std::ostream&	console();
 
@@ -592,6 +589,9 @@ inline fs::path		getOpenFilePath( const fs::path &initialPath = fs::path(), std:
 	If the active app is in full-screen mode it will temporarily switch to windowed-mode to present the dialog.
 	\return the selected file path or an empty string if the user cancelled. **/
 inline fs::path		getSaveFilePath( const fs::path &initialPath = fs::path(), std::vector<std::string> extensions = std::vector<std::string>() ) { return AppBase::get()->getSaveFilePath( initialPath, extensions ); }
+
+//! Adding directory path shortcut
+inline fs::path		getOpenDirectoryPath(const fs::path& initialPath = fs::path()) { return AppBase::get()->getFolderPath(initialPath); }
 
 //! Returns a reference to an output console, which is an alias to std::cout on the mac, and a wrapper around OutputDebugString on MSW
 /** On Mac OS X all output is echoed either to the Debugger Console in XCode or the system console
