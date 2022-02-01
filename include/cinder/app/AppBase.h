@@ -389,6 +389,9 @@ class CI_API AppBase {
 	//!	\return the selected file path, or an empty fs::path if the user cancelled or this operation isn't supported on the current platform.
 	fs::path getSaveFilePath( const fs::path &initialPath = fs::path(), const std::vector<std::string> &extensions = std::vector<std::string>() );
 
+	//! Adding directory path shortcut
+	fs::path getOpenDirectoryPath(const fs::path& initialPath = fs::path()) { return AppBase::get()->getFolderPath(initialPath); }
+
 	//! Returns a reference to an output console, which is by default an alias to std::cout. Other platforms may override to use other necessary console mechanisms.
 	std::ostream&	console();
 
