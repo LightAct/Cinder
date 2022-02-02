@@ -292,6 +292,11 @@ void Window::emitClose()
 	mSignalClose.emit();
 }
 
+void Window::emitFocus(FocusEvent* event)
+{
+	mSignalFocus.emit(*event);
+}
+
 void Window::emitMove()
 {
 	applyCurrentContext();

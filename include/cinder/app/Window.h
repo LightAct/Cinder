@@ -34,6 +34,7 @@
 #include "cinder/app/TouchEvent.h"
 #include "cinder/app/KeyEvent.h"
 #include "cinder/app/FileDropEvent.h"
+#include "cinder/app/FocusEvent.h"
 #include "cinder/Exception.h"
 
 
@@ -108,6 +109,7 @@ typedef	 signals::Signal<void( TouchEvent & ),		CollectorEvent<TouchEvent> >		Ev
 typedef	 signals::Signal<void( KeyEvent & ),		CollectorEvent<KeyEvent> >			EventSignalKey;
 typedef	 signals::Signal<void( FileDropEvent & ),	CollectorEvent<FileDropEvent> >		EventSignalFileDrop;
 typedef	 signals::Signal<void()>														EventSignalWindow;
+typedef  signals::Signal<void( FocusEvent& )>												EventSignalFocus;
 
 //! Thrown when an operation is performed on a WindowRef which refers to an invalid Window
 class CI_API ExcInvalidWindow : public cinder::Exception {
@@ -418,6 +420,9 @@ class CI_API Window : public std::enable_shared_from_this<Window> {
 	//! Fires the 'close' signal.
 	void				emitClose();
 
+	EventSignalFocus& getSignalFocus() { return mSignalFocus; }
+	void				emitFocus(FocusEvent* event);
+
 	EventSignalFileDrop&	getSignalFileDrop() { return mSignalFileDrop; }
 	void					emitFileDrop( FileDropEvent *event );
 
@@ -494,7 +499,8 @@ class CI_API Window : public std::enable_shared_from_this<Window> {
 	EventSignalKey			mSignalKeyDown, mSignalKeyUp;
 	EventSignalWindow		mSignalDraw, mSignalPostDraw, mSignalMove, mSignalResize, mSignalDisplayChange, mSignalClose;
 	EventSignalFileDrop		mSignalFileDrop;
-	
+	EventSignalFocus		mSignalFocus;
+
 #if defined( CINDER_COCOA )
   #if defined( __OBJC__ )
 	id<WindowImplCocoa>		mImpl;

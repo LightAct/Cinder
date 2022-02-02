@@ -917,13 +917,21 @@ LRESULT CALLBACK WndProc(	HWND	mWnd,			// Handle For This Window
 			impl->getWindow()->emitMouseWheel( &event );
 		}
 		break;
-		case WM_KILLFOCUS:
+		case WM_SETFOCUS: {
+			FocusEvent focusEvent(impl->getWindow(), true);
+			impl->getWindow()->emitFocus(&focusEvent);
+		}
+		break;
+		case WM_KILLFOCUS: {
 			// if we lose capture during a drag, post a mouseup event as a notifier
 			if( impl->mIsDragging ) {
 				MouseEvent event( impl->getWindow(), 0, impl->toPoints( LOSHORT(lParam) ), impl->toPoints( HISHORT(lParam) ), prepMouseEventModifiers( wParam ), 0.0f, static_cast<unsigned int>( wParam ) );
 				impl->getWindow()->emitMouseUp( &event );
 			}
 			impl->mIsDragging = false;
+			FocusEvent focusEvent(impl->getWindow(), false);
+			impl->getWindow()->emitFocus(&focusEvent);
+		}
 		break;
 		case WM_MOUSEMOVE: {
 			if( impl->mIsDragging ) {

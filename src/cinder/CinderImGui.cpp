@@ -447,6 +447,12 @@ static void ImGui_ImplCinder_Resize( const ci::app::WindowRef& window )
 	ImGui_ImplCinder_NewFrameGuard( window );
 }
 
+static void ImGui_ImplCinder_Focus(ci::app::FocusEvent& event)
+{
+	ImGuiIO& io = ImGui::GetIO();
+	io.AddFocusEvent(event.getFocusGained());
+}
+
 static void ImGui_ImplCinder_NewFrameGuard( const ci::app::WindowRef& window ) {
 	if( ! sTriggerNewFrame )
 		return;
@@ -529,6 +535,7 @@ static bool ImGui_ImplCinder_Init( const ci::app::WindowRef& window, const ImGui
 	sWindowConnections[window] += window->getSignalKeyDown().connect( signalPriority, ImGui_ImplCinder_KeyDown );
 	sWindowConnections[window] += window->getSignalKeyUp().connect( signalPriority, ImGui_ImplCinder_KeyUp );
 	sWindowConnections[window] += window->getSignalResize().connect( signalPriority, std::bind( ImGui_ImplCinder_Resize, window ) );
+	sWindowConnections[window] += window->getSignalFocus().connect(signalPriority, ImGui_ImplCinder_Focus);
 	if( options.isAutoRenderEnabled() ) {
 		sWindowConnections[window] += ci::app::App::get()->getSignalUpdate().connect( std::bind( ImGui_ImplCinder_NewFrameGuard, window ) );
 		sWindowConnections[window] += window->getSignalPostDraw().connect( ImGui_ImplCinder_PostDraw );
