@@ -204,7 +204,7 @@ class CI_API TriMesh : public geom::Source {
 	size_t		getNumVertices() const override { if( mPositionsDims ) return mPositions.size() / mPositionsDims; else return 0; }
 
 	//! Copies the 3 vertices of triangle number \a idx into \a a, \a b and \a c. Assumes vertices are 3D
-	void		getTriangleVertices( size_t idx, vec3 *a, vec3 *b, vec3 *c ) const;
+	bool		getTriangleVertices( size_t idx, vec3 *a, vec3 *b, vec3 *c ) const;
 	//! Copies the 3 vertices of triangle number \a idx into \a a, \a b and \a c. Assumes vertices are 2D
 	void		getTriangleVertices( size_t idx, vec2 *a, vec2 *b, vec2 *c ) const;
 	//! Copies the 3 normals of triangle number \a idx into \a a, \a b and \a c.

@@ -350,12 +350,37 @@ void TriMesh::appendTexCoords3( const vec4 *texCoords, size_t num )
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-void TriMesh::getTriangleVertices( size_t idx, vec3 *a, vec3 *b, vec3 *c ) const
+bool TriMesh::getTriangleVertices( size_t idx, vec3 *a, vec3 *b, vec3 *c ) const
 {
 	assert( mPositionsDims == 3 );
-	*a = vec3( mPositions[mIndices[idx * 3] * 3 + 0], mPositions[mIndices[idx * 3] * 3 + 1], mPositions[ mIndices[idx * 3] * 3 + 2 ] );
-	*b = vec3( mPositions[mIndices[idx * 3 + 1] * 3 + 0], mPositions[mIndices[idx * 3 + 1] * 3 + 1], mPositions[ mIndices[idx * 3 + 1] * 3 + 2 ] );
-	*c = vec3( mPositions[mIndices[idx * 3 + 2] * 3 + 0], mPositions[mIndices[idx * 3 + 2] * 3 + 1], mPositions[ mIndices[idx * 3 + 2] * 3 + 2 ] );
+	
+	int indices[3];
+	indices[0] = mIndices[idx * 3] * 3 + 0;
+	indices[1] = mIndices[idx * 3] * 3 + 1;
+	indices[2] = mIndices[idx * 3] * 3 + 2;
+	for (int indd : indices)
+		if (indd < 0 || indd >= mPositions.size())
+			return false;
+	*a = vec3(mPositions[mIndices[idx * 3] * 3 + 0], mPositions[mIndices[idx * 3] * 3 + 1], mPositions[mIndices[idx * 3] * 3 + 2]);
+
+	indices[0] = mIndices[idx * 3 + 1] * 3 + 0;
+	indices[1] = mIndices[idx * 3 + 1] * 3 + 1;
+	indices[2] = mIndices[idx * 3 + 1] * 3 + 2;
+	for (int indd : indices)
+		if (indd < 0 || indd >= mPositions.size())
+			return false;
+	*b = vec3(mPositions[mIndices[idx * 3 + 1] * 3 + 0], mPositions[mIndices[idx * 3 + 1] * 3 + 1], mPositions[mIndices[idx * 3 + 1] * 3 + 2]);
+	
+	indices[0] = mIndices[idx * 3 + 2] * 3 + 0;
+	indices[1] = mIndices[idx * 3 + 2] * 3 + 1;
+	indices[2] = mIndices[idx * 3 + 2] * 3 + 2;
+	for (int indd : indices)
+		if (indd < 0 || indd >= mPositions.size())
+			return false;
+	*c = vec3(mPositions[mIndices[idx * 3 + 2] * 3 + 0], mPositions[mIndices[idx * 3 + 2] * 3 + 1], mPositions[mIndices[idx * 3 + 2] * 3 + 2]);
+	
+	return true;
+
 }
 
 void TriMesh::getTriangleVertices( size_t idx, vec2 *a, vec2 *b, vec2 *c ) const
