@@ -243,6 +243,11 @@ class CI_API AppBase {
 	//! Emitted at the start of each application update cycle
 	signals::Signal<void()>&	getSignalUpdate() { return mSignalUpdate; }
 
+	//! Custom signals
+	signals::Signal<void()>&	getSignalBeginFrameUpdate()		{ return mBeginFrameUpdate; }
+	signals::Signal<void()>&	getSignalEndFrameUpdate()		{ return mEndFrameUpdate; }
+	signals::Signal<void()>&	getSignalPostUpdateDraw()		{ return mPostUpdateDraw; }
+	
 	//! Signal that emits before the app quit process begins. If any slots return false then the app quitting is canceled.
 	EventSignalShouldQuit&		getSignalShouldQuit() { return mSignalShouldQuit; }
 	//! Emitted prior to the application shutting down
@@ -427,6 +432,7 @@ class CI_API AppBase {
 	void			setQuitRequested() { mQuitRequested = true; }	
 	virtual void	privateSetup__();
 	virtual void	privateUpdate__();
+	virtual void	privatePostUpdateDraw__();
 	bool			privateEmitShouldQuit()		{ return mSignalShouldQuit.emit(); }
 	//! \endcond
 
@@ -465,6 +471,7 @@ class CI_API AppBase {
 	std::vector<std::string>	mCommandLineArgs;
 	std::shared_ptr<Timeline>	mTimeline;
 
+	signals::Signal<void()>		mBeginFrameUpdate, mEndFrameUpdate, mPostUpdateDraw;
 	signals::Signal<void()>		mSignalUpdate, mSignalCleanup, mSignalWillResignActive, mSignalDidBecomeActive;
 	EventSignalShouldQuit		mSignalShouldQuit;
 	

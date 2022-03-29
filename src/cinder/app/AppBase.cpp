@@ -231,9 +231,16 @@ void AppBase::privateSetup__()
 	setup();
 }
 
+void AppBase::privatePostUpdateDraw__() {
+	mPostUpdateDraw.emit();
+}
+
 void AppBase::privateUpdate__()
 {
 	mFrameCount++;
+
+	// signals frame begin
+	mBeginFrameUpdate.emit();
 
 	// service asio::io_context
 	mIo->poll();
@@ -259,6 +266,10 @@ void AppBase::privateUpdate__()
 		mFpsLastSampleTime = now;
 		mFpsLastSampleFrame = mFrameCount;
 	}
+
+	// signals frame end
+	mEndFrameUpdate.emit();
+
 }
 
 void AppBase::emitCleanup()

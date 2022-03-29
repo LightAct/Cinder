@@ -71,6 +71,7 @@ void AppImplMswBasic::run()
 
 	// inner loop
 	while( ! mShouldQuit ) {
+
 		// all of our Windows will have marked this as true if the user has unplugged, plugged or modified a Monitor
 		if( mNeedsToRefreshDisplays ) {
 			mNeedsToRefreshDisplays = false;
@@ -87,6 +88,10 @@ void AppImplMswBasic::run()
 			if( ! mShouldQuit ) // test for quit() issued either from update() or prior draw()
 				window->redraw();
 		}
+
+		// everything done
+		mApp->privatePostUpdateDraw__();
+
 		// get current time in seconds
 		double currentSeconds = mApp->getElapsedSeconds();
 
