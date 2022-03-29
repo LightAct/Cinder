@@ -100,6 +100,15 @@ void AppScreenSaver::setFrameRate( float frameRate )
 #endif
 }
 
+void AppScreenSaver::setFrameLock(bool lock)
+{
+#if defined( CINDER_MAC )
+	[mImpl setFrameRate : frameRate];
+#elif defined( CINDER_MSW )
+	mImpl->setFrameLock(lock);
+#endif
+}
+
 bool AppScreenSaver::isPreview() const
 {
 #if defined( CINDER_MAC )

@@ -84,6 +84,9 @@ void AppImplMswBasic::run()
 					window->resize();
 		}
 
+		// TODO: implement failsafes
+		while(mFrameLocked) {}
+
 		// update and draw
 		mApp->privateUpdate__();
 		for( auto &window : mWindows ) {
@@ -93,6 +96,9 @@ void AppImplMswBasic::run()
 
 		// everything done
 		mApp->privatePostUpdateDraw__();
+
+		// TODO: implement failsafes
+		while (mFrameLocked) {}
 
 		// get current time in seconds
 		double currentSeconds = mApp->getElapsedSeconds();
@@ -263,6 +269,11 @@ void AppImplMswBasic::setFrameRate( float frameRate )
 	mFrameRate = frameRate;
 	mFrameRateEnabled = true;
 	mNextFrameTime = mApp->getElapsedSeconds();
+}
+
+void AppImplMswBasic::setFrameLock(bool lock) 
+{
+	mFrameLocked = lock;
 }
 
 void AppImplMswBasic::disableFrameRate()

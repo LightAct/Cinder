@@ -116,6 +116,11 @@ void AppMsw::setFrameRate( float frameRate )
 	mImpl->setFrameRate( frameRate );
 }
 
+void AppMsw::setFrameLock(bool lock) 
+{
+	mImpl->setFrameLock(lock);
+}
+
 void AppMsw::disableFrameRate()
 {
 	mImpl->disableFrameRate();

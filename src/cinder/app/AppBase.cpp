@@ -125,6 +125,11 @@ void AppBase::Settings::setFrameRate( float frameRate )
 	mFrameRate = frameRate;
 }
 
+void AppBase::Settings::setFrameLock(bool frameLock) 
+{
+	mFrameLock = frameLock;
+}
+
 void AppBase::Settings::prepareWindow( const Window::Format &format )
 {
 	mWindowFormats.push_back( format );
