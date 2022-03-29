@@ -234,13 +234,19 @@ void AppBase::privateSetup__()
 void AppBase::privatePostUpdateDraw__() {
 	mPostUpdateDraw.emit();
 }
+void AppBase::privateBeginFrame__() {
+	mFrameBegin.emit();
+}
+void AppBase::privateEndFrame__() {
+	mFrameEnd.emit();
+}
 
 void AppBase::privateUpdate__()
 {
 	mFrameCount++;
 
 	// signals frame begin
-	mBeginFrameUpdate.emit();
+	mBeginUpdate.emit();
 
 	// service asio::io_context
 	mIo->poll();
@@ -268,7 +274,7 @@ void AppBase::privateUpdate__()
 	}
 
 	// signals frame end
-	mEndFrameUpdate.emit();
+	mEndUpdate.emit();
 
 }
 

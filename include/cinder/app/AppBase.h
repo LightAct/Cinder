@@ -244,8 +244,10 @@ class CI_API AppBase {
 	signals::Signal<void()>&	getSignalUpdate() { return mSignalUpdate; }
 
 	//! Custom signals
-	signals::Signal<void()>&	getSignalBeginFrameUpdate()		{ return mBeginFrameUpdate; }
-	signals::Signal<void()>&	getSignalEndFrameUpdate()		{ return mEndFrameUpdate; }
+	signals::Signal<void()>&	getSignalBeginFrame()			{ return mFrameBegin; }
+	signals::Signal<void()>&	getSignalEndFrame()				{ return mFrameEnd; }
+	signals::Signal<void()>&	getSignalBeginUpdate()			{ return mBeginUpdate; }
+	signals::Signal<void()>&	getSignalEndUpdate()			{ return mEndUpdate; }
 	signals::Signal<void()>&	getSignalPostUpdateDraw()		{ return mPostUpdateDraw; }
 	
 	//! Signal that emits before the app quit process begins. If any slots return false then the app quitting is canceled.
@@ -430,9 +432,14 @@ class CI_API AppBase {
 	//! Returns whether a call to quit() has been issued
 	bool			getQuitRequested() const { return mQuitRequested; }
 	void			setQuitRequested() { mQuitRequested = true; }	
+	
 	virtual void	privateSetup__();
 	virtual void	privateUpdate__();
+	
 	virtual void	privatePostUpdateDraw__();
+	virtual void	privateBeginFrame__();
+	virtual void	privateEndFrame__();
+
 	bool			privateEmitShouldQuit()		{ return mSignalShouldQuit.emit(); }
 	//! \endcond
 
@@ -471,7 +478,8 @@ class CI_API AppBase {
 	std::vector<std::string>	mCommandLineArgs;
 	std::shared_ptr<Timeline>	mTimeline;
 
-	signals::Signal<void()>		mBeginFrameUpdate, mEndFrameUpdate, mPostUpdateDraw;
+	signals::Signal<void()>		mFrameBegin, mFrameEnd;
+	signals::Signal<void()>		mBeginUpdate, mEndUpdate, mPostUpdateDraw;
 	signals::Signal<void()>		mSignalUpdate, mSignalCleanup, mSignalWillResignActive, mSignalDidBecomeActive;
 	EventSignalShouldQuit		mSignalShouldQuit;
 	

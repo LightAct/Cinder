@@ -72,6 +72,8 @@ void AppImplMswBasic::run()
 	// inner loop
 	while( ! mShouldQuit ) {
 
+		mApp->privateBeginFrame__();
+
 		// all of our Windows will have marked this as true if the user has unplugged, plugged or modified a Monitor
 		if( mNeedsToRefreshDisplays ) {
 			mNeedsToRefreshDisplays = false;
@@ -118,6 +120,9 @@ void AppImplMswBasic::run()
 				::DispatchMessage( &msg );
 			}
 		}
+
+		mApp->privateEndFrame__();
+
 	}
 
 //	killWindow( mFullScreen );
