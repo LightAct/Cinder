@@ -91,7 +91,7 @@ class AppImplMsw {
 	class AppBase			*mApp;
 	float					mFrameRate;
 	WindowRef				mActiveWindow;
-	bool					mFrameLocked;
+	bool					mFrameLocked = false;
 	bool					mSetupHasBeenCalled;
 	bool					mHighDensityDispalyEnabled();
 	bool					mNeedsToRefreshDisplays;
