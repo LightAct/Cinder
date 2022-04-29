@@ -72,6 +72,8 @@ void AppImplMswBasic::run()
 	// inner loop
 	while( ! mShouldQuit ) {
 
+		bool performLock = mSyncMode;
+
 		mApp->privateBeginFrame__();
 
 		// all of our Windows will have marked this as true if the user has unplugged, plugged or modified a Monitor
@@ -85,7 +87,7 @@ void AppImplMswBasic::run()
 		}
 
 		// lock from inside cinder
-		if (mSyncMode)
+		if (performLock)
 			mFrameLocked = true;
 
 		// TODO: implement failsafes
@@ -102,7 +104,7 @@ void AppImplMswBasic::run()
 		mApp->privatePostUpdateDraw__();
 
 		// lock from inside cinder
-		if (mSyncMode)
+		if (performLock)
 			mFrameLocked = true;
 
 		// TODO: implement failsafes
