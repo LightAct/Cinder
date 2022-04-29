@@ -72,8 +72,6 @@ void AppImplMswBasic::run()
 	// inner loop
 	while( ! mShouldQuit ) {
 
-		bool inSyncMode = mSyncMode;
-
 		mApp->privateBeginFrame__();
 
 		// all of our Windows will have marked this as true if the user has unplugged, plugged or modified a Monitor
@@ -86,12 +84,12 @@ void AppImplMswBasic::run()
 					window->resize();
 		}
 
-		if (inSyncMode)
+		if (mSyncMode)
 			mFrameLocked = true;
 		else mFrameLocked = false;
 
 		// sync and lockmode active
-		while(mFrameLocked) {}
+		while(mFrameLocked && mSyncMode) {}
 
 		// update and draw
 		mApp->privateUpdate__();
@@ -103,12 +101,12 @@ void AppImplMswBasic::run()
 		// everything done
 		mApp->privatePostUpdateDraw__();
 
-		if (inSyncMode)
+		if (mSyncMode)
 			mFrameLocked = true;
 		else mFrameLocked = false;
 
 		// sync and lockmode active
-		while (mFrameLocked) {}
+		while (mFrameLocked && mSyncMode) {}
 
 		// get current time in seconds
 		double currentSeconds = mApp->getElapsedSeconds();

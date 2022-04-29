@@ -94,7 +94,7 @@ class AppImplMsw {
 	float					mFrameRate;
 	WindowRef				mActiveWindow;
 	
-	bool					mFrameLocked = false;
+	std::atomic<bool>		mFrameLocked = false;
 	bool					mSyncMode = false;
 
 	bool					mSetupHasBeenCalled;
