@@ -73,7 +73,6 @@ void AppImplMswBasic::run()
 	while( ! mShouldQuit ) {
 
 		bool inSyncMode = mSyncMode;
-		bool inLockMode = mFrameLocked;
 
 		mApp->privateBeginFrame__();
 
@@ -87,8 +86,12 @@ void AppImplMswBasic::run()
 					window->resize();
 		}
 
+		if (inSyncMode)
+			mFrameLocked = true;
+		else mFrameLocked = false;
+
 		// sync and lockmode active
-		while(inSyncMode && inLockMode) {}
+		while(mFrameLocked) {}
 
 		// update and draw
 		mApp->privateUpdate__();
@@ -100,8 +103,12 @@ void AppImplMswBasic::run()
 		// everything done
 		mApp->privatePostUpdateDraw__();
 
+		if (inSyncMode)
+			mFrameLocked = true;
+		else mFrameLocked = false;
+
 		// sync and lockmode active
-		while (inSyncMode && inLockMode) {}
+		while (mFrameLocked) {}
 
 		// get current time in seconds
 		double currentSeconds = mApp->getElapsedSeconds();
