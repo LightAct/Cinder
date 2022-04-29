@@ -87,13 +87,8 @@ void AppImplMswBasic::run()
 					window->resize();
 		}
 
-		// lock from inside cinder
-		if (inSyncMode && inLockMode)
-			mFrameLocked = true;
-		else mFrameLocked = false;
-
-		// TODO: implement failsafes
-		while(mFrameLocked) {}
+		// sync and lockmode active
+		while(inSyncMode && inLockMode) {}
 
 		// update and draw
 		mApp->privateUpdate__();
@@ -105,13 +100,8 @@ void AppImplMswBasic::run()
 		// everything done
 		mApp->privatePostUpdateDraw__();
 
-		// lock from inside cinder
-		if (inSyncMode && inLockMode)
-			mFrameLocked = true;
-		else mFrameLocked = false;
-
-		// TODO: implement failsafes
-		while (mFrameLocked) {}
+		// sync and lockmode active
+		while (inSyncMode && inLockMode) {}
 
 		// get current time in seconds
 		double currentSeconds = mApp->getElapsedSeconds();
