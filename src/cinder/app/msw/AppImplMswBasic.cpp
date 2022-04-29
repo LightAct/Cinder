@@ -72,7 +72,8 @@ void AppImplMswBasic::run()
 	// inner loop
 	while( ! mShouldQuit ) {
 
-		bool performLock = mSyncMode;
+		bool inSyncMode = mSyncMode;
+		bool inLockMode = mFrameLocked;
 
 		mApp->privateBeginFrame__();
 
@@ -87,8 +88,9 @@ void AppImplMswBasic::run()
 		}
 
 		// lock from inside cinder
-		if (performLock)
+		if (inSyncMode && inLockMode)
 			mFrameLocked = true;
+		else mFrameLocked = false;
 
 		// TODO: implement failsafes
 		while(mFrameLocked) {}
@@ -104,8 +106,9 @@ void AppImplMswBasic::run()
 		mApp->privatePostUpdateDraw__();
 
 		// lock from inside cinder
-		if (performLock)
+		if (inSyncMode && inLockMode)
 			mFrameLocked = true;
+		else mFrameLocked = false;
 
 		// TODO: implement failsafes
 		while (mFrameLocked) {}
