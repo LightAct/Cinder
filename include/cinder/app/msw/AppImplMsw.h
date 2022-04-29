@@ -70,7 +70,6 @@ class AppImplMsw {
 	float			getFrameRate() const { return mFrameRate; }
 	virtual void	setFrameRate( float aFrameRate ) = 0;
 
-	int				getFrameStage() const { return mFrameStage; }
 	virtual void	setFrameLock( bool aFrameLock ) = 0;
 	virtual void	setSyncMode(bool aFrameLock) = 0;
 	virtual void	quit() = 0;
@@ -95,7 +94,6 @@ class AppImplMsw {
 	float					mFrameRate;
 	WindowRef				mActiveWindow;
 	
-	int						mFrameStage = 0;
 	bool					mFrameLocked = false;
 	bool					mSyncMode = false;
 

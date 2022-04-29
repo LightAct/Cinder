@@ -74,7 +74,6 @@ void AppImplMswBasic::run()
 
 		bool inSyncMode = mSyncMode;
 
-		mFrameStage = 0;
 		mApp->privateBeginFrame__();
 
 		// all of our Windows will have marked this as true if the user has unplugged, plugged or modified a Monitor
@@ -94,8 +93,6 @@ void AppImplMswBasic::run()
 		// sync and lockmode active
 		while(mFrameLocked) {}
 
-		mFrameStage = 1;
-
 		// update and draw
 		mApp->privateUpdate__();
 		for( auto &window : mWindows ) {
@@ -104,7 +101,6 @@ void AppImplMswBasic::run()
 		}
 
 		// everything done
-		mFrameStage = 2;
 		mApp->privatePostUpdateDraw__();
 
 		if (inSyncMode)
@@ -141,7 +137,6 @@ void AppImplMswBasic::run()
 			}
 		}
 
-		mFrameStage = 3;
 		mApp->privateEndFrame__();
 
 	}
