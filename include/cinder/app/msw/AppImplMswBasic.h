@@ -48,6 +48,7 @@ class AppImplMswBasic : public AppImplMsw {
 
 	void	setFrameRate( float frameRate ) override;
 	void	setFrameLock(bool lock) override;
+	void	setSyncMode(bool lock) override;
 	void	disableFrameRate();
 	bool	isFrameRateEnabled() const;
 

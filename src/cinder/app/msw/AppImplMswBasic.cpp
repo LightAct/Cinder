@@ -84,6 +84,10 @@ void AppImplMswBasic::run()
 					window->resize();
 		}
 
+		// lock from inside cinder
+		if (mSyncMode)
+			mFrameLocked = true;
+
 		// TODO: implement failsafes
 		while(mFrameLocked) {}
 
@@ -96,6 +100,10 @@ void AppImplMswBasic::run()
 
 		// everything done
 		mApp->privatePostUpdateDraw__();
+
+		// lock from inside cinder
+		if (mSyncMode)
+			mFrameLocked = true;
 
 		// TODO: implement failsafes
 		while (mFrameLocked) {}
@@ -274,6 +282,11 @@ void AppImplMswBasic::setFrameRate( float frameRate )
 void AppImplMswBasic::setFrameLock(bool lock) 
 {
 	mFrameLocked = lock;
+}
+
+void AppImplMswBasic::setSyncMode(bool lock) 
+{
+	mSyncMode = lock;
 }
 
 void AppImplMswBasic::disableFrameRate()

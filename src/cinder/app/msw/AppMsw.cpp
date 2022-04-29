@@ -121,6 +121,11 @@ void AppMsw::setFrameLock(bool lock)
 	mImpl->setFrameLock(lock);
 }
 
+void AppMsw::setSyncMode(bool lock)
+{
+	mImpl->setSyncMode(lock);
+}
+
 void AppMsw::disableFrameRate()
 {
 	mImpl->disableFrameRate();

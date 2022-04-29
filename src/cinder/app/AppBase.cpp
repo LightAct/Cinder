@@ -130,6 +130,11 @@ void AppBase::Settings::setFrameLock(bool frameLock)
 	mFrameLock = frameLock;
 }
 
+void AppBase::Settings::setSyncMode(bool frameLock)
+{
+	mSyncMode = frameLock;
+}
+
 void AppBase::Settings::prepareWindow( const Window::Format &format )
 {
 	mWindowFormats.push_back( format );

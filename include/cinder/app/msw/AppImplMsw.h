@@ -70,6 +70,7 @@ class AppImplMsw {
 	float			getFrameRate() const { return mFrameRate; }
 	virtual void	setFrameRate( float aFrameRate ) = 0;
 	virtual void	setFrameLock( bool aFrameLock ) = 0;
+	virtual void	setSyncMode(bool aFrameLock) = 0;
 	virtual void	quit() = 0;
 
 	virtual WindowRef	getWindow() const { return mActiveWindow; }
@@ -92,6 +93,7 @@ class AppImplMsw {
 	float					mFrameRate;
 	WindowRef				mActiveWindow;
 	bool					mFrameLocked = false;
+	bool					mSyncMode = false;
 	bool					mSetupHasBeenCalled;
 	bool					mHighDensityDispalyEnabled();
 	bool					mNeedsToRefreshDisplays;

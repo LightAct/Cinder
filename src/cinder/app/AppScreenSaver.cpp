@@ -109,6 +109,15 @@ void AppScreenSaver::setFrameLock(bool lock)
 #endif
 }
 
+void AppScreenSaver::setSyncMode(bool lock)
+{
+#if defined( CINDER_MAC )
+	[mImpl setFrameRate : frameRate];
+#elif defined( CINDER_MSW )
+	mImpl->setSyncMode(lock);
+#endif
+}
+
 bool AppScreenSaver::isPreview() const
 {
 #if defined( CINDER_MAC )
