@@ -169,6 +169,7 @@ class CI_API AppBase {
 		bool	isFrameRateEnabled() const							{ return mFrameRateEnabled; }
 		//! Maximum frameRate of the application specified in frames per second
 		float	getFrameRate() const								{ return mFrameRate; }
+		int	getFrameStage() const									{ return mFrameStage; }
 
 		//! Returns the command line args passed to the application from its entry point (ex. a main's argc / argv).
 		const std::vector<std::string>&	getCommandLineArgs() const	{ return mCommandLineArgs; }
@@ -191,6 +192,7 @@ class CI_API AppBase {
 
 		bool			mFrameRateEnabled;
 		float			mFrameRate;
+		int				mFrameStage;
 		bool			mFrameLock = false;
 		bool			mSyncMode = false;
 		bool			mPowerManagementEnabled; // allow screensavers or power management to hide app. default: false
@@ -342,6 +344,7 @@ class CI_API AppBase {
     
 	//! Returns the maximum frame-rate the App will attempt to maintain.
 	virtual float		getFrameRate() const = 0;
+	virtual int			getFrameStage() const = 0;
 	//! Sets the maximum frame-rate the App will attempt to maintain.
 	virtual void		setFrameRate( float frameRate ) = 0;
 	//! Sets frame lock
@@ -543,6 +546,7 @@ inline Area		getWindowBounds() { return AppBase::get()->getWindowBounds(); }
 inline float	getWindowContentScale() { return AppBase::get()->getWindowContentScale(); }
 //! Returns the maximum frame-rate the active App will attempt to maintain.
 inline float	getFrameRate() { return AppBase::get()->getFrameRate(); }
+inline int		getFrameStage() { return AppBase::get()->getFrameStage(); }
 //! Sets the maximum frame-rate the active App will attempt to maintain.
 inline void		setFrameRate( float frameRate ) { AppBase::get()->setFrameRate( frameRate ); }
 //! Sets frame locking flag

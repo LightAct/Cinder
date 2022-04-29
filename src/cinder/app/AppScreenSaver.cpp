@@ -91,6 +91,15 @@ float AppScreenSaver::getFrameRate() const
 #endif
 }
 
+int AppScreenSaver::getFrameStage() const
+{
+#if defined( CINDER_MAC )
+	return[mImpl getFrameRate];
+#elif defined( CINDER_MSW )
+	return mImpl->getFrameStage();
+#endif
+}
+
 void AppScreenSaver::setFrameRate( float frameRate )
 {
 #if defined( CINDER_MAC )

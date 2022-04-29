@@ -111,6 +111,12 @@ float AppMsw::getFrameRate() const
 	return mImpl->getFrameRate();
 }
 
+int AppMsw::getFrameStage() const
+{
+	return mImpl->getFrameStage();
+}
+
+
 void AppMsw::setFrameRate( float frameRate )
 {
 	mImpl->setFrameRate( frameRate );

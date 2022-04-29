@@ -91,6 +91,7 @@ class AppScreenSaver : public AppBase {
 
 	//! Returns the maximum frame-rate the App will attempt to maintain.
 	float		getFrameRate() const override;
+	int			getFrameStage() const override;
 	//! Sets the maximum frame-rate the App will attempt to maintain.
 	void		setFrameRate( float frameRate ) override;
 	void		setFrameLock(bool lock) override;
