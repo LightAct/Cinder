@@ -19,6 +19,9 @@ lib/msw/x64/cinder*.pdb
 lib/winrt/x86/cinder*.lib
 lib/winrt/x64/cinder*.lib
 
+#dont push samples
+samples/
+
 # Windows cruft
 *.suo
 *.ncb
