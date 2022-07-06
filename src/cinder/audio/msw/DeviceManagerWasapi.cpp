@@ -283,7 +283,11 @@ void DeviceManagerWasapi::parseDevices( DeviceInfo::Usage usage )
 	const ::CLSID CLSID_MMDeviceEnumerator = __uuidof( ::MMDeviceEnumerator );
 	const ::IID IID_IMMDeviceEnumerator = __uuidof( ::IMMDeviceEnumerator );
 	HRESULT hr = CoCreateInstance( CLSID_MMDeviceEnumerator, NULL, CLSCTX_ALL, IID_IMMDeviceEnumerator, (void**)&enumerator );
-	CI_ASSERT( hr == S_OK );
+	
+	// CI_ASSERT( hr == S_OK );
+	if ( hr != S_OK )
+		return;
+
 	auto enumeratorPtr =  ci::msw::makeComUnique( enumerator );
 
 	::EDataFlow dataFlow = ( usage == DeviceInfo::Usage::INPUT ? eCapture : eRender );
@@ -418,8 +422,8 @@ HRESULT DeviceManagerWasapi::Impl::QueryInterface( REFIID iid, void** object )
 	return S_OK;
 }
 
-STDMETHODIMP DeviceManagerWasapi::Impl::OnDeviceStateChanged( LPCWSTR device_id, DWORD new_state )
-{
+STDMETHODIMP DeviceManagerWasapi::Impl::OnDeviceStateChanged( LPCWSTR device_id, DWORD new_state ) {
+
 	std::string stateStr = deviceStateToStr( new_state );
 
 	auto device = getDevice( device_id );
@@ -467,15 +471,23 @@ HRESULT DeviceManagerWasapi::Impl::OnDefaultDeviceChanged( EDataFlow flow, ERole
 
 HRESULT DeviceManagerWasapi::Impl::OnDeviceAdded( LPCWSTR device_id )
 {
-	auto devName = getDevice( device_id )->getName();
-	CI_LOG_I( "device name: " << devName );
+
+	auto devName = getDevice(device_id);
+	if (devName) {
+		std::string dname = devName->getName();
+		CI_LOG_I("device name: " << devName);
+	}
 	return S_OK;
 }
 
 HRESULT DeviceManagerWasapi::Impl::OnDeviceRemoved( LPCWSTR device_id )
 {
-	auto devName = getDevice( device_id )->getName();
-	CI_LOG_I( "device name: " << devName );
+
+	auto devName = getDevice(device_id);
+	if(devName) {
+		std::string dname = devName->getName();
+		CI_LOG_I("device name: " << devName);
+	}
 	return S_OK;
 }
 
