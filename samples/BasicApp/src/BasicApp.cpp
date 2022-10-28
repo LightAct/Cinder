@@ -5,8 +5,18 @@
 
 using namespace ci;
 using namespace ci::app;
+namespace gui = ImGui;
 
 // We'll create a new Cinder Application by deriving from the App class.
+
+struct mRect {
+	glm::vec2 loc;
+	glm::vec2 size;
+	float rot = 0.f;
+	bool rotate = false;
+	mRect() : loc({ 100.f, 100.f }), size({ 100.f, 100.f }) {}
+};
+
 class BasicApp : public App {
   public:
 	// Cinder will call 'mouseDrag' when the user moves the mouse while holding one of its buttons.
@@ -19,7 +29,10 @@ class BasicApp : public App {
 
 	// Cinder will call 'draw' each time the contents of the window need to be redrawn.
 	void draw() override;
+	void update() override;
 	void setup() override;
+
+	mRect rectangle;
 
   private:
 	// This will maintain a list of points which we will draw line segments between
@@ -58,6 +71,26 @@ void BasicApp::keyDown( KeyEvent event )
 
 void BasicApp::setup() {
 	ImGui::Initialize();
+	float w = 0.87388417790257411;
+	float x = -0.13669943685674510;
+	float y = 0.35773628351431103;
+	float z = -0.29944024283980192;
+
+	glm::vec3 euler = glm::eulerAngles(glm::quat(w, x, z, y));
+	euler = glm::degrees(euler);
+	float yc = euler.z;
+	euler.z = euler.y;
+	euler.y = yc;
+	euler.x++;
+
+	ci::app::setFrameRate(30.f);
+
+}
+
+void BasicApp::update() {
+	if (rectangle.rotate) {
+		rectangle.rot += 0.01f;
+	}
 }
 
 void BasicApp::draw()
@@ -82,6 +115,34 @@ void BasicApp::draw()
 	gl::end();
 
 	ImGui::ShowDemoWindow();
+
+	{
+		
+		static ImVec2 mPos(0.f, 100.f);
+		gui::SetNextWindowPos(mPos);
+
+		gui::ScopedWindow window("sett");
+		gui::DragFloat2("SIZE", &rectangle.size);
+		gui::DragFloat2("LOC", &rectangle.loc);
+		gui::DragFloat("ROT", &rectangle.rot, 0.01f);
+		gui::Separator();
+		gui::Checkbox("Auto-Rotate", &rectangle.rotate);
+
+		mPos.x += 1.f;
+		if (mPos.x > 1000)
+			mPos.x = 0;
+
+		
+	}
+
+	{
+		ci::Rectf rect(-rectangle.size.x * .5f, -rectangle.size.y * .5f, rectangle.size.x * .5f, rectangle.size.y * .5f);
+		ci::gl::ScopedColor clr(ci::Color::gray(.5f));
+		ci::gl::ScopedModelMatrix mat;
+		ci::gl::translate(rectangle.loc);
+		gl::rotate(rectangle.rot);
+		ci::gl::drawSolidRect(rect);
+	}
 
 }
 
