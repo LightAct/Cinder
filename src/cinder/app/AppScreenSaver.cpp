@@ -109,12 +109,12 @@ void AppScreenSaver::setFrameLock(bool lock)
 #endif
 }
 
-void AppScreenSaver::setSyncMode(bool lock)
+void AppScreenSaver::setSyncMode(bool lock, bool doSleep)
 {
 #if defined( CINDER_MAC )
 	[mImpl setFrameRate : frameRate];
 #elif defined( CINDER_MSW )
-	mImpl->setSyncMode(lock);
+	mImpl->setSyncMode(lock, doSleep);
 #endif
 }
 

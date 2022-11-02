@@ -125,9 +125,23 @@ void AppImplMswBasic::run()
 		mNextFrameTime += secondsPerFrame;
 
 		// sleep and process messages until next frame
-		if( ( mFrameRateEnabled ) && ( mNextFrameTime > currentSeconds ) )
-			sleep(mNextFrameTime - currentSeconds);
-		else {
+		if ((mFrameRateEnabled) && (mNextFrameTime > currentSeconds)) {
+
+			double cinderSleep = mNextFrameTime - currentSeconds;
+			// if in sync mode and sleep is disabled
+			if (mSyncMode && !mSleep) {
+
+				// run at 60 fps by default
+				const double defaultSleepWhileSynced = 0.0166666666666667;
+				
+				// in 99.999%
+				if (defaultSleepWhileSynced < cinderSleep)
+					cinderSleep = defaultSleepWhileSynced;
+
+			}
+			sleep(cinderSleep);
+
+		} else {
 			MSG msg;
 			while( ::PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) ) {
 				::TranslateMessage( &msg );
@@ -284,9 +298,10 @@ void AppImplMswBasic::setFrameLock(bool lock)
 	mFrameLocked = lock;
 }
 
-void AppImplMswBasic::setSyncMode(bool lock) 
+void AppImplMswBasic::setSyncMode(bool lock, bool doSleep) 
 {
 	mSyncMode = lock;
+	mSleep = doSleep;
 }
 
 void AppImplMswBasic::disableFrameRate()

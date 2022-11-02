@@ -130,9 +130,10 @@ void AppBase::Settings::setFrameLock(bool frameLock)
 	mFrameLock = frameLock;
 }
 
-void AppBase::Settings::setSyncMode(bool frameLock)
+void AppBase::Settings::setSyncMode(bool frameLock, bool doSleep)
 {
 	mSyncMode = frameLock;
+	mSleep = doSleep;
 }
 
 void AppBase::Settings::prepareWindow( const Window::Format &format )

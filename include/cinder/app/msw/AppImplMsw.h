@@ -71,7 +71,7 @@ class AppImplMsw {
 	virtual void	setFrameRate( float aFrameRate ) = 0;
 
 	virtual void	setFrameLock( bool aFrameLock ) = 0;
-	virtual void	setSyncMode(bool aFrameLock) = 0;
+	virtual void	setSyncMode(bool aFrameLock, bool doSleep = true) = 0;
 	virtual void	quit() = 0;
 
 	virtual WindowRef	getWindow() const { return mActiveWindow; }
@@ -96,7 +96,7 @@ class AppImplMsw {
 	
 	std::atomic<bool>		mFrameLocked = false;
 	bool					mSyncMode = false;
-
+	bool					mSleep = true;
 	bool					mSetupHasBeenCalled;
 	bool					mHighDensityDispalyEnabled();
 	bool					mNeedsToRefreshDisplays;

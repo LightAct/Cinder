@@ -162,7 +162,7 @@ class CI_API AppBase {
 		void	setFrameRate( float frameRate );
 		//! Sets frame locking
 		void	setFrameLock(bool frameLock);
-		void	setSyncMode(bool frameLock);
+		void	setSyncMode(bool frameLock, bool doSleep = true);
 		//! Disables the frameRate limiting, which is on by default. Restore using setFrameRate(). See also enableVerticalSync().
 		void	disableFrameRate();
 		//! Returns whether frameRate limiting is enabled. On by default, at 60 FPS.
@@ -193,6 +193,7 @@ class CI_API AppBase {
 		float			mFrameRate;
 		bool			mFrameLock = false;
 		bool			mSyncMode = false;
+		bool			mSleep = true;
 		bool			mPowerManagementEnabled; // allow screensavers or power management to hide app. default: false
 		bool			mHighDensityDisplayEnabled;
 		bool			mMultiTouchEnabled;
@@ -346,7 +347,7 @@ class CI_API AppBase {
 	virtual void		setFrameRate( float frameRate ) = 0;
 	//! Sets frame lock
 	virtual void		setFrameLock(bool lock) = 0;
-	virtual void		setSyncMode(bool lock) = 0;
+	virtual void		setSyncMode(bool lock, bool doSleep = true) = 0;
 	//! Disables frameRate limiting.
 	virtual void		disableFrameRate() = 0;
 	//! Returns whether frameRate limiting is enabled.
@@ -547,7 +548,7 @@ inline float	getFrameRate() { return AppBase::get()->getFrameRate(); }
 inline void		setFrameRate( float frameRate ) { AppBase::get()->setFrameRate( frameRate ); }
 //! Sets frame locking flag
 inline void		setFrameLock(bool lock) { AppBase::get()->setFrameLock(lock); }
-inline void		setSyncMode(bool lock) { AppBase::get()->setSyncMode(lock); }
+inline void		setSyncMode(bool lock, bool doSleep = true) { AppBase::get()->setSyncMode(lock, doSleep); }
 //! Returns whether the active App is in full-screen mode or not.
 inline bool		isFullScreen() { return AppBase::get()->isFullScreen(); }
 //! Sets whether the active App is in full-screen mode based on \a fullScreen
