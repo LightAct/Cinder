@@ -21,6 +21,8 @@ lib/winrt/x64/cinder*.lib
 
 #dont push samples
 samples/
+#dont push custom backend
+blocks/IMGUI
 
 # Windows cruft
 *.suo

@@ -6,6 +6,3 @@
 	path = tools/TinderBox-Win
 	url = git://github.com/cinder/TinderBox-Win.git
 	branch = 0.9.3
-[submodule "blocks/IMGUI"]
-	path = blocks/IMGUI
-	url = https://github.com/ocornut/imgui.git
