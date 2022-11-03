@@ -154,6 +154,10 @@ class WindowImplMsw {
 	HDC				getDc() const { return mDC; }
 
 	void			privateClose();
+
+	void			setUseCustomCloseEvent(bool val = true) { mUseCustomCloseEvents = val; }
+	bool			getUseCustomCloseEvent() { return mUseCustomCloseEvents; }
+
   protected:
 	//! Sets 'mWindowStyle' and 'mWindowExStyle' based on 'mFullScreen' and 'mBorderless'
 	void			setWindowStyleValues();
@@ -164,6 +168,8 @@ class WindowImplMsw {
 	void			getScreenSize( int clientWidth, int clientHeight, int *resultWidth, int *resultHeight );
 	void			onTouch( HWND hWnd, WPARAM wParam, LPARAM lParam );
 	virtual void	toggleFullScreen( const app::FullScreenOptions &options );
+
+	bool					mUseCustomCloseEvents = false;
 
 	AppImplMsw				*mAppImpl;
 	WindowRef				mWindowRef;

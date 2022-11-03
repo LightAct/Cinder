@@ -338,6 +338,8 @@ class CI_API Window : public std::enable_shared_from_this<Window> {
 	bool	isAlwaysOnTop() const;
 	//! Sets whether the window always remains above all other windows
 	void	setAlwaysOnTop( bool alwaysOnTop = true );
+	//! Sets flag for custom close events
+	void	setUseCustomCloseEvent( bool val = true );
 
 	//! Hides the window but does not destroy it
 	void	hide();

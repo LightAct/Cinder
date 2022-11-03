@@ -222,6 +222,15 @@ void Window::setAlwaysOnTop( bool alwaysOnTop )
 #endif
 }
 
+void Window::setUseCustomCloseEvent(bool val){
+	testValid();
+#if defined( CINDER_COCOA )
+	[mImpl setAlwaysOnTop : alwaysOnTop];
+#else
+	mImpl->setUseCustomCloseEvent(val);
+#endif
+}
+
 void Window::hide()
 {
 	testValid();
