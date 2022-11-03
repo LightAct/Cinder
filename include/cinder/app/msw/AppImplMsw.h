@@ -87,6 +87,7 @@ class AppImplMsw {
   protected:
 	bool					setupHasBeenCalled() const { return mSetupHasBeenCalled; }
 	virtual void			closeWindow( class WindowImplMsw *windowImpl ) = 0;
+	virtual void			customCloseWindow(class WindowImplMsw* windowImpl) = 0;
 	virtual void			setForegroundWindow( WindowRef window ) = 0;
 	bool					getHighDensityDisplayEnabled() const;
 

@@ -217,6 +217,10 @@ WindowRef AppImplMswBasic::createWindow( Window::Format format )
 	return mWindows.back()->getWindow();
 }
 
+void AppImplMswBasic::customCloseWindow(WindowImplMsw* windowImpl) {
+	windowImpl->getWindow()->emitCustomClose();
+}
+
 void AppImplMswBasic::closeWindow( WindowImplMsw *windowImpl )
 {
 	auto winIt = find( mWindows.begin(), mWindows.end(), windowImpl );

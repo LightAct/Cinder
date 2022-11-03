@@ -836,7 +836,7 @@ LRESULT CALLBACK WndProc(	HWND	mWnd,			// Handle For This Window
 				impl->getAppImpl()->setForegroundWindow( impl->getWindow() );
 		break;
 		case WM_CLOSE:								// Did We Receive A Close Message?
-			impl->getAppImpl()->closeWindow( impl );
+			impl->getAppImpl()->customCloseWindow( impl );
 			// be careful not to do anything with 'impl' after here
 			return 0;
 		break;

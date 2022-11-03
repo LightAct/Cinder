@@ -65,6 +65,7 @@ class AppImplMswBasic : public AppImplMsw {
 	WindowRef		createWindow( Window::Format format );
 	RendererRef		findSharedRenderer( const RendererRef &searchRenderer );
 	void			closeWindow( class WindowImplMsw *windowImpl ) override;
+	void			customCloseWindow(class WindowImplMsw* windowImpl) override;
 	void			setForegroundWindow( WindowRef window ) override;
 	
 	AppMsw*	mApp;

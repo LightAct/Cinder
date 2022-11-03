@@ -132,6 +132,18 @@ float Window::getContentScale() const
 #endif
 }
 
+void Window::CloseAndDestroy() {
+
+	testValid();
+
+#if defined( CINDER_COCOA )
+	[mImpl close];
+#else
+	mImpl->close();
+#endif
+
+}
+
 void Window::close()
 {
 	testValid();
@@ -285,6 +297,9 @@ UIViewController* Window::getNativeViewController()
 }
 #endif
 
+void Window::emitCustomClose() {
+	mSignalCustomClose.emit();
+}
 
 // Signal Emitters
 void Window::emitClose()

@@ -349,6 +349,9 @@ class CI_API Window : public std::enable_shared_from_this<Window> {
 	//! Closes and destroys the Window
 	void	close();
 
+	// Custom closes and destroys the window
+	void	CloseAndDestroy();
+
 	//! Returns the Display on which the Window resides
 	DisplayRef		getDisplay() const;
 	//! Returns the Renderer associated with the Window
@@ -417,8 +420,15 @@ class CI_API Window : public std::enable_shared_from_this<Window> {
 
 	//! Returns the Signal emitted whenever a Window is closing. The WindowRef parameter is still valid at this point but its renderer is not.
 	EventSignalWindow&	getSignalClose() { return mSignalClose; }
+
+	//!  Returns the Signal emitted whenever a Window is closing by demand.
+	EventSignalWindow& getSignalCustomClose() { return mSignalCustomClose; }
+
 	//! Fires the 'close' signal.
 	void				emitClose();
+
+	//! Fires the custom 'close' signal.
+	void				emitCustomClose();
 
 	EventSignalFocus& getSignalFocus() { return mSignalFocus; }
 	void				emitFocus(FocusEvent* event);
@@ -498,6 +508,10 @@ class CI_API Window : public std::enable_shared_from_this<Window> {
 	EventSignalTouch		mSignalTouchesBegan, mSignalTouchesMoved, mSignalTouchesEnded;
 	EventSignalKey			mSignalKeyDown, mSignalKeyUp;
 	EventSignalWindow		mSignalDraw, mSignalPostDraw, mSignalMove, mSignalResize, mSignalDisplayChange, mSignalClose;
+
+	//! for custom closing
+	EventSignalWindow		mSignalCustomClose;
+
 	EventSignalFileDrop		mSignalFileDrop;
 	EventSignalFocus		mSignalFocus;
 
