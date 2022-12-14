@@ -157,21 +157,33 @@ std::vector<fs::path> AppImplMsw::getImportFiles(const fs::path& initialPath, st
 		ofn.lpstrInitialDir = initialPathStr;
 		wcscpy(szFile, initialPath.filename().wstring().c_str());
 	}
-	ofn.Flags = OFN_ALLOWMULTISELECT | OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
+	ofn.Flags =	OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_ALLOWMULTISELECT | OFN_EXPLORER;
 
 	// Display the Open dialog box.
 	if (::GetOpenFileNameW(&ofn) == TRUE) {
 
-		char filePathConvert[MAX_PATH * 10];
-		WideCharToMultiByte(CP_UTF8, 0, ofn.lpstrFile, -1, filePathConvert, MAX_PATH * 10, 0, 0);
-
-		/*
-		std::vector<std::string> splitter = split(filePathConvert, '\0');
 		std::vector<fs::path> paths;
-		for (std::string s : splitter)
-			paths.push_back(s);
-			*/
-		return std::vector<fs::path> { filePathConvert };
+
+		std::wstring dir = szFile;
+		size_t pos = dir.length(), last = 0;
+		while (true) {
+			if (szFile[pos + 1] == NULL) {
+				if (paths.size() == 0) {
+					paths.push_back(dir);
+				}
+				break;
+			} else {
+				std::wstring fileName = L"";
+				for (last = pos + 1; szFile[pos + 1] != NULL; pos++) {
+					fileName += szFile[pos + 1];
+				}
+				fs::path finalPath(dir);
+				finalPath.append(fileName);
+				paths.push_back(finalPath);
+				pos++;
+			}
+		}
+		return paths;
 	}
 	else
 		return std::vector<fs::path> { fs::path() };
