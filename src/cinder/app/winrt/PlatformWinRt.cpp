@@ -71,6 +71,11 @@ DataSourceRef PlatformWinRt::loadResource( const fs::path &resourcePath  )
 		throw AssetLoadExc( resourcePath );
 }
 
+std::vector<fs::path> PlatformWinRt::getImportFiles(const fs::path& initialPath, const std::vector<std::string>& extensions)
+{
+	throw Exception("Unimplemented on WinRT");
+}
+
 fs::path PlatformWinRt::getOpenFilePath( const fs::path &initialPath, const std::vector<std::string> &extensions )
 {
 	throw Exception( "Unimplemented on WinRT" );

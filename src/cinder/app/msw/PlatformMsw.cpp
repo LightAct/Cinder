@@ -89,6 +89,11 @@ DataSourceRef PlatformMsw::loadResource( const fs::path &resourcePath, int mswID
 	return DataSourceBuffer::create( make_shared<Buffer>( dataPtr, dataSize ), resourcePath );
 }
 
+std::vector<fs::path> PlatformMsw::getImportFiles(const fs::path& initialPath, const std::vector<std::string>& extensions) 
+{
+	return AppImplMsw::getImportFiles(initialPath, extensions);
+}
+
 fs::path PlatformMsw::getOpenFilePath( const fs::path &initialPath, const std::vector<std::string> &extensions )
 {
 	return AppImplMsw::getOpenFilePath( initialPath, extensions );

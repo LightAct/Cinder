@@ -39,6 +39,7 @@ class CI_API PlatformMsw : public Platform {
 	fs::path getResourceDirectory() const override									{ return fs::path(); }
 	fs::path getResourcePath( const fs::path &/*rsrcRelativePath*/ ) const override	{ return fs::path(); }
 
+	std::vector<fs::path> getImportFiles( const fs::path& initialPath, const std::vector<std::string>& extensions ) override;
 	fs::path getOpenFilePath( const fs::path &initialPath, const std::vector<std::string> &extensions ) override;
 	fs::path getFolderPath( const fs::path &initialPath ) override;
 	fs::path getSaveFilePath( const fs::path &initialPath, const std::vector<std::string> &extensions ) override;

@@ -97,6 +97,7 @@ class CI_API Platform {
 	//! Presents the user with an open-file dialog and returns the selected file path.
 	//! The dialog optionally begins at the path \a initialPath and can be limited to allow selection of files ending in the extensions enumerated in \a extensions.
 	//!	\return the selected file path, or an empty fs::path if the user cancelled or this operation isn't supported on the current platform.
+	virtual std::vector<fs::path> getImportFiles( const fs::path& initialPath = fs::path(), const std::vector<std::string>& extensions = std::vector<std::string>() ) = 0;
 	virtual fs::path getOpenFilePath( const fs::path &initialPath = fs::path(), const std::vector<std::string> &extensions = std::vector<std::string>() ) = 0;
 	//! Presents the user with an open-folder dialog. \return the selected file path, or an empty fs::path if the user cancelled or this operation isn't supported on the current platform.
 	virtual fs::path getFolderPath( const fs::path &initialPath = fs::path() ) = 0;

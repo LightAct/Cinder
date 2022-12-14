@@ -320,6 +320,11 @@ void AppBase::emitDisplayChanged( const DisplayRef &display )
 	mSignalDisplayChanged.emit( display );
 }
 
+std::vector<fs::path> AppBase::getImportFiles(const fs::path& initialPath, const std::vector<std::string>& extensions) 
+{
+	return Platform::get()->getImportFiles(initialPath, extensions);
+}
+
 fs::path AppBase::getOpenFilePath( const fs::path &initialPath, const vector<string> &extensions )
 {
 	return Platform::get()->getOpenFilePath( initialPath, extensions );

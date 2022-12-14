@@ -45,6 +45,7 @@ class PlatformWinRt : public Platform {
 	void getSaveFilePathAsync( const std::function<void(const fs::path&)> &callback, const fs::path &initialPath, const std::vector<std::string> &extensions = {} ) override;
 
 	// Unimplemented
+	std::vector<fs::path> getImportFiles(const fs::path& initialPath = fs::path(), const std::vector<std::string>& extensions = std::vector<std::string>()) override;
 	fs::path getOpenFilePath( const fs::path &initialPath = fs::path(), const std::vector<std::string> &extensions = std::vector<std::string>() ) override;
 	fs::path getFolderPath( const fs::path &initialPath = fs::path() ) override;
 	fs::path getSaveFilePath( const fs::path &initialPath = fs::path(), const std::vector<std::string> &extensions = std::vector<std::string>() ) override;

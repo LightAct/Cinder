@@ -392,6 +392,7 @@ class CI_API AppBase {
 	//! Returns the path to the application on disk
 	fs::path			getAppPath() const											{ return Platform::get()->getExecutablePath(); }
 
+	std::vector<fs::path> getImportFiles(const fs::path& initialPath = fs::path(), const std::vector<std::string>& extensions = std::vector<std::string>());
 	//! \brief Presents the user with an open-file dialog and returns the selected file path.
 	//!
 	//! The dialog optionally begins at the path \a initialPath and can be limited to allow selection of files ending in the extensions enumerated in \a extensions.
@@ -609,6 +610,7 @@ inline fs::path		getAppPath() { return AppBase::get()->getAppPath(); }
 /** The dialog optionally begins at the path \a initialPath and can be limited to allow selection of files ending in the extensions enumerated in \a extensions.
 	If the active app is in full-screen mode it will temporarily switch to windowed-mode to present the dialog.
 	\return the selected file path or an empty string if the user cancelled. **/
+inline std::vector<fs::path> getImportFiles(const fs::path& initialPath = fs::path(), std::vector<std::string> extensions = std::vector<std::string>()) { return AppBase::get()->getImportFiles(initialPath, extensions); }
 inline fs::path		getOpenFilePath( const fs::path &initialPath = fs::path(), std::vector<std::string> extensions = std::vector<std::string>() ) { return AppBase::get()->getOpenFilePath( initialPath, extensions ); }
 
 //! Presents the user with a file-save dialog and returns the selected file path.

@@ -48,6 +48,8 @@ using std::wstring;
 using std::vector;
 using std::pair;
 
+// #include <fstream>
+
 namespace cinder { namespace app {
 
 LRESULT CALLBACK WndProc( HWND mWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
@@ -89,6 +91,91 @@ void AppImplMsw::showCursor()
 	// when repeatedly calling showCursor(), keep counter at 0
 	if( counter > 0 )
 		while( ::ShowCursor( false ) > 0 );
+}
+
+std::vector<fs::path> AppImplMsw::getImportFiles(const fs::path& initialPath, std::vector<std::string> extensions) {
+	
+	OPENFILENAMEW ofn;       // common dialog box structure
+	wchar_t szFile[MAX_PATH * 10];       // buffer for file name
+	wchar_t extensionStr[10000];
+	wchar_t initialPathStr[MAX_PATH];
+
+	// Initialize OPENFILENAME
+	::ZeroMemory(&ofn, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	auto app = AppBase::get();
+	if (app && app->getRenderer())
+		ofn.hwndOwner = app->getRenderer()->getHwnd();
+	else
+		ofn.hwndOwner = 0;
+	ofn.lpstrFile = szFile;
+
+	// Set lpstrFile[0] to '\0' so that GetOpenFileName does not
+	// use the contents of szFile to initialize itself.
+	//
+	ofn.lpstrFile[0] = '\0';
+	ofn.nMaxFile = sizeof(szFile);
+	if (extensions.empty()) {
+		ofn.lpstrFilter = L"All\0*.*\0";
+	}
+	else {
+		size_t offset = 0;
+
+		wcscpy(extensionStr, L"Supported Types");
+		offset += wcslen(extensionStr) + 1;
+		for (vector<string>::const_iterator strIt = extensions.begin(); strIt != extensions.end(); ++strIt) {
+			wcscpy(extensionStr + offset, L"*.");
+			offset += 2;
+			wcscpy(extensionStr + offset, msw::toWideString(*strIt).c_str());
+			offset += strIt->length();
+			// append a semicolon to all but the last extensions
+			if (strIt + 1 != extensions.end()) {
+				extensionStr[offset] = L';';
+				offset += 1;
+			}
+			else {
+				extensionStr[offset] = L'\0';
+				offset += 1;
+			}
+		}
+
+		extensionStr[offset] = 0;
+		ofn.lpstrFilter = extensionStr;
+	}
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFileTitle = NULL;
+	ofn.nMaxFileTitle = 0;
+	if (initialPath.empty()) {
+		ofn.lpstrInitialDir = NULL;
+	}
+	else if (fs::is_directory(initialPath)) {
+		wcscpy(initialPathStr, initialPath.wstring().c_str());
+		ofn.lpstrInitialDir = initialPathStr;
+	}
+	else {
+		wcscpy(initialPathStr, initialPath.parent_path().wstring().c_str());
+		ofn.lpstrInitialDir = initialPathStr;
+		wcscpy(szFile, initialPath.filename().wstring().c_str());
+	}
+	ofn.Flags = OFN_ALLOWMULTISELECT | OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
+
+	// Display the Open dialog box.
+	if (::GetOpenFileNameW(&ofn) == TRUE) {
+
+		char filePathConvert[MAX_PATH * 10];
+		WideCharToMultiByte(CP_UTF8, 0, ofn.lpstrFile, -1, filePathConvert, MAX_PATH * 10, 0, 0);
+
+		/*
+		std::vector<std::string> splitter = split(filePathConvert, '\0');
+		std::vector<fs::path> paths;
+		for (std::string s : splitter)
+			paths.push_back(s);
+			*/
+		return std::vector<fs::path> { filePathConvert };
+	}
+	else
+		return std::vector<fs::path> { fs::path() };
+
 }
 
 fs::path AppImplMsw::getOpenFilePath( const fs::path &initialPath, vector<string> extensions )
