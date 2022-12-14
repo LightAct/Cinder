@@ -186,7 +186,7 @@ std::vector<fs::path> AppImplMsw::getImportFiles(const fs::path& initialPath, st
 		return paths;
 	}
 	else
-		return std::vector<fs::path> { fs::path() };
+		return std::vector<fs::path> { };
 
 }
 
