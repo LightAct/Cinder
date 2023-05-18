@@ -310,6 +310,14 @@ void Window::emitCustomClose() {
 	mSignalCustomClose.emit();
 }
 
+void Window::emitCustomWMNCDown() {
+	mSignalCustomWMNCDown.emit();
+}
+
+void Window::emitCustomWMNCUp() {
+	mSignalCustomWMNCUp.emit();
+}
+
 // Signal Emitters
 void Window::emitClose()
 {

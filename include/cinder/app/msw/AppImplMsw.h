@@ -89,6 +89,8 @@ class AppImplMsw {
 	bool					setupHasBeenCalled() const { return mSetupHasBeenCalled; }
 	virtual void			closeWindow( class WindowImplMsw *windowImpl ) = 0;
 	virtual void			customCloseWindow(class WindowImplMsw* windowImpl) = 0;
+	virtual void			customWMNCDownEvent(class WindowImplMsw* windowImpl) = 0;
+	virtual void			customWMNCUpEvent(class WindowImplMsw* windowImpl) = 0;
 	virtual void			setForegroundWindow( WindowRef window ) = 0;
 	bool					getHighDensityDisplayEnabled() const;
 
@@ -102,6 +104,7 @@ class AppImplMsw {
 	bool					mSetupHasBeenCalled;
 	bool					mHighDensityDispalyEnabled();
 	bool					mNeedsToRefreshDisplays;
+	bool					mWindowGrabbed;
 	bool					mActive;
 	ULONG_PTR				mGdiplusToken;
 

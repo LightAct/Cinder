@@ -426,11 +426,19 @@ class CI_API Window : public std::enable_shared_from_this<Window> {
 	//!  Returns the Signal emitted whenever a Window is closing by demand.
 	EventSignalWindow& getSignalCustomClose() { return mSignalCustomClose; }
 
+	//!  Returns the Signal emitted whenever a Window is grabbed by titlebar
+	EventSignalWindow& getSignalCustomWMNCDown() { return mSignalCustomWMNCDown; }
+
+	//!  Returns the Signal emitted whenever a Window is released by titlebar
+	EventSignalWindow& getSignalCustomWMNCUp() { return mSignalCustomWMNCUp; }
+
 	//! Fires the 'close' signal.
 	void				emitClose();
 
 	//! Fires the custom 'close' signal.
 	void				emitCustomClose();
+	void				emitCustomWMNCDown();
+	void				emitCustomWMNCUp();
 
 	EventSignalFocus& getSignalFocus() { return mSignalFocus; }
 	void				emitFocus(FocusEvent* event);
@@ -513,6 +521,10 @@ class CI_API Window : public std::enable_shared_from_this<Window> {
 
 	//! for custom closing
 	EventSignalWindow		mSignalCustomClose;
+
+	//! for custom title bar grabbing events
+	EventSignalWindow		mSignalCustomWMNCDown;
+	EventSignalWindow		mSignalCustomWMNCUp;
 
 	EventSignalFileDrop		mSignalFileDrop;
 	EventSignalFocus		mSignalFocus;

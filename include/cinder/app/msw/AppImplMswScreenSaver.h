@@ -61,6 +61,8 @@ class AppImplMswScreenSaver : public AppImplMsw {
 	// ignore
 	void		closeWindow( class WindowImplMsw * /*windowImpl*/ ) override {}
 	void		customCloseWindow(class WindowImplMsw* windowImpl) override {}
+	void		customWMNCDownEvent(class WindowImplMsw* windowImpl) override {}
+	void		customWMNCUpEvent(class WindowImplMsw* windowImpl) override {}
 	// ignore
 	void		setForegroundWindow( WindowRef window ) override {}
 

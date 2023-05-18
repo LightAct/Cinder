@@ -58,7 +58,7 @@ static const wchar_t *WINDOWED_WIN_CLASS_NAME = TEXT("CinderWinClass");
 static const wchar_t *BLANKING_WINDOW_CLASS_NAME = TEXT("CinderBlankingWindow");
 
 AppImplMsw::AppImplMsw( AppBase *aApp )
-	: mApp( aApp ), mSetupHasBeenCalled( false ), mActive( true ), mNeedsToRefreshDisplays( false )
+	: mApp( aApp ), mSetupHasBeenCalled( false ), mActive( true ), mNeedsToRefreshDisplays( false ), mWindowGrabbed( false )
 {
 	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
 	Gdiplus::GdiplusStartup( &mGdiplusToken, &gdiplusStartupInput, NULL );
@@ -1109,6 +1109,18 @@ LRESULT CALLBACK WndProc(	HWND	mWnd,			// Handle For This Window
 				impl->mAppImpl->mNeedsToRefreshDisplays = true;
 			}
 		break;
+		case WM_NCMOUSEMOVE: {
+			// WM_NCLBUTTONUP doesn't fire! ffs windows
+			if (impl->mAppImpl->mWindowGrabbed) {
+				impl->getAppImpl()->customWMNCUpEvent(impl);
+				impl->mAppImpl->mWindowGrabbed = false;
+			}
+		} break;
+		case WM_NCLBUTTONDOWN: {
+			// title bar has been grabbed
+			impl->getAppImpl()->customWMNCDownEvent(impl);
+			impl->mAppImpl->mWindowGrabbed = true;
+		} break;
 	}
 
 	// unhandled messages To DefWindowProc

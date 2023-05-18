@@ -221,6 +221,14 @@ void AppImplMswBasic::customCloseWindow(WindowImplMsw* windowImpl) {
 	windowImpl->getWindow()->emitCustomClose();
 }
 
+void AppImplMswBasic::customWMNCDownEvent(class WindowImplMsw* windowImpl) {
+	windowImpl->getWindow()->emitCustomWMNCDown();
+}
+
+void AppImplMswBasic::customWMNCUpEvent(class WindowImplMsw* windowImpl) {
+	windowImpl->getWindow()->emitCustomWMNCUp();
+}
+
 void AppImplMswBasic::closeWindow( WindowImplMsw *windowImpl )
 {
 	auto winIt = find( mWindows.begin(), mWindows.end(), windowImpl );
