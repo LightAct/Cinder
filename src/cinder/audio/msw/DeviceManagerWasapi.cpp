@@ -177,16 +177,27 @@ DeviceRef DeviceManagerWasapi::getDefaultInput()
 	return findDeviceByKey( key );
 }
 
-const std::vector<DeviceRef>& DeviceManagerWasapi::getDevices()
-{
-	if( mDevices.empty() ) {
+const std::vector<DeviceRef>& DeviceManagerWasapi::getDevices() {
+	/*if( mDevices.empty() ) {
 		rebuildDeviceInfoSet();
+	}*/
+	//! modified approach: on refresh we store current device list
+	//! and add only new ones to the list, this way we do not destroy any existing references
+	//! these are handled elsewhere
+	rebuildDeviceInfoSet();
+	for (DeviceInfo info : mDeviceInfoList) {
+		auto it = std::find_if(mDevices.begin(), mDevices.end(), [&](DeviceRef existingDevice) {
+			return strcmp(info.mKey.c_str(), existingDevice->getKey().c_str()) == 0; });
+		if (it == mDevices.end()) {
+			// new device
+			DeviceRef addedDevice = addDevice(info.mKey);
+			auto result = mDeviceInfoMap.insert(make_pair(addedDevice, info));
+		}
 	}
 	return mDevices;
 }
 
-std::string DeviceManagerWasapi::getName( const DeviceRef &device )
-{
+std::string DeviceManagerWasapi::getName( const DeviceRef &device ) {
 	return getDeviceInfo( device ).mName;
 }
 
@@ -259,14 +270,12 @@ shared_ptr<::IMMDevice> DeviceManagerWasapi::getIMMDevice( const DeviceRef &devi
 // DeviceManagerWasapi Private
 // ----------------------------------------------------------------------------------------------------
 
-DeviceManagerWasapi::DeviceInfo& DeviceManagerWasapi::getDeviceInfo( const DeviceRef &device )
-{
-	return mDeviceInfoSet.at( device );
+DeviceManagerWasapi::DeviceInfo& DeviceManagerWasapi::getDeviceInfo( const DeviceRef &device ) {
+	return mDeviceInfoMap.at( device );
 }
 
-void DeviceManagerWasapi::rebuildDeviceInfoSet()
-{
-	mDeviceInfoSet.clear();
+void DeviceManagerWasapi::rebuildDeviceInfoSet() {
+	mDeviceInfoList.clear();
 	parseDevices( DeviceInfo::Usage::INPUT );
 	parseDevices( DeviceInfo::Usage::OUTPUT );
 }
@@ -369,9 +378,9 @@ void DeviceManagerWasapi::parseDevices( DeviceInfo::Usage usage )
 				devInfo.mFramesPerBlock = hundredNanoSecondsToFrames( defaultDevicePeriod, devInfo.mSampleRate );
 			}
 		}
-
-		DeviceRef addedDevice = addDevice( devInfo.mKey );
-		auto result = mDeviceInfoSet.insert( make_pair( addedDevice, devInfo ) );
+		mDeviceInfoList.push_back(devInfo);
+		// DeviceRef addedDevice = addDevice( devInfo.mKey );
+		// auto result = mDeviceInfoSet.insert( make_pair( addedDevice, devInfo ) );
 	}
 }
 
@@ -379,9 +388,8 @@ void DeviceManagerWasapi::parseDevices( DeviceInfo::Usage usage )
 // DeviceManagerWasapi::Impl
 // ----------------------------------------------------------------------------------------------------
 
-const DeviceRef& DeviceManagerWasapi::Impl::getDevice( const std::wstring &enpointId )
-{
-	for( const auto &dp : mParent->mDeviceInfoSet ) {
+const DeviceRef& DeviceManagerWasapi::Impl::getDevice( const std::wstring &enpointId ) {
+	for( const auto &dp : mParent->mDeviceInfoMap) {
 		if( dp.second.mEndpointId == enpointId ) {
 			return dp.first;
 		}

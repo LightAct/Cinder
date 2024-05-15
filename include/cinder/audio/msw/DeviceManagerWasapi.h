@@ -71,7 +71,10 @@ class DeviceManagerWasapi : public DeviceManager {
 	  void parseDevices( DeviceInfo::Usage usage );
 	  std::vector<std::wstring> parseDeviceIds( DeviceInfo::Usage usage );
 
-	  std::map<DeviceRef, DeviceInfo> mDeviceInfoSet;
+	  // devices after being scanned
+	  std::vector<DeviceInfo> mDeviceInfoList;
+	  // deviceInfoSet + device
+	  std::map<DeviceRef, DeviceInfo> mDeviceInfoMap;
 
 	  struct Impl;
 	  std::unique_ptr<Impl> mImpl;
