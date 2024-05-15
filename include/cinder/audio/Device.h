@@ -95,6 +95,8 @@ class CI_API Device : public std::enable_shared_from_this<Device>, Noncopyable {
 	signals::Signal<void()>& getSignalParamsWillChange()	{ return mSignalParamsWillChange; }
 	//! Returns a signal that notifies connected slots after the format of this Device has changed. This can occur from a call to updateFormat() or by the system.
 	signals::Signal<void()>& getSignalParamsDidChange()		{ return mSignalParamsDidChange; }
+	//! Returns a signal that notifies connected slots after the format of this Device has changed. This can occur from a call to updateFormat() or by the system.
+	signals::Signal<void()>& getSignalRemoved()				{ return mSignalRemoved; }
 
 	//! Returns a string representation of all devices for debugging purposes.
 	static std::string printDevicesToString();
@@ -104,7 +106,7 @@ class CI_API Device : public std::enable_shared_from_this<Device>, Noncopyable {
 
 	std::string mKey, mName;
 	size_t mSampleRate, mFramesPerBlock;
-	signals::Signal<void()> mSignalParamsWillChange, mSignalParamsDidChange;
+	signals::Signal<void()> mSignalParamsWillChange, mSignalParamsDidChange, mSignalRemoved;
 
 	friend class DeviceManager;
 };

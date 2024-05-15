@@ -444,6 +444,11 @@ STDMETHODIMP DeviceManagerWasapi::Impl::OnDeviceStateChanged( LPCWSTR device_id,
 	device = getDevice( device_id );
 	string devName = ( (bool)device ? device->getName() : "(???)" );
 	CI_LOG_I( "State changed to " << stateStr << " for device: " << devName );
+	if (device) {
+		if (new_state == DEVICE_STATE_NOTPRESENT || new_state == DEVICE_STATE_UNPLUGGED) {
+			device->getSignalRemoved().emit();
+		}
+	}
 
 	return S_OK;
 }
@@ -483,14 +488,12 @@ HRESULT DeviceManagerWasapi::Impl::OnDeviceAdded( LPCWSTR device_id )
 	auto devName = getDevice(device_id);
 	if (devName) {
 		std::string dname = devName->getName();
-		CI_LOG_I("device name: " << devName);
+		CI_LOG_I("device name: " << devName);	
 	}
 	return S_OK;
 }
 
-HRESULT DeviceManagerWasapi::Impl::OnDeviceRemoved( LPCWSTR device_id )
-{
-
+HRESULT DeviceManagerWasapi::Impl::OnDeviceRemoved( LPCWSTR device_id ) {
 	auto devName = getDevice(device_id);
 	if(devName) {
 		std::string dname = devName->getName();
