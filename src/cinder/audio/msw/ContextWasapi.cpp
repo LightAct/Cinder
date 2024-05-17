@@ -454,11 +454,6 @@ void WasapiAudioClientImpl::initAudioClient( const DeviceRef &device, size_t num
 WasapiRenderClientImpl::WasapiRenderClientImpl( OutputDeviceNodeWasapi *outputDeviceNode, bool exclusiveMode )
 	: WasapiAudioClientImpl( exclusiveMode ), mOutputDeviceNode( outputDeviceNode )
 {
-
-	//mOutputDeviceNode->getDevice()->getSignalRemoved().connect([this](void) {
-	//	dirty = true; 
-	//	});
-
 	// create render events
 	mRenderSamplesReadyEvent = ::CreateEvent( NULL, FALSE, FALSE, NULL );
 	CI_ASSERT( mRenderSamplesReadyEvent );
@@ -510,7 +505,7 @@ void WasapiRenderClientImpl::uninit()
 	CloseHandle(mRenderThread);
 	mRenderThread = NULL;
 
-	// Release() IAudioRenderClient IAudioClient
+	// Release() IAudioRenderClient IAudioClient	
 	mRenderClient.reset();
 	// https://github.com/naudio/NAudio/issues/772
 	mAudioClient.reset();
@@ -552,7 +547,7 @@ void WasapiRenderClientImpl::runRenderThread()
 	bool running = true;
 
 	while( running ) {
-		DWORD waitResult = ::WaitForMultipleObjects( 2, waitEvents, FALSE, INFINITE );
+		DWORD waitResult = ::WaitForMultipleObjects( 2, waitEvents, FALSE, INFINITE );		
 		switch( waitResult ) {
 			case WAIT_OBJECT_0 + 0:     // mRenderShouldQuitEvent
 				running = false;
@@ -827,7 +822,7 @@ void OutputDeviceNodeWasapi::disableProcessing()
 	HRESULT hr = mRenderImpl->mAudioClient->Stop();
 
 	// TODO: not sure why, but sometimes this isn't returning S_OK or any other expected hresult (it returns 0x10000000)
-	//ASSERT_HR_OK( hr );
+	// ASSERT_HR_OK( hr );
 	if( hr != S_OK ) {
 		string hrStr = hresultToString( hr );
 		CI_LOG_W( "Stop() returned non-OK hresult: " << hex << hr << dec << ", as string " << hrStr );

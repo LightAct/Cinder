@@ -198,16 +198,8 @@ const std::vector<DeviceRef>& DeviceManagerWasapi::getDevices() {
 	//! modified approach: on refresh we store current device list
 	//! and add only new ones to the list, this way we do not destroy any existing references
 	//! these are handled elsewhere
-	rebuildDeviceInfoSet();
-	for (DeviceInfo info : mDeviceInfoList) {
-		auto it = std::find_if(mDevices.begin(), mDevices.end(), [&](DeviceRef existingDevice) {
-			return strcmp(info.mKey.c_str(), existingDevice->getKey().c_str()) == 0; });
-		if (it == mDevices.end()) {
-			// new device
-			DeviceRef addedDevice = addDevice(info.mKey);
-			auto result = mDeviceInfoMap.insert(make_pair(addedDevice, info));
-		}
-	}
+	//! acts as a refresh for adding new elements
+	rebuildDeviceInfoSet();	
 	return mDevices;
 }
 
@@ -288,10 +280,22 @@ DeviceManagerWasapi::DeviceInfo& DeviceManagerWasapi::getDeviceInfo( const Devic
 	return mDeviceInfoMap.at( device );
 }
 
-void DeviceManagerWasapi::rebuildDeviceInfoSet() {
+void DeviceManagerWasapi::rebuildDeviceInfoSetEx() {
 	mDeviceInfoList.clear();
-	parseDevices( DeviceInfo::Usage::INPUT );
-	parseDevices( DeviceInfo::Usage::OUTPUT );
+	parseDevices(DeviceInfo::Usage::INPUT);
+	parseDevices(DeviceInfo::Usage::OUTPUT);
+}
+void DeviceManagerWasapi::rebuildDeviceInfoSet() {
+	rebuildDeviceInfoSetEx();
+	for (DeviceInfo info : mDeviceInfoList) {
+		auto it = std::find_if(mDevices.begin(), mDevices.end(), [&](DeviceRef existingDevice) {
+			return strcmp(info.mKey.c_str(), existingDevice->getKey().c_str()) == 0; });
+		if (it == mDevices.end()) {
+			// new device
+			DeviceRef addedDevice = addDevice(info.mKey);
+			auto result = mDeviceInfoMap.insert(make_pair(addedDevice, info));
+		}
+	}
 }
 
 // This call is performed twice because a separate Device subclass is used for input and output
@@ -461,10 +465,9 @@ STDMETHODIMP DeviceManagerWasapi::Impl::OnDeviceStateChanged( LPCWSTR device_id,
 	if (device) {
 		if (new_state == DEVICE_STATE_NOTPRESENT || new_state == DEVICE_STATE_UNPLUGGED || 
 			new_state == DEVICE_STATE_DISABLED) {
-			// DeviceManagerWasapi::DeviceInfo info = mParent->getDeviceInfo(device);
-			// mParent->getIMMDevice
-			// info.mEndpointId
-			device->getSignalRemoved().emit();
+			// trigger callback and notify every party involved
+			device->dirty = true;
+			device->getSignalRemoved().emit();			
 		}
 	}
 
@@ -516,9 +519,7 @@ HRESULT DeviceManagerWasapi::Impl::OnDeviceRemoved( LPCWSTR device_id ) {
 	if(devName) {
 		std::string dname = devName->getName();
 		CI_LOG_I("device name: " << devName);
-
 		devName->getSignalRemoved().emit();
-
 	}
 	return S_OK;
 }

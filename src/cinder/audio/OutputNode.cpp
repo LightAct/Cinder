@@ -95,8 +95,10 @@ OutputDeviceNode::OutputDeviceNode( const DeviceRef &device, const Format &forma
 	mWillChangeConn = mDevice->getSignalParamsWillChange().connect( bind( &OutputDeviceNode::deviceParamsWillChange, this ) );
 	mDidChangeConn = mDevice->getSignalParamsDidChange().connect( bind( &OutputDeviceNode::deviceParamsDidChange, this ) );
 
-	mInterruptionBeganConn = Context::deviceManager()->getSignalInterruptionBegan().connect( [this] { disable(); } );
-	mInterruptionEndedConn = Context::deviceManager()->getSignalInterruptionEnded().connect( [this] { enable(); } );
+	mInterruptionBeganConn = Context::deviceManager()->getSignalInterruptionBegan().connect( [this] { 
+		disable(); } );
+	mInterruptionEndedConn = Context::deviceManager()->getSignalInterruptionEnded().connect( [this] { 
+		enable(); } );
 
 	size_t deviceNumChannels = mDevice->getNumOutputChannels();
 
