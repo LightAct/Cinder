@@ -118,11 +118,11 @@ struct WasapiRenderClientImpl : public WasapiAudioClientImpl {
 	WasapiRenderClientImpl( OutputDeviceNodeWasapi *outputDeviceNode, bool exclusiveMode );
 	~WasapiRenderClientImpl();
 
+	void MarkDirty();
 	void init();
 	void uninit();
 
 	unique_ptr<::IAudioRenderClient, ci::msw::ComDeleter>	mRenderClient;
-
 	::HANDLE	mRenderSamplesReadyEvent, mRenderShouldQuitEvent;
 	::HANDLE    mRenderThread;
 
@@ -454,6 +454,11 @@ void WasapiAudioClientImpl::initAudioClient( const DeviceRef &device, size_t num
 WasapiRenderClientImpl::WasapiRenderClientImpl( OutputDeviceNodeWasapi *outputDeviceNode, bool exclusiveMode )
 	: WasapiAudioClientImpl( exclusiveMode ), mOutputDeviceNode( outputDeviceNode )
 {
+
+	//mOutputDeviceNode->getDevice()->getSignalRemoved().connect([this](void) {
+	//	dirty = true; 
+	//	});
+
 	// create render events
 	mRenderSamplesReadyEvent = ::CreateEvent( NULL, FALSE, FALSE, NULL );
 	CI_ASSERT( mRenderSamplesReadyEvent );
@@ -473,7 +478,6 @@ WasapiRenderClientImpl::~WasapiRenderClientImpl()
 		CI_ASSERT( success );
 	}
 }
-
 void WasapiRenderClientImpl::init()
 {
 	// reset events in case there are in a signaled state from a previous use.
@@ -503,11 +507,12 @@ void WasapiRenderClientImpl::uninit()
 	CI_ASSERT( success );
 
 	::WaitForSingleObject( mRenderThread, INFINITE );
-	CloseHandle( mRenderThread );
+	CloseHandle(mRenderThread);
 	mRenderThread = NULL;
 
 	// Release() IAudioRenderClient IAudioClient
 	mRenderClient.reset();
+	// https://github.com/naudio/NAudio/issues/772
 	mAudioClient.reset();
 }
 
@@ -770,6 +775,7 @@ OutputDeviceNodeWasapi::OutputDeviceNodeWasapi( const DeviceRef &device, bool ex
 
 OutputDeviceNodeWasapi::~OutputDeviceNodeWasapi()
 {
+	// uninitialize();
 }
 
 void OutputDeviceNodeWasapi::initialize()

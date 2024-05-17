@@ -43,6 +43,7 @@ class DeviceManagerWasapi : public DeviceManager {
 	DeviceRef getDefaultInput() override;
 
 	const std::vector<DeviceRef>& getDevices() override;
+	const void removeDevice(const char* devKey) override;
 
 	std::string getName( const DeviceRef &device ) override;
 	size_t getNumInputChannels( const DeviceRef &device ) override;

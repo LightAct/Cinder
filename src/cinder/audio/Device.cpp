@@ -101,7 +101,9 @@ vector<DeviceRef> Device::getInputDevices()
 
 	return result;
 }
-
+void Device::removeDevice(const char* devKey) {
+	Context::deviceManager()->removeDevice(devKey);
+}
 const string& Device::getName()
 {
 	if( mName.empty() )
@@ -210,7 +212,13 @@ DeviceRef DeviceManager::findDeviceByKey( const string &key )
 
 	return DeviceRef();
 }
-
+void DeviceManager::removeDeviceEx(const DeviceRef& device) {
+	auto it = std::find(mDevices.begin(), mDevices.end(), device);
+	if (it == mDevices.end())
+		return;
+	(*it).reset();
+	mDevices.erase(it);
+}
 DeviceRef DeviceManager::addDevice( const string &key )
 {
 	// warn about duplicate Device keys since it will be impossible to select one or the other.

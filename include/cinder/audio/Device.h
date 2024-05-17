@@ -57,6 +57,8 @@ class CI_API Device : public std::enable_shared_from_this<Device>, Noncopyable {
 	static std::vector<DeviceRef> getOutputDevices();
 	//! Returns a vector of all input Device's.
 	static std::vector<DeviceRef> getInputDevices();
+	//! Clearing device item from list
+	static void removeDevice(const char* devKey);
 
 	//! Returns the name of this Device, which is a human readable string reported by the system.
 	const std::string& getName();
@@ -122,7 +124,7 @@ class CI_API DeviceManager : private Noncopyable {
 	virtual const std::vector<DeviceRef>& getDevices()									= 0;
 	virtual DeviceRef getDefaultOutput()												= 0;
 	virtual DeviceRef getDefaultInput()													= 0;
-
+	virtual const void removeDevice(const char* devKey) = 0;
 	virtual std::string		getName( const DeviceRef &device )										= 0;
 	virtual size_t			getNumInputChannels( const DeviceRef &device )							= 0;
 	virtual size_t			getNumOutputChannels( const DeviceRef &device )							= 0;
@@ -141,7 +143,7 @@ class CI_API DeviceManager : private Noncopyable {
 	DeviceManager() {}
 
 	DeviceRef addDevice( const std::string &key );
-
+	void removeDeviceEx(const DeviceRef& device);
 	void emitParamsWillChange( const DeviceRef &device );
 	void emitParamsDidChange( const DeviceRef &device );
 

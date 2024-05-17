@@ -176,7 +176,21 @@ DeviceRef DeviceManagerWasapi::getDefaultInput()
 
 	return findDeviceByKey( key );
 }
+const void DeviceManagerWasapi::removeDevice(const char* devKey) {
+	DeviceRef dev = nullptr;
+	std::map<DeviceRef, DeviceInfo>::iterator it;
+	for (it = mDeviceInfoMap.begin(); it != mDeviceInfoMap.end(); it++) {
+		if (strcmp((*it).first->getKey().c_str(), devKey) == 0) {
+			dev = (*it).first;
+			break;
+		}
+	}
+	if (dev == nullptr)
+		return;	
+	removeDeviceEx(it->first);
+	mDeviceInfoMap.erase(it);	
 
+}
 const std::vector<DeviceRef>& DeviceManagerWasapi::getDevices() {
 	/*if( mDevices.empty() ) {
 		rebuildDeviceInfoSet();
@@ -445,7 +459,11 @@ STDMETHODIMP DeviceManagerWasapi::Impl::OnDeviceStateChanged( LPCWSTR device_id,
 	string devName = ( (bool)device ? device->getName() : "(???)" );
 	CI_LOG_I( "State changed to " << stateStr << " for device: " << devName );
 	if (device) {
-		if (new_state == DEVICE_STATE_NOTPRESENT || new_state == DEVICE_STATE_UNPLUGGED) {
+		if (new_state == DEVICE_STATE_NOTPRESENT || new_state == DEVICE_STATE_UNPLUGGED || 
+			new_state == DEVICE_STATE_DISABLED) {
+			// DeviceManagerWasapi::DeviceInfo info = mParent->getDeviceInfo(device);
+			// mParent->getIMMDevice
+			// info.mEndpointId
 			device->getSignalRemoved().emit();
 		}
 	}
@@ -498,6 +516,9 @@ HRESULT DeviceManagerWasapi::Impl::OnDeviceRemoved( LPCWSTR device_id ) {
 	if(devName) {
 		std::string dname = devName->getName();
 		CI_LOG_I("device name: " << devName);
+
+		devName->getSignalRemoved().emit();
+
 	}
 	return S_OK;
 }
