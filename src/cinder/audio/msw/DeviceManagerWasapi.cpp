@@ -286,7 +286,20 @@ void DeviceManagerWasapi::rebuildDeviceInfoSetEx() {
 	parseDevices(DeviceInfo::Usage::OUTPUT);
 }
 void DeviceManagerWasapi::rebuildDeviceInfoSet() {
+
 	rebuildDeviceInfoSetEx();
+	// could be removed without being used
+	for (std::vector<cinder::audio::DeviceRef>::iterator it = mDevices.begin(); it != mDevices.end();) {
+		if ((*it)->dirty) {
+			auto infoIt = mDeviceInfoMap.find(*it);			
+			mDeviceInfoMap.erase(infoIt);
+			(*it).reset();
+			it = mDevices.erase(it);
+		} else {
+			++it;
+		}
+	}
+	// rebuild list
 	for (DeviceInfo info : mDeviceInfoList) {
 		auto it = std::find_if(mDevices.begin(), mDevices.end(), [&](DeviceRef existingDevice) {
 			return strcmp(info.mKey.c_str(), existingDevice->getKey().c_str()) == 0; });
