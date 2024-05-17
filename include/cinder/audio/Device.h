@@ -102,6 +102,8 @@ class CI_API Device : public std::enable_shared_from_this<Device>, Noncopyable {
 
 	//! Returns a string representation of all devices for debugging purposes.
 	static std::string printDevicesToString();
+	//! temp state
+	bool dirty = false;
 
   private:
 	Device( const std::string &key ) : mKey( key ), mSampleRate( 0 ), mFramesPerBlock( 0 ) {}

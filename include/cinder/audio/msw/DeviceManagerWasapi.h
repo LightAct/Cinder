@@ -69,6 +69,7 @@ class DeviceManagerWasapi : public DeviceManager {
 
 	  DeviceInfo& getDeviceInfo( const DeviceRef &device );
 	  void rebuildDeviceInfoSet();
+	  void rebuildDeviceInfoSetEx();
 	  void parseDevices( DeviceInfo::Usage usage );
 	  std::vector<std::wstring> parseDeviceIds( DeviceInfo::Usage usage );
 
