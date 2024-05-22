@@ -74,6 +74,8 @@ void AppImplMswBasic::run()
 
 	// initialize our next frame time
 	mNextFrameTime = getElapsedSeconds();
+	int nextFrameCounter = 0;
+
 	// inner loop
 	while( ! mShouldQuit ) {
 
@@ -131,8 +133,20 @@ void AppImplMswBasic::run()
 
 		// sleep and process messages until next frame
 		bool shortSleep = true;
-		if(mFrameRateEnabled) {
+		if(mFrameRateEnabled) {			
 			double timeDifference = mNextFrameTime - currentSeconds;
+
+#ifdef _DEBUG
+			if( mDebug ) {
+				std::ofstream engineLog;
+				engineLog.open("CI_Engine.log", std::ios::out | std::ios::app);
+				char reportBuffer[64];
+				std::sprintf(reportBuffer, "timeDifference=%.5f\n", (float)timeDifference);
+				engineLog << reportBuffer;
+				engineLog.close();
+			}
+#endif // _DEBUG
+
 			if(timeDifference > 0.) {
 				// if in sync mode and sleep is disabled
 				if (mSyncMode && !mSleep) {
@@ -146,15 +160,40 @@ void AppImplMswBasic::run()
 				shortSleep = false;
 				sleep(timeDifference);
 			} else {
-				// this section takes care of stuttery movement
-				// reason for stuttery movement was that mNextFrameTime was falling behind current time and was never fixed
-				// once it starts, it never stops
-				// if next frame is larger than currentSeconds, we should not get any jittery movement
-				mNextFrameTime = currentSeconds;
-				// extra measure
-				mNextFrameTime += secondsPerFrame;
-				// do not sleep, proceed to new frame
-				shortSleep = false;
+
+				nextFrameCounter++;
+				if (nextFrameCounter > (int)mFrameRate) {
+
+					// this section takes care of stuttery movement
+					// reason for stuttery movement was that mNextFrameTime was falling behind current time and was never fixed
+					// once it starts, it never stops
+					// if next frame is larger than currentSeconds, we should not get any jittery movement
+					mNextFrameTime = currentSeconds;
+					mNextFrameTime += secondsPerFrame * 2.;
+					// do not sleep, proceed to new frame
+					shortSleep = false;
+
+#ifdef _DEBUG
+					if (mDebug) {
+						std::ofstream engineLog;
+						engineLog.open("CI_Engine.log", std::ios::out | std::ios::app);						
+						engineLog << "Fixed\n";
+						engineLog.close();
+					}
+#endif // _DEBUG
+
+					nextFrameCounter = 0;
+
+//#ifdef _DEBUG
+//					std::ofstream engineLog;
+//					engineLog.open("CI_Engine.log", std::ios::out | std::ios::app);
+//					char reportBuffer[64];
+//					std::sprintf(reportBuffer, "timeDifference=%.5f\n", (float)timeDifference);
+//					engineLog << reportBuffer;
+//					engineLog.close();
+//#endif // _DEBUG
+
+				}
 			}
 		}
 		if(shortSleep) {
@@ -330,7 +369,10 @@ void AppImplMswBasic::setSyncMode(bool lock, bool doSleep)
 	mSyncMode = lock;
 	mSleep = doSleep;
 }
-
+void AppImplMswBasic::setDebug( bool val )
+{
+	mDebug = val;
+}
 void AppImplMswBasic::disableFrameRate()
 {
 	mFrameRateEnabled = false;

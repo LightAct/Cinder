@@ -350,6 +350,8 @@ class CI_API AppBase {
 	virtual void		setSyncMode(bool lock, bool doSleep = true) = 0;
 	//! Disables frameRate limiting.
 	virtual void		disableFrameRate() = 0;
+	//! Debug feature
+	virtual void		setDebug( bool val ) = 0;
 	//! Returns whether frameRate limiting is enabled.
 	virtual bool		isFrameRateEnabled() const = 0;
 	//! Returns the average frame-rate attained by the App as measured in frames-per-second

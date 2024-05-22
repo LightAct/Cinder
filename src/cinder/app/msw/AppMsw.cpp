@@ -130,6 +130,10 @@ void AppMsw::disableFrameRate()
 {
 	mImpl->disableFrameRate();
 }
+void AppMsw::setDebug(bool val) 
+{
+	mImpl->setDebug(val);
+}
 bool AppMsw::isFrameRateEnabled() const
 {
 	return mImpl->isFrameRateEnabled();

@@ -50,6 +50,7 @@ class AppImplMswBasic : public AppImplMsw {
 	void	setFrameLock(bool lock) override;
 	void	setSyncMode(bool lock, bool doSleep = true) override;
 	void	disableFrameRate();
+	void	setDebug( bool val );
 	bool	isFrameRateEnabled() const;
 
 	size_t		getNumWindows() const;
@@ -74,6 +75,7 @@ class AppImplMswBasic : public AppImplMsw {
 	HINSTANCE		mInstance;
 	double			mNextFrameTime;
 	bool			mFrameRateEnabled;
+	bool			mDebug = false;
 	bool			mShouldQuit;
 	bool			mQuitOnLastWindowClosed;
 
