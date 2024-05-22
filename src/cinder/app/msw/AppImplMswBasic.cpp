@@ -29,6 +29,12 @@
 #include <windowsx.h>
 #include <winuser.h>
 
+#ifdef _DEBUG
+#include <iostream>
+#include <fstream>
+#endif // _DEBUG
+
+
 using std::vector;
 using std::string;
 
@@ -68,7 +74,6 @@ void AppImplMswBasic::run()
 
 	// initialize our next frame time
 	mNextFrameTime = getElapsedSeconds();
-
 	// inner loop
 	while( ! mShouldQuit ) {
 
@@ -114,7 +119,7 @@ void AppImplMswBasic::run()
 		// calculate time per frame in seconds
 		double secondsPerFrame = 1.0 / mFrameRate;
 
-		// determine if application was frozen for a while and adjust next frame time
+		// determine if application was frozen for a while and adjust next frame time		
 		double elapsedSeconds = currentSeconds - mNextFrameTime;
 		if( elapsedSeconds > 1.0 ) {
 			int numSkipFrames = (int)(elapsedSeconds / secondsPerFrame);
@@ -125,30 +130,40 @@ void AppImplMswBasic::run()
 		mNextFrameTime += secondsPerFrame;
 
 		// sleep and process messages until next frame
-		if ((mFrameRateEnabled) && (mNextFrameTime > currentSeconds)) {
+		bool shortSleep = true;
+		if(mFrameRateEnabled) {
+			double timeDifference = mNextFrameTime - currentSeconds;
+			if(timeDifference > 0.) {
+				// if in sync mode and sleep is disabled
+				if (mSyncMode && !mSleep) {
+					// run at 60 fps by default
+					const double defaultSleepWhileSynced = 0.0166666666666667;
+					// in 99.999%
+					if (defaultSleepWhileSynced < timeDifference)
+						timeDifference = defaultSleepWhileSynced;
 
-			double cinderSleep = mNextFrameTime - currentSeconds;
-			// if in sync mode and sleep is disabled
-			if (mSyncMode && !mSleep) {
-
-				// run at 60 fps by default
-				const double defaultSleepWhileSynced = 0.0166666666666667;
-				
-				// in 99.999%
-				if (defaultSleepWhileSynced < cinderSleep)
-					cinderSleep = defaultSleepWhileSynced;
-
-			}
-			sleep(cinderSleep);
-
-		} else {
-			MSG msg;
-			while( ::PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) ) {
-				::TranslateMessage( &msg );
-				::DispatchMessage( &msg );
+				}
+				shortSleep = false;
+				sleep(timeDifference);
+			} else {
+				// this section takes care of stuttery movement
+				// reason for stuttery movement was that mNextFrameTime was falling behind current time and was never fixed
+				// once it starts, it never stops
+				// if next frame is larger than currentSeconds, we should not get any jittery movement
+				mNextFrameTime = currentSeconds;
+				// extra measure
+				mNextFrameTime += secondsPerFrame;
+				// do not sleep, proceed to new frame
+				shortSleep = false;
 			}
 		}
-
+		if(shortSleep) {
+			MSG msg;
+			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+				::TranslateMessage(&msg);
+				::DispatchMessage(&msg);
+			}
+		}
 		mApp->privateEndFrame__();
 
 	}
