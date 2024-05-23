@@ -157,6 +157,7 @@ void AppImplMswBasic::run()
 						timeDifference = defaultSleepWhileSynced;
 
 				}
+				nextFrameCounter = 0;
 				shortSleep = false;
 				sleep(timeDifference);
 			} else {
