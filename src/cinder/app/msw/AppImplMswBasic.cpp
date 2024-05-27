@@ -131,13 +131,14 @@ void AppImplMswBasic::run()
 		// determine when next frame should be drawn
 		mNextFrameTime += secondsPerFrame;
 
+#ifdef LA4_X3764
 		// sleep and process messages until next frame
 		bool shortSleep = true;
-		if(mFrameRateEnabled) {			
+		if (mFrameRateEnabled) {
 			double timeDifference = mNextFrameTime - currentSeconds;
 
 #ifdef _DEBUG
-			if( mDebug ) {
+			if (mDebug) {
 				std::ofstream engineLog;
 				engineLog.open("CI_Engine.log", std::ios::out | std::ios::app);
 				char reportBuffer[64];
@@ -147,7 +148,7 @@ void AppImplMswBasic::run()
 			}
 #endif // _DEBUG
 
-			if(timeDifference > 0.) {
+			if (timeDifference > 0.) {
 				// if in sync mode and sleep is disabled
 				if (mSyncMode && !mSleep) {
 					// run at 60 fps by default
@@ -160,7 +161,8 @@ void AppImplMswBasic::run()
 				nextFrameCounter = 0;
 				shortSleep = false;
 				sleep(timeDifference);
-			} else {
+			}
+			else {
 
 				nextFrameCounter++;
 				if (nextFrameCounter > (int)mFrameRate) {
@@ -177,7 +179,7 @@ void AppImplMswBasic::run()
 #ifdef _DEBUG
 					if (mDebug) {
 						std::ofstream engineLog;
-						engineLog.open("CI_Engine.log", std::ios::out | std::ios::app);						
+						engineLog.open("CI_Engine.log", std::ios::out | std::ios::app);
 						engineLog << "Fixed\n";
 						engineLog.close();
 					}
@@ -185,25 +187,44 @@ void AppImplMswBasic::run()
 
 					nextFrameCounter = 0;
 
-//#ifdef _DEBUG
-//					std::ofstream engineLog;
-//					engineLog.open("CI_Engine.log", std::ios::out | std::ios::app);
-//					char reportBuffer[64];
-//					std::sprintf(reportBuffer, "timeDifference=%.5f\n", (float)timeDifference);
-//					engineLog << reportBuffer;
-//					engineLog.close();
-//#endif // _DEBUG
+					//#ifdef _DEBUG
+					//					std::ofstream engineLog;
+					//					engineLog.open("CI_Engine.log", std::ios::out | std::ios::app);
+					//					char reportBuffer[64];
+					//					std::sprintf(reportBuffer, "timeDifference=%.5f\n", (float)timeDifference);
+					//					engineLog << reportBuffer;
+					//					engineLog.close();
+					//#endif // _DEBUG
 
 				}
 			}
 		}
-		if(shortSleep) {
+		if (shortSleep) {
 			MSG msg;
 			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 				::TranslateMessage(&msg);
 				::DispatchMessage(&msg);
 			}
 		}
+#else
+		if(mFrameRateEnabled && (mNextFrameTime > currentSeconds)) {
+			double cinderSleep = mNextFrameTime - currentSeconds;
+			if (mSyncMode && !mSleep) {
+				// run at 60 fps by default
+				const double defaultSleepWhileSynced = 0.0166666666666667;
+				// in 99.999%
+				if (defaultSleepWhileSynced < cinderSleep)
+					cinderSleep = defaultSleepWhileSynced;
+			}
+			sleep(cinderSleep);
+		} else {
+			MSG msg;
+			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+				::TranslateMessage(&msg);
+				::DispatchMessage(&msg);
+			}
+		}
+#endif // LA4_3764
 		mApp->privateEndFrame__();
 
 	}
