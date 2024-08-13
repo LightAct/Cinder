@@ -348,7 +348,7 @@ class CI_API AppBase {
 	//! Sets frame lock
 	virtual void		setFrameLock(bool lock) = 0;
 	virtual void		setSyncMode(bool lock, bool doSleep = true) = 0;
-	virtual void		pushArgs(float fval, int index = 0) = 0;
+	virtual void		epochReset(float offset = 0.f) = 0;
 	//! Disables frameRate limiting.
 	virtual void		disableFrameRate() = 0;
 	//! Debug feature
@@ -553,7 +553,7 @@ inline void		setFrameRate( float frameRate ) { AppBase::get()->setFrameRate( fra
 //! Sets frame locking flag
 inline void		setFrameLock(bool lock) { AppBase::get()->setFrameLock(lock); }
 inline void		setSyncMode(bool lock, bool doSleep = true) { AppBase::get()->setSyncMode(lock, doSleep); }
-inline void		pushArgs(float fval, int index = 0) { AppBase::get()->pushArgs(fval, index); }
+inline void		epochReset(float offset = 0.f) { AppBase::get()->epochReset(offset); }
 //! Returns whether the active App is in full-screen mode or not.
 inline bool		isFullScreen() { return AppBase::get()->isFullScreen(); }
 //! Sets whether the active App is in full-screen mode based on \a fullScreen

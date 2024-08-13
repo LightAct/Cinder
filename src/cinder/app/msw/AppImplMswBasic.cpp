@@ -108,6 +108,11 @@ void AppImplMswBasic::run()
 		// everything done
 		mApp->privatePostUpdateDraw__();
 
+		if (mEpochReset) {
+			mNextFrameTime = mApp->getElapsedSeconds();
+			mEpochReset = false;
+		}
+
 		if (mSyncMode)
 			mFrameLocked = true;
 		else mFrameLocked = false;
@@ -385,14 +390,8 @@ void AppImplMswBasic::setFrameLock(bool lock)
 {
 	mFrameLocked = lock;
 }
-void AppImplMswBasic::pushArgs(float fval, int index) 
-{
-	if (index < 0)
-		return;
-	if (index > 2)
-		return;
-	mArgs[index] = fval;
-	mArgsChange = true;
+void AppImplMswBasic::epochReset(float offset) {
+	mEpochReset = true;
 }
 void AppImplMswBasic::setSyncMode(bool lock, bool doSleep) 
 {

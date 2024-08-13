@@ -62,7 +62,7 @@ class CI_API AppMsw : public AppBase {
 	void		setFrameRate( float frameRate ) override;
 	void		setFrameLock(bool lock) override;
 	void		setSyncMode(bool lock, bool doSleep = true) override;
-	void		pushArgs(float fval, int index = 0) override;
+	void		epochReset(float offset = 0.f) override;
 	void		disableFrameRate() override;
 	void		setDebug( bool val ) override;
 	bool		isFrameRateEnabled() const override;

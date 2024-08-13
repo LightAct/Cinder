@@ -120,9 +120,9 @@ void AppMsw::setFrameLock(bool lock)
 {
 	mImpl->setFrameLock(lock);
 }
-void AppMsw::pushArgs( float fval, int index ) 
+void AppMsw::epochReset( float fval ) 
 {
-	mImpl->pushArgs(fval, index);
+	mImpl->epochReset(fval);
 }
 void AppMsw::setSyncMode(bool lock, bool doSleep)
 {
