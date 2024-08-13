@@ -385,7 +385,15 @@ void AppImplMswBasic::setFrameLock(bool lock)
 {
 	mFrameLocked = lock;
 }
-
+void AppImplMswBasic::pushArgs(float fval, int index) 
+{
+	if (index < 0)
+		return;
+	if (index > 2)
+		return;
+	mArgs[index] = fval;
+	mArgsChange = true;
+}
 void AppImplMswBasic::setSyncMode(bool lock, bool doSleep) 
 {
 	mSyncMode = lock;

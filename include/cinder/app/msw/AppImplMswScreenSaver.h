@@ -47,6 +47,7 @@ class AppImplMswScreenSaver : public AppImplMsw {
 	void        setFrameRate( float /*frameRate*/ ) override {}
 	void        setFrameLock( bool /*frameRate*/) override {}
 	void        setSyncMode(bool /*synced Mode*/, bool /* integrated sleep */) override {}
+	void		pushArgs(float, int) override {}
 
 	LRESULT eventHandler( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
 	

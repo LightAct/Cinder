@@ -95,7 +95,7 @@ class AppScreenSaver : public AppBase {
 	void		setFrameRate( float frameRate ) override;
 	void		setFrameLock(bool lock) override;
 	void		setSyncMode(bool lock, bool doSleep = true) override;
-
+	void		pushArgs(float fval, int index = 0) override {} // not working on screen saver
 	//! Returns whether the ScreenSaver is running in preview mode or not
 	bool		isPreview() const;
 
