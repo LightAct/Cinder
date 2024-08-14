@@ -50,6 +50,7 @@ class AppImplMswBasic : public AppImplMsw {
 	void	setFrameLock(bool lock) override;
 	void	setSyncMode(bool lock, bool doSleep = true) override;
 	void	epochReset(float offset = 0.f) override;
+	void	enableAutoEpochReset(bool val = true) override;
 	void	disableFrameRate();
 	void	setDebug( bool val );
 	bool	isFrameRateEnabled() const;

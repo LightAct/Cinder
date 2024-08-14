@@ -120,6 +120,10 @@ void AppMsw::setFrameLock(bool lock)
 {
 	mImpl->setFrameLock(lock);
 }
+void AppMsw::enableAutoEpochReset( bool val ) 
+{
+	mImpl->enableAutoEpochReset(val);
+}
 void AppMsw::epochReset( float fval ) 
 {
 	mImpl->epochReset(fval);

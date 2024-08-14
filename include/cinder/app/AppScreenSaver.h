@@ -96,6 +96,7 @@ class AppScreenSaver : public AppBase {
 	void		setFrameLock(bool lock) override;
 	void		setSyncMode(bool lock, bool doSleep = true) override;
 	void		epochReset(float fval = 0.f) override {} // not working on screen saver
+	void		enableAutoEpochReset(bool val = true) override {} // not working on screen saver
 	//! Returns whether the ScreenSaver is running in preview mode or not
 	bool		isPreview() const;
 

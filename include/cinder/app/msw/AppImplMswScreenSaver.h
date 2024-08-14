@@ -48,6 +48,7 @@ class AppImplMswScreenSaver : public AppImplMsw {
 	void        setFrameLock( bool /*frameRate*/) override {}
 	void        setSyncMode(bool /*synced Mode*/, bool /* integrated sleep */) override {}
 	void		epochReset(float) override {}
+	void		enableAutoEpochReset(bool) override {}
 
 	LRESULT eventHandler( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam );
 	

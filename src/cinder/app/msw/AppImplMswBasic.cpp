@@ -79,6 +79,9 @@ void AppImplMswBasic::run()
 	// inner loop
 	while( ! mShouldQuit ) {
 
+		// calculate time per frame in seconds
+		const double secondsPerFrame = 1.0 / (double)mFrameRate;
+
 		mApp->privateBeginFrame__();
 
 		// all of our Windows will have marked this as true if the user has unplugged, plugged or modified a Monitor
@@ -100,9 +103,17 @@ void AppImplMswBasic::run()
 
 		// update and draw
 		mApp->privateUpdate__();
+
+		double drawTime = mApp->getElapsedSeconds();
 		for( auto &window : mWindows ) {
 			if( ! mShouldQuit ) // test for quit() issued either from update() or prior draw()
 				window->redraw();
+		}
+		drawTime = mApp->getElapsedSeconds() - drawTime;
+		if (mAutoEpochReset) {
+			if (drawTime > secondsPerFrame) {
+				mEpochReset = true;
+			}
 		}
 
 		// everything done
@@ -122,9 +133,6 @@ void AppImplMswBasic::run()
 
 		// get current time in seconds
 		double currentSeconds = mApp->getElapsedSeconds();
-
-		// calculate time per frame in seconds
-		double secondsPerFrame = 1.0 / mFrameRate;
 
 		// determine if application was frozen for a while and adjust next frame time		
 		double elapsedSeconds = currentSeconds - mNextFrameTime;
@@ -390,7 +398,12 @@ void AppImplMswBasic::setFrameLock(bool lock)
 {
 	mFrameLocked = lock;
 }
-void AppImplMswBasic::epochReset(float offset) {
+void AppImplMswBasic::enableAutoEpochReset(bool val) 
+{
+	mAutoEpochReset = val;
+}
+void AppImplMswBasic::epochReset(float offset) 
+{
 	mEpochReset = true;
 }
 void AppImplMswBasic::setSyncMode(bool lock, bool doSleep) 

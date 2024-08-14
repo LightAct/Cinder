@@ -73,6 +73,7 @@ class AppImplMsw {
 	virtual void	setFrameLock( bool aFrameLock ) = 0;
 	virtual void	setSyncMode(bool aFrameLock, bool doSleep = true) = 0;
 	virtual void	epochReset(float offset = 0.f) = 0;
+	virtual void	enableAutoEpochReset(bool val = true) = 0;
 	virtual void	quit() = 0;
 
 	virtual WindowRef	getWindow() const { return mActiveWindow; }
@@ -101,6 +102,7 @@ class AppImplMsw {
 	
 	std::atomic<bool>		mFrameLocked = false;
 	std::vector<float>		mArgs = { 0.f, 0.f, 0.f };
+	bool					mAutoEpochReset = false;
 	bool					mEpochReset = false;
 	bool					mSyncMode = false;
 	bool					mSleep = true;

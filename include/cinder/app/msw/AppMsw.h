@@ -63,6 +63,7 @@ class CI_API AppMsw : public AppBase {
 	void		setFrameLock(bool lock) override;
 	void		setSyncMode(bool lock, bool doSleep = true) override;
 	void		epochReset(float offset = 0.f) override;
+	void		enableAutoEpochReset(bool val = true) override;
 	void		disableFrameRate() override;
 	void		setDebug( bool val ) override;
 	bool		isFrameRateEnabled() const override;
