@@ -110,7 +110,7 @@ void AppImplMswBasic::run()
 				window->redraw();
 		}
 		drawTime = mApp->getElapsedSeconds() - drawTime;
-		if (mAutoEpochReset) {
+		if (mAutoEpochReset && mFrameRateEnabled) {
 			if (drawTime > secondsPerFrame) {
 				mEpochReset = true;
 			}
