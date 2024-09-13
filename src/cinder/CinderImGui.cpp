@@ -443,7 +443,6 @@ static void ImGui_ImplCinder_Resize( const ci::app::WindowRef& window )
 {
 	ImGuiIO& io = ImGui::GetIO();
 	io.DisplaySize = ci::vec2( window->toPixels( window->getSize() ) );
-
 	ImGui_ImplCinder_NewFrameGuard( window );
 }
 
@@ -538,6 +537,7 @@ static bool ImGui_ImplCinder_Init( const ci::app::WindowRef& window, const ImGui
 	sWindowConnections[window] += window->getSignalFocus().connect(signalPriority, ImGui_ImplCinder_Focus);
 	if( options.isAutoRenderEnabled() ) {
 		sWindowConnections[window] += ci::app::App::get()->getSignalUpdate().connect( std::bind( ImGui_ImplCinder_NewFrameGuard, window ) );
+		// sWindowConnections[window] += window->getSignalDraw().connect(std::bind(ImGui_ImplCinder_NewFrameGuard, window));
 		sWindowConnections[window] += window->getSignalPostDraw().connect( ImGui_ImplCinder_PostDraw );
 	}
 
@@ -553,6 +553,16 @@ static void ImGui_ImplCinder_Shutdown()
 {
 	sWindowConnections.clear();
 }
+
+#pragma region "custom render loop"
+void ImGui::ImNewFrame(ci::app::WindowRef window) {
+	sTriggerNewFrame = true;
+	ImGui_ImplCinder_NewFrameGuard( window );
+}
+void ImGui::ImRenderFrame() {
+	ImGui_ImplCinder_PostDraw( );
+}
+#pragma endregion
 
 bool ImGui::Initialize( const ImGui::Options& options )
 {
