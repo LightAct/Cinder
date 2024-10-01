@@ -74,14 +74,16 @@ void AppImplMswBasic::run()
 
 	// initialize our next frame time
 	mNextFrameTime = getElapsedSeconds();
-	int nextFrameCounter = 0;
+	
+	epochResetCounter = 0;
+	int nextFrameCounter = 0;	
 
 	// inner loop
-	while( ! mShouldQuit ) {
+	while( !mShouldQuit ) {
 
 		// calculate time per frame in seconds
 		const double secondsPerFrame = 1.0 / (double)mFrameRate;
-
+		const unsigned int epochResetter = epochResetCounter;
 		mApp->privateBeginFrame__();
 
 		// all of our Windows will have marked this as true if the user has unplugged, plugged or modified a Monitor
@@ -112,9 +114,12 @@ void AppImplMswBasic::run()
 		drawTime = mApp->getElapsedSeconds() - drawTime;
 		if (mAutoEpochReset && mFrameRateEnabled) {
 			if (drawTime > secondsPerFrame) {
-				mEpochReset = true;
+				epochResetCounter++;
 			}
 		}
+		// trigger reset
+		if (epochResetter != epochResetCounter)
+			mEpochReset = true;
 
 		// everything done
 		mApp->privatePostUpdateDraw__();

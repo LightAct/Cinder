@@ -68,6 +68,7 @@ class AppImplMsw {
 	class AppBase*		getApp() { return mApp; }
 
 	float			getFrameRate() const { return mFrameRate; }
+	unsigned int	getEpochResetCounter() const { return epochResetCounter; }
 	virtual void	setFrameRate( float aFrameRate ) = 0;
 
 	virtual void	setFrameLock( bool aFrameLock ) = 0;
@@ -98,6 +99,7 @@ class AppImplMsw {
 
 	class AppBase			*mApp;
 	float					mFrameRate;
+	unsigned int			epochResetCounter = 0;
 	WindowRef				mActiveWindow;
 	
 	std::atomic<bool>		mFrameLocked = false;

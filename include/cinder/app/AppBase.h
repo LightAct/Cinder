@@ -343,6 +343,7 @@ class CI_API AppBase {
     
 	//! Returns the maximum frame-rate the App will attempt to maintain.
 	virtual float		getFrameRate() const = 0;
+	virtual unsigned int getEpochResetCounter() const = 0;
 	//! Sets the maximum frame-rate the App will attempt to maintain.
 	virtual void		setFrameRate( float frameRate ) = 0;
 	//! Sets frame lock
@@ -549,6 +550,7 @@ inline Area		getWindowBounds() { return AppBase::get()->getWindowBounds(); }
 inline float	getWindowContentScale() { return AppBase::get()->getWindowContentScale(); }
 //! Returns the maximum frame-rate the active App will attempt to maintain.
 inline float	getFrameRate() { return AppBase::get()->getFrameRate(); }
+inline float	getEpochResetCounter() { return AppBase::get()->getEpochResetCounter(); }
 //! Sets the maximum frame-rate the active App will attempt to maintain.
 inline void		setFrameRate( float frameRate ) { AppBase::get()->setFrameRate( frameRate ); }
 //! Sets frame locking flag

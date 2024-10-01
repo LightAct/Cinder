@@ -110,6 +110,9 @@ float AppMsw::getFrameRate() const
 {
 	return mImpl->getFrameRate();
 }
+unsigned int AppMsw::getEpochResetCounter() const {
+	return mImpl->getEpochResetCounter();
+}
 
 void AppMsw::setFrameRate( float frameRate )
 {
