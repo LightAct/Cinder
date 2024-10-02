@@ -301,7 +301,9 @@ size_t SourceFileMediaFoundation::processNextReadSample( bool *endOfFile )
 	LONGLONG timeStamp;
 	*endOfFile = false;
 	HRESULT hr = mSourceReader->ReadSample( MF_SOURCE_READER_FIRST_AUDIO_STREAM, 0, NULL, &streamFlags, &timeStamp, &mediaSample );
-	CI_ASSERT( hr == S_OK );
+	if (hr != S_OK)
+		throw AudioFileExc("SourceFileMediaFoundation: Failed to read sample.");
+	// CI_ASSERT( hr == S_OK );
 
 	if( streamFlags & MF_SOURCE_READERF_CURRENTMEDIATYPECHANGED ) {
 		CI_LOG_W( "type change unhandled" );
