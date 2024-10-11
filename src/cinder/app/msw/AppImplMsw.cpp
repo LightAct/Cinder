@@ -445,11 +445,11 @@ WindowImplMsw::WindowImplMsw( HWND hwnd, RendererRef renderer, RendererRef share
 void WindowImplMsw::setWindowStyleValues()
 {
 	if( mFullScreen ) {
-		mWindowExStyle = WS_EX_APPWINDOW;								// Window Extended Style
+		mWindowExStyle = WS_EX_APPWINDOW | WS_EX_ACCEPTFILES;								// Window Extended Style
 		mWindowStyle = WS_POPUP;										// Windows Style
 	}
 	else if( mBorderless ) {
-		mWindowExStyle = WS_EX_APPWINDOW;
+		mWindowExStyle = WS_EX_APPWINDOW | WS_EX_ACCEPTFILES;
 		mWindowStyle = WS_POPUP;
 	}
 	else {
