@@ -550,7 +550,7 @@ inline Area		getWindowBounds() { return AppBase::get()->getWindowBounds(); }
 inline float	getWindowContentScale() { return AppBase::get()->getWindowContentScale(); }
 //! Returns the maximum frame-rate the active App will attempt to maintain.
 inline float	getFrameRate() { return AppBase::get()->getFrameRate(); }
-inline float	getEpochResetCounter() { return AppBase::get()->getEpochResetCounter(); }
+inline unsigned int	getEpochResetCounter() { return AppBase::get()->getEpochResetCounter(); }
 //! Sets the maximum frame-rate the active App will attempt to maintain.
 inline void		setFrameRate( float frameRate ) { AppBase::get()->setFrameRate( frameRate ); }
 //! Sets frame locking flag
