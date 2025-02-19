@@ -731,8 +731,11 @@ bool Message::bufferCache( uint8_t *data, size_t size )
 	head = tail = data;
 	while( tail[i] != '\0' && ++i < remain );
 	if( i == remain ) {
-		CI_LOG_E( "Problem Parsing Message: No address." );
-		return false;
+		// CI_LOG_E( "Problem Parsing Message: No address." );
+		// this message came incomplete. assuming we received only address
+		// marking it as a trigger
+		mAddress.insert(0, (char*)head, i);
+		return true;
 	}
 	
 	mAddress.insert( 0, (char*)head, i );
