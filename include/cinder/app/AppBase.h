@@ -161,8 +161,8 @@ class CI_API AppBase {
 		//! Sets maximum frameRate the update/draw loop will execute at, specified in frames per second. FrameRate limiting is on by default, at 60 FPS.
 		void	setFrameRate( float frameRate );
 		//! Sets frame locking
-		void	setFrameLock(bool frameLock);
-		void	setSyncMode(bool frameLock, bool doSleep = true);		
+		//void	setFrameLock(bool frameLock);
+		//void	setSyncMode(bool frameLock, bool doSleep = true);		
 		//! Disables the frameRate limiting, which is on by default. Restore using setFrameRate(). See also enableVerticalSync().
 		void	disableFrameRate();
 		//! Returns whether frameRate limiting is enabled. On by default, at 60 FPS.
@@ -193,7 +193,7 @@ class CI_API AppBase {
 		float			mFrameRate;
 		bool			mFrameLock = false;
 		bool			mSyncMode = false;
-		bool			mSleep = true;
+		//bool			mSleep = true;
 		bool			mPowerManagementEnabled; // allow screensavers or power management to hide app. default: false
 		bool			mHighDensityDisplayEnabled;
 		bool			mMultiTouchEnabled;
@@ -347,8 +347,10 @@ class CI_API AppBase {
 	//! Sets the maximum frame-rate the App will attempt to maintain.
 	virtual void		setFrameRate( float frameRate ) = 0;
 	//! Sets frame lock
-	virtual void		setFrameLock(bool lock) = 0;
-	virtual void		setSyncMode(bool lock, bool doSleep = true) = 0;
+	// virtual void		setFrameLock(bool lock) = 0;
+	virtual void syncNewFrame() = 0;
+	//virtual void		setSyncMode(bool lock, bool doSleep = true) = 0;
+	virtual void		setSyncRole(int nrole) = 0;
 	virtual void		epochReset(float offset = 0.f) = 0;
 	virtual void		enableAutoEpochReset(bool val = true) = 0;
 	//! Disables frameRate limiting.
@@ -554,8 +556,10 @@ inline unsigned int	getEpochResetCounter() { return AppBase::get()->getEpochRese
 //! Sets the maximum frame-rate the active App will attempt to maintain.
 inline void		setFrameRate( float frameRate ) { AppBase::get()->setFrameRate( frameRate ); }
 //! Sets frame locking flag
-inline void		setFrameLock(bool lock) { AppBase::get()->setFrameLock(lock); }
-inline void		setSyncMode(bool lock, bool doSleep = true) { AppBase::get()->setSyncMode(lock, doSleep); }
+// inline void		setFrameLock(bool lock) { AppBase::get()->setFrameLock(lock); }
+inline void syncNewFrame() { AppBase::get()->syncNewFrame(); }
+// inline void		setSyncMode(bool lock, bool doSleep = true) { AppBase::get()->setSyncMode(lock, doSleep); }
+inline void		setSyncRole(int nrole) { AppBase::get()->setSyncRole(nrole); }
 inline void		epochReset(float offset = 0.f) { AppBase::get()->epochReset(offset); }
 inline void		enableAutoEpochReset(bool val = true) { AppBase::get()->enableAutoEpochReset(val); }
 //! Returns whether the active App is in full-screen mode or not.

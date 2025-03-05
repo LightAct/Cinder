@@ -125,16 +125,23 @@ void AppBase::Settings::setFrameRate( float frameRate )
 	mFrameRate = frameRate;
 }
 
-void AppBase::Settings::setFrameLock(bool frameLock) 
-{
-	mFrameLock = frameLock;
-}
-
-void AppBase::Settings::setSyncMode(bool frameLock, bool doSleep)
-{
-	mSyncMode = frameLock;
-	mSleep = doSleep;
-}
+//void AppBase::Settings::syncNewFrame() {
+//
+//}
+//void AppBase::Settings::setFrameLock(bool frameLock) 
+//{
+//	mFrameLock = frameLock;
+//}
+//void AppBase::Settings::setSyncRole(int nrole)
+//{
+//	mSyncMode = frameLock;
+//	mSleep = doSleep;
+//}
+//void AppBase::Settings::setSyncMode(bool frameLock, bool doSleep)
+//{
+//	mSyncMode = frameLock;
+//	mSleep = doSleep;
+//}
 
 void AppBase::Settings::prepareWindow( const Window::Format &format )
 {

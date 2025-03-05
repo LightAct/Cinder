@@ -81,6 +81,14 @@ void AppImplMswBasic::run()
 	// inner loop
 	while( !mShouldQuit ) {
 
+		// when in sync mode, wait for trigger		
+		if ( mSyncRole != 0 ) {
+			std::unique_lock lk(frame_mutex);
+			frame_wait.wait(lk, [this] { return mSyncNextFrame; });
+			// unlock for next frame
+			mSyncNextFrame = false;
+		}
+
 		// calculate time per frame in seconds
 		const double secondsPerFrame = 1.0 / (double)mFrameRate;
 		const unsigned int epochResetter = epochResetCounter;
@@ -96,12 +104,12 @@ void AppImplMswBasic::run()
 					window->resize();
 		}
 
-		if (mSyncMode)
-			mFrameLocked = true;
-		else mFrameLocked = false;
+		//if (mSyncMode)
+		//	mFrameLocked = true;
+		//else mFrameLocked = false;
 
-		// sync and lockmode active
-		while(mFrameLocked && mSyncMode) {}
+		//// sync and lockmode active
+		//while(mFrameLocked && mSyncMode) {}
 
 		// update and draw
 		mApp->privateUpdate__();
@@ -129,12 +137,12 @@ void AppImplMswBasic::run()
 			mEpochReset = false;
 		}
 
-		if (mSyncMode)
-			mFrameLocked = true;
-		else mFrameLocked = false;
+		//if (mSyncMode)
+		//	mFrameLocked = true;
+		//else mFrameLocked = false;
 
-		// sync and lockmode active
-		while (mFrameLocked && mSyncMode) {}
+		//// sync and lockmode active
+		//while (mFrameLocked && mSyncMode) {}
 
 		// get current time in seconds
 		double currentSeconds = mApp->getElapsedSeconds();
@@ -148,92 +156,16 @@ void AppImplMswBasic::run()
 
 		// determine when next frame should be drawn
 		mNextFrameTime += secondsPerFrame;
-
-#ifdef LA4_X3764
-		// sleep and process messages until next frame
-		bool shortSleep = true;
-		if (mFrameRateEnabled) {
-			double timeDifference = mNextFrameTime - currentSeconds;
-
-#ifdef _DEBUG
-			if (mDebug) {
-				std::ofstream engineLog;
-				engineLog.open("CI_Engine.log", std::ios::out | std::ios::app);
-				char reportBuffer[64];
-				std::sprintf(reportBuffer, "timeDifference=%.5f\n", (float)timeDifference);
-				engineLog << reportBuffer;
-				engineLog.close();
+		bool makeCinderSleep = mFrameRateEnabled;
+		if (mNextFrameTime > currentSeconds) {
+			if( mSyncRole == 2) {
+				makeCinderSleep = false;
 			}
-#endif // _DEBUG
-
-			if (timeDifference > 0.) {
-				// if in sync mode and sleep is disabled
-				if (mSyncMode && !mSleep) {
-					// run at 60 fps by default
-					const double defaultSleepWhileSynced = 0.0166666666666667;
-					// in 99.999%
-					if (defaultSleepWhileSynced < timeDifference)
-						timeDifference = defaultSleepWhileSynced;
-
-				}
-				nextFrameCounter = 0;
-				shortSleep = false;
-				sleep(timeDifference);
-			}
-			else {
-
-				nextFrameCounter++;
-				if (nextFrameCounter > (int)mFrameRate) {
-
-					// this section takes care of stuttery movement
-					// reason for stuttery movement was that mNextFrameTime was falling behind current time and was never fixed
-					// once it starts, it never stops
-					// if next frame is larger than currentSeconds, we should not get any jittery movement
-					mNextFrameTime = currentSeconds;
-					mNextFrameTime += secondsPerFrame * 2.;
-					// do not sleep, proceed to new frame
-					shortSleep = false;
-
-#ifdef _DEBUG
-					if (mDebug) {
-						std::ofstream engineLog;
-						engineLog.open("CI_Engine.log", std::ios::out | std::ios::app);
-						engineLog << "Fixed\n";
-						engineLog.close();
-					}
-#endif // _DEBUG
-
-					nextFrameCounter = 0;
-
-					//#ifdef _DEBUG
-					//					std::ofstream engineLog;
-					//					engineLog.open("CI_Engine.log", std::ios::out | std::ios::app);
-					//					char reportBuffer[64];
-					//					std::sprintf(reportBuffer, "timeDifference=%.5f\n", (float)timeDifference);
-					//					engineLog << reportBuffer;
-					//					engineLog.close();
-					//#endif // _DEBUG
-
-				}
-			}
+		} else {
+			makeCinderSleep = false;
 		}
-		if (shortSleep) {
-			MSG msg;
-			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-				::TranslateMessage(&msg);
-				::DispatchMessage(&msg);
-			}
-		}
-#else
-		if(mFrameRateEnabled && (mNextFrameTime > currentSeconds)) {
+		if (makeCinderSleep) {
 			double cinderSleep = mNextFrameTime - currentSeconds;
-			if (mSyncMode && !mSleep) {
-				// run at 60 fps by default
-				const double defaultSleepWhileSynced = 0.0166666666666667;
-				// in 99.999%
-				if (defaultSleepWhileSynced < cinderSleep)
-					cinderSleep = defaultSleepWhileSynced;
-			}
 			sleep(cinderSleep);
 		} else {
 			MSG msg;
@@ -242,7 +174,24 @@ void AppImplMswBasic::run()
 				::DispatchMessage(&msg);
 			}
 		}
-#endif // LA4_3764
+
+		//if(mFrameRateEnabled && (mNextFrameTime > currentSeconds)) {
+		//	double cinderSleep = mNextFrameTime - currentSeconds;
+		//	if (mSyncMode && !mSleep) {
+		//		// run at 60 fps by default
+		//		const double defaultSleepWhileSynced = 0.0166666666666667;
+		//		// in 99.999%
+		//		if (defaultSleepWhileSynced < cinderSleep)
+		//			cinderSleep = defaultSleepWhileSynced;
+		//	}
+		//	sleep(cinderSleep);
+		//} else {
+		//	MSG msg;
+		//	while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+		//		::TranslateMessage(&msg);
+		//		::DispatchMessage(&msg);
+		//	}
+		//}
 		mApp->privateEndFrame__();
 
 	}
@@ -398,11 +347,21 @@ void AppImplMswBasic::setFrameRate( float frameRate )
 	mFrameRateEnabled = true;
 	mNextFrameTime = mApp->getElapsedSeconds();
 }
-
-void AppImplMswBasic::setFrameLock(bool lock) 
+void AppImplMswBasic::syncNewFrame()
 {
-	mFrameLocked = lock;
+	{
+		std::lock_guard lk(frame_mutex);
+		mSyncNextFrame = true;		
+	}
+	frame_wait.notify_one();
 }
+void AppImplMswBasic::setSyncRole(int nrole) {
+	mSyncRole = nrole;
+}
+//void AppImplMswBasic::setFrameLock(bool lock) 
+//{
+//	mFrameLocked = lock;
+//}
 void AppImplMswBasic::enableAutoEpochReset(bool val) 
 {
 	mAutoEpochReset = val;
@@ -411,11 +370,11 @@ void AppImplMswBasic::epochReset(float offset)
 {
 	mEpochReset = true;
 }
-void AppImplMswBasic::setSyncMode(bool lock, bool doSleep) 
-{
-	mSyncMode = lock;
-	mSleep = doSleep;
-}
+//void AppImplMswBasic::setSyncMode(bool lock, bool doSleep) 
+//{
+//	mSyncMode = lock;
+//	mSleep = doSleep;
+//}
 void AppImplMswBasic::setDebug( bool val )
 {
 	mDebug = val;

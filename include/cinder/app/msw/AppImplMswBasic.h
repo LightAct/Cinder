@@ -47,8 +47,10 @@ class AppImplMswBasic : public AppImplMsw {
 	void	quit() override;
 
 	void	setFrameRate( float frameRate ) override;
-	void	setFrameLock(bool lock) override;
-	void	setSyncMode(bool lock, bool doSleep = true) override;
+	// void	setFrameLock(bool lock) override;
+	void syncNewFrame() override;
+	//void	setSyncMode(bool lock, bool doSleep = true) override;
+	void	setSyncRole(int nrole) override;
 	void	epochReset(float offset = 0.f) override;
 	void	enableAutoEpochReset(bool val = true) override;
 	void	disableFrameRate();
@@ -61,7 +63,9 @@ class AppImplMswBasic : public AppImplMsw {
 	
 	void		setupBlankingWindows( DisplayRef fullScreenDisplay );
 	void		destroyBlankingWindows();
-
+private:
+	std::mutex frame_mutex;
+	std::condition_variable frame_wait;	
   private:
 	void		sleep( double seconds );
 

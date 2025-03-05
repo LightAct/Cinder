@@ -118,11 +118,16 @@ void AppMsw::setFrameRate( float frameRate )
 {
 	mImpl->setFrameRate( frameRate );
 }
-
-void AppMsw::setFrameLock(bool lock) 
-{
-	mImpl->setFrameLock(lock);
+void AppMsw::syncNewFrame() {
+	mImpl->syncNewFrame();
 }
+void AppMsw::setSyncRole(int nrole) {
+	mImpl->setSyncRole(nrole);
+}
+//void AppMsw::setFrameLock(bool lock) 
+//{
+//	mImpl->setFrameLock(lock);
+//}
 void AppMsw::enableAutoEpochReset( bool val ) 
 {
 	mImpl->enableAutoEpochReset(val);
@@ -131,10 +136,10 @@ void AppMsw::epochReset( float fval )
 {
 	mImpl->epochReset(fval);
 }
-void AppMsw::setSyncMode(bool lock, bool doSleep)
-{
-	mImpl->setSyncMode(lock, doSleep);
-}
+//void AppMsw::setSyncMode(bool lock, bool doSleep)
+//{
+//	mImpl->setSyncMode(lock, doSleep);
+//}
 
 void AppMsw::disableFrameRate()
 {

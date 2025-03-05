@@ -71,8 +71,10 @@ class AppImplMsw {
 	unsigned int	getEpochResetCounter() const { return epochResetCounter; }
 	virtual void	setFrameRate( float aFrameRate ) = 0;
 
-	virtual void	setFrameLock( bool aFrameLock ) = 0;
-	virtual void	setSyncMode(bool aFrameLock, bool doSleep = true) = 0;
+	// virtual void	setFrameLock( bool aFrameLock ) = 0;
+	virtual void syncNewFrame() = 0;
+	// virtual void	setSyncMode(bool aFrameLock, bool doSleep = true) = 0;
+	virtual void	setSyncRole(int nrole) = 0;
 	virtual void	epochReset(float offset = 0.f) = 0;
 	virtual void	enableAutoEpochReset(bool val = true) = 0;
 	virtual void	quit() = 0;
@@ -102,12 +104,19 @@ class AppImplMsw {
 	unsigned int			epochResetCounter = 0;
 	WindowRef				mActiveWindow;
 	
-	std::atomic<bool>		mFrameLocked = false;
+	/// <summary>
+	/// Syncing lock
+	/// </summary>
+	bool					mSyncNextFrame = false;
+	/// <summary>
+	/// Syncing role; 0 = solo run, 1 = primary, 2 = secondary
+	/// </summary>
+	bool					mSyncRole = 0;
+	//bool					mSleep = true;
+
 	std::vector<float>		mArgs = { 0.f, 0.f, 0.f };
 	bool					mAutoEpochReset = false;
-	bool					mEpochReset = false;
-	bool					mSyncMode = false;
-	bool					mSleep = true;
+	bool					mEpochReset = false;		
 	bool					mSetupHasBeenCalled;
 	bool					mHighDensityDispalyEnabled();
 	bool					mNeedsToRefreshDisplays;

@@ -99,24 +99,38 @@ void AppScreenSaver::setFrameRate( float frameRate )
 	mImpl->setFrameRate( frameRate );
 #endif
 }
+void AppScreenSaver::syncNewFrame() {
+#if defined( CINDER_MAC )
+	[mImpl setFrameRate : frameRate];
+#elif defined( CINDER_MSW )
+	mImpl->syncNewFrame();
+#endif
+}
 
-void AppScreenSaver::setFrameLock(bool lock)
+//void AppScreenSaver::setFrameLock(bool lock)
+//{
+//#if defined( CINDER_MAC )
+//	[mImpl setFrameRate : frameRate];
+//#elif defined( CINDER_MSW )
+//	mImpl->setFrameLock(lock);
+//#endif
+//}
+void AppScreenSaver::setSyncRole(int nrole)
 {
 #if defined( CINDER_MAC )
 	[mImpl setFrameRate : frameRate];
 #elif defined( CINDER_MSW )
-	mImpl->setFrameLock(lock);
+	mImpl->setSyncRole(nrole);
 #endif
 }
-
-void AppScreenSaver::setSyncMode(bool lock, bool doSleep)
-{
-#if defined( CINDER_MAC )
-	[mImpl setFrameRate : frameRate];
-#elif defined( CINDER_MSW )
-	mImpl->setSyncMode(lock, doSleep);
-#endif
-}
+//void AppScreenSaver::setSyncMode(bool lock, bool doSleep)
+//{
+//#if defined( CINDER_MAC )
+//	[mImpl setFrameRate : frameRate];
+//#elif defined( CINDER_MSW )
+//	mImpl->setSyncMode(lock, doSleep);
+//#endif
+//}
 
 bool AppScreenSaver::isPreview() const
 {
