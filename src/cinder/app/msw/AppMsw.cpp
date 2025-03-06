@@ -124,10 +124,6 @@ void AppMsw::syncNewFrame() {
 void AppMsw::setSyncRole(int nrole) {
 	mImpl->setSyncRole(nrole);
 }
-//void AppMsw::setFrameLock(bool lock) 
-//{
-//	mImpl->setFrameLock(lock);
-//}
 void AppMsw::enableAutoEpochReset( bool val ) 
 {
 	mImpl->enableAutoEpochReset(val);
