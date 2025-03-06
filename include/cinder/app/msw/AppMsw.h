@@ -60,10 +60,8 @@ class CI_API AppMsw : public AppBase {
 
 	float		getFrameRate() const override;
 	unsigned int getEpochResetCounter() const override;
-	void		setFrameRate( float frameRate ) override;
-	//void		setFrameLock(bool lock) override;
-	void syncNewFrame() override;
-	// void		setSyncMode(bool lock, bool doSleep = true) override;
+	void		setFrameRate( float frameRate ) override;	
+	void syncNewFrame() override;	
 	void		setSyncRole(int nrole) override;
 	void		epochReset(float offset = 0.f) override;
 	void		enableAutoEpochReset(bool val = true) override;

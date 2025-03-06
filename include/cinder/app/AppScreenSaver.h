@@ -92,10 +92,8 @@ class AppScreenSaver : public AppBase {
 	//! Returns the maximum frame-rate the App will attempt to maintain.
 	float		getFrameRate() const override;
 	//! Sets the maximum frame-rate the App will attempt to maintain.
-	void		setFrameRate( float frameRate ) override;
-	// void		setFrameLock(bool lock) override;
-	void syncNewFrame() override;
-	// void		setSyncMode(bool lock, bool doSleep = true) override;
+	void		setFrameRate( float frameRate ) override;	
+	void syncNewFrame() override;	
 	void		setSyncRole(int nrole) override;
 	void		epochReset(float fval = 0.f) override {} // not working on screen saver
 	void		enableAutoEpochReset(bool val = true) override {} // not working on screen saver

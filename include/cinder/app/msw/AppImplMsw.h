@@ -70,10 +70,8 @@ class AppImplMsw {
 	float			getFrameRate() const { return mFrameRate; }
 	unsigned int	getEpochResetCounter() const { return epochResetCounter; }
 	virtual void	setFrameRate( float aFrameRate ) = 0;
-
-	// virtual void	setFrameLock( bool aFrameLock ) = 0;
-	virtual void syncNewFrame() = 0;
-	// virtual void	setSyncMode(bool aFrameLock, bool doSleep = true) = 0;
+		
+	virtual void syncNewFrame() = 0;	
 	virtual void	setSyncRole(int nrole) = 0;
 	virtual void	epochReset(float offset = 0.f) = 0;
 	virtual void	enableAutoEpochReset(bool val = true) = 0;

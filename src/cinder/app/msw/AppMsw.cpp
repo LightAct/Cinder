@@ -136,10 +136,6 @@ void AppMsw::epochReset( float fval )
 {
 	mImpl->epochReset(fval);
 }
-//void AppMsw::setSyncMode(bool lock, bool doSleep)
-//{
-//	mImpl->setSyncMode(lock, doSleep);
-//}
 
 void AppMsw::disableFrameRate()
 {

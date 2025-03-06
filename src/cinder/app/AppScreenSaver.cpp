@@ -107,14 +107,6 @@ void AppScreenSaver::syncNewFrame() {
 #endif
 }
 
-//void AppScreenSaver::setFrameLock(bool lock)
-//{
-//#if defined( CINDER_MAC )
-//	[mImpl setFrameRate : frameRate];
-//#elif defined( CINDER_MSW )
-//	mImpl->setFrameLock(lock);
-//#endif
-//}
 void AppScreenSaver::setSyncRole(int nrole)
 {
 #if defined( CINDER_MAC )
@@ -123,14 +115,6 @@ void AppScreenSaver::setSyncRole(int nrole)
 	mImpl->setSyncRole(nrole);
 #endif
 }
-//void AppScreenSaver::setSyncMode(bool lock, bool doSleep)
-//{
-//#if defined( CINDER_MAC )
-//	[mImpl setFrameRate : frameRate];
-//#elif defined( CINDER_MSW )
-//	mImpl->setSyncMode(lock, doSleep);
-//#endif
-//}
 
 bool AppScreenSaver::isPreview() const
 {

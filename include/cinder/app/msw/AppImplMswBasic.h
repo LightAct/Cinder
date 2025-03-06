@@ -47,9 +47,7 @@ class AppImplMswBasic : public AppImplMsw {
 	void	quit() override;
 
 	void	setFrameRate( float frameRate ) override;
-	// void	setFrameLock(bool lock) override;
 	void syncNewFrame() override;
-	//void	setSyncMode(bool lock, bool doSleep = true) override;
 	void	setSyncRole(int nrole) override;
 	void	epochReset(float offset = 0.f) override;
 	void	enableAutoEpochReset(bool val = true) override;

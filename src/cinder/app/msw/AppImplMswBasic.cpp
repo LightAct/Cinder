@@ -104,13 +104,6 @@ void AppImplMswBasic::run()
 					window->resize();
 		}
 
-		//if (mSyncMode)
-		//	mFrameLocked = true;
-		//else mFrameLocked = false;
-
-		//// sync and lockmode active
-		//while(mFrameLocked && mSyncMode) {}
-
 		// update and draw
 		mApp->privateUpdate__();
 
@@ -136,13 +129,6 @@ void AppImplMswBasic::run()
 			mNextFrameTime = mApp->getElapsedSeconds();
 			mEpochReset = false;
 		}
-
-		//if (mSyncMode)
-		//	mFrameLocked = true;
-		//else mFrameLocked = false;
-
-		//// sync and lockmode active
-		//while (mFrameLocked && mSyncMode) {}
 
 		// get current time in seconds
 		double currentSeconds = mApp->getElapsedSeconds();
@@ -174,24 +160,6 @@ void AppImplMswBasic::run()
 				::DispatchMessage(&msg);
 			}
 		}
-
-		//if(mFrameRateEnabled && (mNextFrameTime > currentSeconds)) {
-		//	double cinderSleep = mNextFrameTime - currentSeconds;
-		//	if (mSyncMode && !mSleep) {
-		//		// run at 60 fps by default
-		//		const double defaultSleepWhileSynced = 0.0166666666666667;
-		//		// in 99.999%
-		//		if (defaultSleepWhileSynced < cinderSleep)
-		//			cinderSleep = defaultSleepWhileSynced;
-		//	}
-		//	sleep(cinderSleep);
-		//} else {
-		//	MSG msg;
-		//	while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-		//		::TranslateMessage(&msg);
-		//		::DispatchMessage(&msg);
-		//	}
-		//}
 		mApp->privateEndFrame__();
 
 	}
@@ -358,10 +326,7 @@ void AppImplMswBasic::syncNewFrame()
 void AppImplMswBasic::setSyncRole(int nrole) {
 	mSyncRole = nrole;
 }
-//void AppImplMswBasic::setFrameLock(bool lock) 
-//{
-//	mFrameLocked = lock;
-//}
+
 void AppImplMswBasic::enableAutoEpochReset(bool val) 
 {
 	mAutoEpochReset = val;
@@ -370,11 +335,7 @@ void AppImplMswBasic::epochReset(float offset)
 {
 	mEpochReset = true;
 }
-//void AppImplMswBasic::setSyncMode(bool lock, bool doSleep) 
-//{
-//	mSyncMode = lock;
-//	mSleep = doSleep;
-//}
+
 void AppImplMswBasic::setDebug( bool val )
 {
 	mDebug = val;
