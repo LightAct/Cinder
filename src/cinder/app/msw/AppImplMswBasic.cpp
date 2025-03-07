@@ -374,7 +374,6 @@ void AppImplMswBasic::setDebug( bool val )
 void AppImplMswBasic::joinSwapGroup(bool val) {
 	if (val) {
 		for (auto wind : mWindows) {
-			wind->getRenderer()->makeCurrentContext(true);
 			joinSwapGroupNVEx(wind->getDc());
 		}
 	} else {
