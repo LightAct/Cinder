@@ -223,7 +223,7 @@ bool AppImplMswBasic::joinSwapGroupNVEx(HDC hdc) {
 	auto it = std::find(swapGroupHDCs.begin(), swapGroupHDCs.end(), hdc);
 	if (it != swapGroupHDCs.end())
 		return false;
-
+	
 	if ( !wglJoinSwapGroupNV(hdc, swapGroupID) ) {
 		// std::cerr << "Failed to join swap group for window!" << std::endl;
 		return false;
@@ -374,6 +374,7 @@ void AppImplMswBasic::setDebug( bool val )
 void AppImplMswBasic::joinSwapGroup(bool val) {
 	if (val) {
 		for (auto wind : mWindows) {
+			wind->getRenderer()->makeCurrentContext(true);
 			joinSwapGroupNVEx(wind->getDc());
 		}
 	} else {
