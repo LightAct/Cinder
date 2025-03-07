@@ -26,6 +26,9 @@
 #include "cinder/app/msw/PlatformMsw.h"
 #include "cinder/Utilities.h"
 
+#include <glad/glad.h>
+#include <glad/glad_wgl.h> // For WGL extensions
+
 #include <windowsx.h>
 #include <winuser.h>
 
@@ -213,7 +216,32 @@ RendererRef AppImplMswBasic::findSharedRenderer( const RendererRef &searchRender
 
 	return RendererRef();
 }
+// Add the HDC to the list
+bool AppImplMswBasic::joinSwapGroupNVEx(HDC hdc) {
 
+	// don't add multiple instances
+	auto it = std::find(swapGroupHDCs.begin(), swapGroupHDCs.end(), hdc);
+	if (it != swapGroupHDCs.end())
+		return false;
+
+	if ( !wglJoinSwapGroupNV(hdc, swapGroupID) ) {
+		// std::cerr << "Failed to join swap group for window!" << std::endl;
+		return false;
+	}
+	swapGroupHDCs.push_back(hdc);
+	return true;
+}
+// Remove the HDC from the list
+void AppImplMswBasic::leaveSwapGroupNVEx(HDC hdc) {
+	if ( !wglJoinSwapGroupNV(hdc, 0) ) {
+		std::cerr << "Failed to leave swap group for window!" << std::endl;
+		return;
+	}	
+	auto it = std::find(swapGroupHDCs.begin(), swapGroupHDCs.end(), hdc);
+	if (it != swapGroupHDCs.end()) {
+		swapGroupHDCs.erase(it);
+	}
+}
 WindowRef AppImplMswBasic::createWindow( Window::Format format )
 {
 	if( ! format.getRenderer() )
@@ -224,7 +252,6 @@ WindowRef AppImplMswBasic::createWindow( Window::Format format )
 	// emit initial resize if we have fired setup
 	if( mSetupHasBeenCalled )
 		mWindows.back()->getWindow()->emitResize();
-
 	return mWindows.back()->getWindow();
 }
 
@@ -242,6 +269,11 @@ void AppImplMswBasic::customWMNCUpEvent(class WindowImplMsw* windowImpl) {
 
 void AppImplMswBasic::closeWindow( WindowImplMsw *windowImpl )
 {
+
+	if(usingSwapGroupInt == 1) {
+		leaveSwapGroupNVEx(windowImpl->getDc());
+	}
+
 	auto winIt = find( mWindows.begin(), mWindows.end(), windowImpl );
 	if( winIt != mWindows.end() ) {
 		windowImpl->getWindow()->emitClose();
@@ -304,7 +336,6 @@ void AppImplMswBasic::quit()
 {
 	if( ! mApp->privateEmitShouldQuit() )
 		return;
-
 	// Always quit, even if ! isQuitOnLastWindowCloseEnabled()
 	mShouldQuit = true;
 }
@@ -339,6 +370,17 @@ void AppImplMswBasic::epochReset(float offset)
 void AppImplMswBasic::setDebug( bool val )
 {
 	mDebug = val;
+}
+void AppImplMswBasic::joinSwapGroup(bool val) {
+	if (val) {
+		for (auto wind : mWindows) {
+			joinSwapGroupNVEx(wind->getDc());
+		}
+	} else {
+		for (auto wind : mWindows) {
+			leaveSwapGroupNVEx(wind->getDc());
+		}
+	}
 }
 void AppImplMswBasic::disableFrameRate()
 {

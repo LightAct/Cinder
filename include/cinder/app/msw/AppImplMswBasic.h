@@ -53,6 +53,7 @@ class AppImplMswBasic : public AppImplMsw {
 	void	enableAutoEpochReset(bool val = true) override;
 	void	disableFrameRate();
 	void	setDebug( bool val );
+	void	joinSwapGroup(bool val);
 	bool	isFrameRateEnabled() const;
 
 	size_t		getNumWindows() const;
@@ -64,6 +65,12 @@ class AppImplMswBasic : public AppImplMsw {
 private:
 	std::mutex frame_mutex;
 	std::condition_variable frame_wait;	
+private:
+	std::vector<HDC> swapGroupHDCs;
+	int usingSwapGroupInt = -1;
+	unsigned int swapGroupID = 1;
+	bool joinSwapGroupNVEx(HDC hdc);
+	void leaveSwapGroupNVEx(HDC hdc);
   private:
 	void		sleep( double seconds );
 

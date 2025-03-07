@@ -118,6 +118,7 @@ class AppScreenSaver : public AppBase {
 	//! ignored on screensavers
 	void		disableFrameRate() override {}
 	void		setDebug( bool val ) override {}
+	void		joinSwapGroup(bool val) override {}
 	//! ignored on screensavers
 	bool		isFrameRateEnabled() const	{ return false; }
 

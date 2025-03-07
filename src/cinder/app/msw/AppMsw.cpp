@@ -141,6 +141,10 @@ void AppMsw::setDebug(bool val)
 {
 	mImpl->setDebug(val);
 }
+void AppMsw::joinSwapGroup(bool val)
+{
+	mImpl->joinSwapGroup(val);
+}
 bool AppMsw::isFrameRateEnabled() const
 {
 	return mImpl->isFrameRateEnabled();
