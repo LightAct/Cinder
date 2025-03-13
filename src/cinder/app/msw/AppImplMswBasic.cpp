@@ -85,7 +85,7 @@ void AppImplMswBasic::run()
 	while( !mShouldQuit ) {
 
 		// when in sync mode, wait for trigger		
-		if ( mSyncRole != 0 ) {
+		if ( mSyncRole == 1 || mSyncRole == 2 ) {
 			std::unique_lock lk(frame_mutex);
 			frame_wait.wait(lk, [this] { return mSyncNextFrame; });
 			// unlock for next frame
