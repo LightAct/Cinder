@@ -74,6 +74,8 @@ void AppImplMswBasic::run_default() {
 	epochResetCounter = 0;
 	int nextFrameCounter = 0;	
 
+	size_t currentWindowCount = 1;
+
 	// inner loop
 	while( !mShouldQuit ) {
 
@@ -100,6 +102,27 @@ void AppImplMswBasic::run_default() {
 					window->resize();
 		}
 
+		bool refreshEpoch = false;
+		if (currentWindowCount != mWindows.size()) {
+			currentWindowCount = mWindows.size();
+			// going back to single window
+			if (currentWindowCount == 1) {
+				if(mFrameRateEnabled) { /* on demand */ }
+				else {
+					// back to vsync mode as it was previously set
+					auto& gui = mWindows.begin();
+					(*gui)->getWindow()->getRenderer()->makeCurrentContext();
+					::wglSwapIntervalEXT(1);
+					refreshEpoch = true;					
+				}
+			} else {
+				// swap to vsync off as secondary window leads refresh
+				auto& gui = mWindows.begin();
+				(*gui)->getWindow()->getRenderer()->makeCurrentContext();
+				::wglSwapIntervalEXT(0);
+			}
+		}
+
 		// update and draw
 		mApp->privateUpdate__();
 
@@ -108,6 +131,11 @@ void AppImplMswBasic::run_default() {
 			if( ! mShouldQuit ) // test for quit() issued either from update() or prior draw()
 				window->redraw();
 		}
+		for (auto& window : mWindows) {
+			if (!mShouldQuit)
+				window->getRenderer()->finishDraw();
+		}
+
 		drawTime = mApp->getElapsedSeconds() - drawTime;
 		if (mAutoEpochReset && mFrameRateEnabled) {
 			if (drawTime > secondsPerFrame) {
@@ -120,6 +148,10 @@ void AppImplMswBasic::run_default() {
 
 		// everything done
 		mApp->privatePostUpdateDraw__();
+
+		if(refreshEpoch) {			
+			mNextFrameTime = mApp->getElapsedSeconds();
+		}
 
 		if (mEpochReset) {
 			// mNextFrameTime = mApp->getElapsedSeconds();
@@ -149,8 +181,16 @@ void AppImplMswBasic::run_default() {
 			makeCinderSleep = false;
 		}
 		if (makeCinderSleep) {
-			double cinderSleep = mNextFrameTime - currentSeconds;
-			sleep(cinderSleep);
+
+			MSG msg;
+			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+				::TranslateMessage(&msg);
+				::DispatchMessage(&msg);
+			}
+
+			std::this_thread::sleep_for(std::chrono::duration<double>(mNextFrameTime - currentSeconds));
+			// double cinderSleep = mNextFrameTime - currentSeconds;
+			// sleep(cinderSleep);
 		} else {
 			MSG msg;
 			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
