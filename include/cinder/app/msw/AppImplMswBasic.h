@@ -37,8 +37,17 @@ namespace cinder { namespace app {
 class WindowImplMswBasic;
 
 class AppImplMswBasic : public AppImplMsw {
+
   public:
 	AppImplMswBasic( AppMsw *app, const AppMsw::Settings &settings );
+
+	void	run_default();
+	// vsync is always off - application rate dictates refresh
+	void	run_1();
+	// vsync is always on
+	void	run_2();
+	
+	void	run_3();
 
 	void	run();
 

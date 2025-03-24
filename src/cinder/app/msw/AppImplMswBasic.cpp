@@ -37,9 +37,11 @@
 #include <fstream>
 #endif // _DEBUG
 
-
 using std::vector;
 using std::string;
+
+using Clock = std::chrono::high_resolution_clock;
+using Duration = std::chrono::duration<double>;
 
 namespace cinder { namespace app {
 
@@ -64,16 +66,7 @@ AppImplMswBasic::AppImplMswBasic( AppMsw *app, const AppMsw::Settings &settings 
 	}
 }
 
-void AppImplMswBasic::run()
-{
-	mApp->privateSetup__();
-	mSetupHasBeenCalled = true;
-
-	// issue initial app activation event
-	mApp->emitDidBecomeActive();
-
-	for( auto &window : mWindows )
-		window->resize();
+void AppImplMswBasic::run_default() {
 
 	// initialize our next frame time
 	mNextFrameTime = getElapsedSeconds();
@@ -129,7 +122,7 @@ void AppImplMswBasic::run()
 		mApp->privatePostUpdateDraw__();
 
 		if (mEpochReset) {
-			mNextFrameTime = mApp->getElapsedSeconds();
+			// mNextFrameTime = mApp->getElapsedSeconds();
 			mEpochReset = false;
 		}
 
@@ -146,6 +139,8 @@ void AppImplMswBasic::run()
 		// determine when next frame should be drawn
 		mNextFrameTime += secondsPerFrame;
 		bool makeCinderSleep = mFrameRateEnabled;
+		if (mWindows.size() > 1)
+			makeCinderSleep = false;
 		if (mNextFrameTime > currentSeconds) {
 			if( mSyncRole == 2) {
 				makeCinderSleep = false;
@@ -167,10 +162,354 @@ void AppImplMswBasic::run()
 
 	}
 
-//	killWindow( mFullScreen );
+}
+void AppImplMswBasic::run_1() {
+
+	// Initialize our next frame time
+	mNextFrameTime = getElapsedSeconds();
+
+	epochResetCounter = 0;
+	int nextFrameCounter = 0;
+
+	// Inner loop
+	while (!mShouldQuit) {
+		// When in sync mode, wait for trigger
+		if (mSyncRole == 1 || mSyncRole == 2) {
+			std::unique_lock lk(frame_mutex);
+			frame_wait.wait(lk, [this] { return mSyncNextFrame; });
+			// Unlock for next frame
+			mSyncNextFrame = false;
+		}
+
+		// Calculate time per frame in seconds (16.67ms for 60 FPS)
+		const double secondsPerFrame = 1.0 / (double)mFrameRate;
+		const unsigned int epochResetter = epochResetCounter;
+		mApp->privateBeginFrame__();
+
+		// All of our Windows will have marked this as true if the user has unplugged, plugged, or modified a Monitor
+		if (mNeedsToRefreshDisplays) {
+			mNeedsToRefreshDisplays = false;
+			PlatformMsw::get()->refreshDisplays();
+			// If this app is high-DPI aware, we need to issue resizes with possible contentScale changes
+			if (getHighDensityDisplayEnabled())
+				for (auto& window : mWindows)
+					window->resize();
+		}
+
+		// Update and draw
+		mApp->privateUpdate__();
+
+		// Measure the time taken for rendering
+		double renderStartTime = mApp->getElapsedSeconds();
+		for (auto& window : mWindows) {
+			if (!mShouldQuit) // Test for quit() issued either from update() or prior draw()
+				window->redraw();
+		}
+		double renderEndTime = mApp->getElapsedSeconds();
+		double renderTime = renderEndTime - renderStartTime;
+
+		// Trigger reset if rendering took too long
+		if (mAutoEpochReset && mFrameRateEnabled) {
+			if (renderTime > secondsPerFrame) {
+				epochResetCounter++;
+			}
+		}
+
+		// Trigger reset
+		if (epochResetter != epochResetCounter)
+			mEpochReset = true;
+
+		// Everything done
+		mApp->privatePostUpdateDraw__();
+
+		/*if (mEpochReset) {
+			mNextFrameTime = mApp->getElapsedSeconds();
+			mEpochReset = false;
+		}*/
+
+		// Get current time in seconds
+		double currentSeconds = mApp->getElapsedSeconds();
+
+		// Determine if the application was frozen for a while and adjust next frame time
+		double elapsedSeconds = currentSeconds - mNextFrameTime;
+		if (elapsedSeconds > 1.0) {
+			int numSkipFrames = (int)(elapsedSeconds / secondsPerFrame);
+			mNextFrameTime += (numSkipFrames * secondsPerFrame);
+		}
+
+		// Determine when the next frame should be drawn
+		mNextFrameTime += secondsPerFrame;
+
+		// Calculate the remaining time until the next frame
+		double remainingTime = mNextFrameTime - currentSeconds;
+
+		// Adjust sleep time to ensure rendering completes slightly before the next refresh
+		if (remainingTime > 0 && mWindows.size() == 1) {
+			// Subtract a small buffer (e.g., 1ms) to ensure the frame is ready before v-sync
+			double sleepTime = remainingTime - 0.001; // 1ms buffer
+			if (sleepTime > 0) {
+				// Use a high-precision sleep function
+				std::this_thread::sleep_for(std::chrono::duration<double>(sleepTime));
+			}
+		}
+
+		// Process any pending Windows messages
+		MSG msg;
+		while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+			::TranslateMessage(&msg);
+			::DispatchMessage(&msg);
+		}
+
+		mApp->privateEndFrame__();
+	}
+}
+void AppImplMswBasic::run_2() {
+
+	// Initialize our next frame time
+	mNextFrameTime = getElapsedSeconds();
+
+	epochResetCounter = 0;
+	int nextFrameCounter = 0;
+
+	// Inner loop
+	while (!mShouldQuit) {
+
+		// When in sync mode, wait for trigger
+		if (mSyncRole == 1 || mSyncRole == 2) {
+			std::unique_lock lk(frame_mutex);
+			frame_wait.wait(lk, [this] { return mSyncNextFrame; });
+			// Unlock for next frame
+			mSyncNextFrame = false;
+		}
+
+		mApp->privateBeginFrame__();
+
+		// All of our Windows will have marked this as true if the user has unplugged, plugged, or modified a Monitor
+		if (mNeedsToRefreshDisplays) {
+			mNeedsToRefreshDisplays = false;
+			PlatformMsw::get()->refreshDisplays();
+			// If this app is high-DPI aware, we need to issue resizes with possible contentScale changes
+			if (getHighDensityDisplayEnabled())
+				for (auto& window : mWindows)
+					window->resize();
+		}
+
+		// Update and draw
+		mApp->privateUpdate__();
+
+		// Measure the time taken for rendering
+		double renderStartTime = mApp->getElapsedSeconds();
+		for (auto& window : mWindows) {
+			if (!mShouldQuit) // Test for quit() issued either from update() or prior draw()
+				window->redraw();
+		}	
+
+		// Everything done
+		mApp->privatePostUpdateDraw__();
+
+		// Process any pending Windows messages
+		MSG msg;
+		while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+			::TranslateMessage(&msg);
+			::DispatchMessage(&msg);
+		}
+
+		mApp->privateEndFrame__();
+	}
+
+}
+
+void AppImplMswBasic::run_3() {
+
+	bool frefresh = false;
+	size_t mFresh = 1;
+
+	// Inner loop
+	while (!mShouldQuit) {
+		// When in sync mode, wait for trigger
+		if (mSyncRole == 1 || mSyncRole == 2) {
+			std::unique_lock lk(frame_mutex);
+			frame_wait.wait(lk, [this] { return mSyncNextFrame; });
+			// Unlock for next frame
+			mSyncNextFrame = false;
+		}
+
+		mApp->privateBeginFrame__();
+
+		// All of our Windows will have marked this as true if the user has unplugged, plugged, or modified a Monitor
+		if (mNeedsToRefreshDisplays) {
+			mNeedsToRefreshDisplays = false;
+			PlatformMsw::get()->refreshDisplays();
+			// If this app is high-DPI aware, we need to issue resizes with possible contentScale changes
+			if (getHighDensityDisplayEnabled())
+				for (auto& window : mWindows)
+					window->resize();
+		}
+
+		if (mFresh != mWindows.size()) {
+			mFresh = mWindows.size();
+			frefresh = true;
+		}
+		if (frefresh) {
+			for (auto& window : mWindows) {	}			
+		}
+
+		// Update and draw
+		mApp->privateUpdate__();
+		for (auto& window : mWindows) {
+			if (!mShouldQuit) // Test for quit() issued either from update() or prior draw()
+				window->redraw();
+		}
+
+		if (frefresh) {
+			for (auto& window : mWindows) {}
+			frefresh = false;
+		}		
+
+		// Everything done
+		mApp->privatePostUpdateDraw__();
+
+		// Process any pending Windows messages
+		MSG msg;
+		while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+			::TranslateMessage(&msg);
+			::DispatchMessage(&msg);
+		}
+		mApp->privateEndFrame__();
+	}
+}
+void AppImplMswBasic::run()
+{
+	mApp->privateSetup__();
+	mSetupHasBeenCalled = true;
+
+	// Issue initial app activation event
+	mApp->emitDidBecomeActive();
+
+	for (auto& window : mWindows)
+		window->resize();
+
+	if (mRunMode == 0)
+		run_default();
+	else if (mRunMode == 1)
+		run_1();
+	else if (mRunMode == 2)
+		run_2();
+	else if (mRunMode == 3)
+		run_3();
+
+	// Cleanup
 	mApp->emitCleanup();
 	delete mApp;
 }
+
+//void AppImplMswBasic::run()
+//{
+//	mApp->privateSetup__();
+//	mSetupHasBeenCalled = true;
+//
+//	// issue initial app activation event
+//	mApp->emitDidBecomeActive();
+//
+//	for( auto &window : mWindows )
+//		window->resize();
+//
+//	// initialize our next frame time
+//	mNextFrameTime = getElapsedSeconds();
+//	
+//	epochResetCounter = 0;
+//	int nextFrameCounter = 0;	
+//
+//	// inner loop
+//	while( !mShouldQuit ) {
+//
+//		// when in sync mode, wait for trigger		
+//		if ( mSyncRole == 1 || mSyncRole == 2 ) {
+//			std::unique_lock lk(frame_mutex);
+//			frame_wait.wait(lk, [this] { return mSyncNextFrame; });
+//			// unlock for next frame
+//			mSyncNextFrame = false;
+//		}
+//
+//		// calculate time per frame in seconds
+//		const double secondsPerFrame = 1.0 / (double)mFrameRate;
+//		const unsigned int epochResetter = epochResetCounter;
+//		mApp->privateBeginFrame__();
+//
+//		// all of our Windows will have marked this as true if the user has unplugged, plugged or modified a Monitor
+//		if( mNeedsToRefreshDisplays ) {
+//			mNeedsToRefreshDisplays = false;
+//			PlatformMsw::get()->refreshDisplays();
+//			// if this app is high-DPI aware, we need to issue resizes with possible contentScale changes
+//			if( getHighDensityDisplayEnabled() )
+//				for( auto &window : mWindows )
+//					window->resize();
+//		}
+//
+//		// update and draw
+//		mApp->privateUpdate__();
+//
+//		double drawTime = mApp->getElapsedSeconds();
+//		for( auto &window : mWindows ) {
+//			if( ! mShouldQuit ) // test for quit() issued either from update() or prior draw()
+//				window->redraw();
+//		}
+//		drawTime = mApp->getElapsedSeconds() - drawTime;
+//		if (mAutoEpochReset && mFrameRateEnabled) {
+//			if (drawTime > secondsPerFrame) {
+//				epochResetCounter++;
+//			}
+//		}
+//		// trigger reset
+//		if (epochResetter != epochResetCounter)
+//			mEpochReset = true;
+//
+//		// everything done
+//		mApp->privatePostUpdateDraw__();
+//
+//		if (mEpochReset) {
+//			mNextFrameTime = mApp->getElapsedSeconds();
+//			mEpochReset = false;
+//		}
+//
+//		// get current time in seconds
+//		double currentSeconds = mApp->getElapsedSeconds();
+//
+//		// determine if application was frozen for a while and adjust next frame time		
+//		double elapsedSeconds = currentSeconds - mNextFrameTime;
+//		if( elapsedSeconds > 1.0 ) {
+//			int numSkipFrames = (int)(elapsedSeconds / secondsPerFrame);
+//			mNextFrameTime += (numSkipFrames * secondsPerFrame);
+//		}
+//
+//		// determine when next frame should be drawn
+//		mNextFrameTime += secondsPerFrame;
+//		bool makeCinderSleep = mFrameRateEnabled;
+//		if (mNextFrameTime > currentSeconds) {
+//			if( mSyncRole == 2) {
+//				makeCinderSleep = false;
+//			}
+//		} else {
+//			makeCinderSleep = false;
+//		}
+//		if (makeCinderSleep) {
+//			double cinderSleep = mNextFrameTime - currentSeconds;
+//			sleep(cinderSleep);
+//		} else {
+//			MSG msg;
+//			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+//				::TranslateMessage(&msg);
+//				::DispatchMessage(&msg);
+//			}
+//		}
+//		mApp->privateEndFrame__();
+//
+//	}
+//
+////	killWindow( mFullScreen );
+//	mApp->emitCleanup();
+//	delete mApp;
+//}
 
 void AppImplMswBasic::sleep( double seconds )
 {
