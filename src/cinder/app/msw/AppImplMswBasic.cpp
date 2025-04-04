@@ -115,6 +115,7 @@ void AppImplMswBasic::run()
 			if( ! mShouldQuit ) // test for quit() issued either from update() or prior draw()
 				window->redraw();
 		}
+		mSyncFrameNumber++;
 		drawTime = mApp->getElapsedSeconds() - drawTime;
 		if (mAutoEpochReset && mFrameRateEnabled) {
 			if (drawTime > secondsPerFrame) {
@@ -366,7 +367,12 @@ void AppImplMswBasic::epochReset(float offset)
 {
 	mEpochReset = true;
 }
-
+void AppImplMswBasic::setSyncFrameNumber(uint32_t n) {
+	mSyncFrameNumber = n;
+}
+uint32_t AppImplMswBasic::getSyncFrameNumber() {
+	return mSyncFrameNumber;
+}
 void AppImplMswBasic::setDebug( bool val )
 {
 	mDebug = val;

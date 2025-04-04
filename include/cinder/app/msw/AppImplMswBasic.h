@@ -53,6 +53,8 @@ class AppImplMswBasic : public AppImplMsw {
 	void	enableAutoEpochReset(bool val = true) override;
 	void	disableFrameRate();
 	void	setDebug( bool val );
+	void		setSyncFrameNumber(uint32_t n);
+	uint32_t	getSyncFrameNumber();
 	void	joinSwapGroup(bool val);
 	bool	isFrameRateEnabled() const;
 
@@ -87,6 +89,7 @@ private:
 	double			mNextFrameTime;
 	bool			mFrameRateEnabled;
 	bool			mDebug = false;
+	uint32_t		mSyncFrameNumber = 0;
 	bool			mShouldQuit;
 	bool			mQuitOnLastWindowClosed;
 

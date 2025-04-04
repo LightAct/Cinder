@@ -141,6 +141,14 @@ void AppMsw::setDebug(bool val)
 {
 	mImpl->setDebug(val);
 }
+void AppMsw::setSyncFrameNumber(uint32_t n) 
+{
+	mImpl->setSyncFrameNumber(n);
+}
+uint32_t AppMsw::getSyncFrameNumber() 
+{
+	return mImpl->getSyncFrameNumber();
+}
 void AppMsw::joinSwapGroup(bool val)
 {
 	mImpl->joinSwapGroup(val);
