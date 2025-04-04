@@ -122,16 +122,17 @@ void AppImplMswBasic::run()
 				epochResetCounter++;
 			}
 		}
-		// trigger reset
-		if (epochResetter != epochResetCounter)
-			mEpochReset = true;
+		//// trigger reset
+		//if (epochResetter != epochResetCounter)
+		//	mEpochReset = true;
 
 		// everything done
 		mApp->privatePostUpdateDraw__();
 
-		if (mEpochReset) {
+		if (mEpochOffset != 0.f) {
 			mNextFrameTime = mApp->getElapsedSeconds();
-			mEpochReset = false;
+			mNextFrameTime += mEpochOffset * 0.001f;
+			mEpochOffset = 0.f;
 		}
 
 		// get current time in seconds
@@ -365,7 +366,7 @@ void AppImplMswBasic::enableAutoEpochReset(bool val)
 }
 void AppImplMswBasic::epochReset(float offset) 
 {
-	mEpochReset = true;
+	mEpochOffset = offset;
 }
 void AppImplMswBasic::setSyncFrameNumber(uint32_t n) {
 	mSyncFrameNumber = n;

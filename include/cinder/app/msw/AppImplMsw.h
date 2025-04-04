@@ -114,7 +114,7 @@ class AppImplMsw {
 
 	std::vector<float>		mArgs = { 0.f, 0.f, 0.f };
 	bool					mAutoEpochReset = false;
-	bool					mEpochReset = false;		
+	float					mEpochOffset = 0.f;
 	bool					mSetupHasBeenCalled;
 	bool					mHighDensityDispalyEnabled();
 	bool					mNeedsToRefreshDisplays;
