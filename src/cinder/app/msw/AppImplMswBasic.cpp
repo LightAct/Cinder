@@ -217,8 +217,8 @@ void AppImplMswBasic::runV2()
 					window->resize();
 		}
 
-		// update and draw
-		mApp->privateUpdate__();
+		//// update and draw
+		//mApp->privateUpdate__();
 
 		const double drawTime = mApp->getElapsedSeconds();
 		for( auto &window : mWindows ) {
@@ -226,6 +226,9 @@ void AppImplMswBasic::runV2()
 				window->redraw();
 		}
 		mSyncFrameNumber++;
+
+		mApp->privateUpdate__();
+
 		/*const double drawTimeEx = mApp->getElapsedSeconds() - drawTime;
 		if (drawTimeEx > secondsPerFrame) {
 			mNextFrameTime += drawTimeEx;
