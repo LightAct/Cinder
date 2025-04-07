@@ -156,7 +156,7 @@ void AppImplMswBasic::run()
 			makeCinderSleep = false;
 		}
 		if (makeCinderSleep) {
-			const double cinderSleep = mNextFrameTime - currentSeconds - 0.003;
+			const double cinderSleep = mNextFrameTime - currentSeconds;
 			sleep(cinderSleep);
 		} else {
 			MSG msg;
