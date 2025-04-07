@@ -41,6 +41,7 @@ class AppImplMswBasic : public AppImplMsw {
 	AppImplMswBasic( AppMsw *app, const AppMsw::Settings &settings );
 
 	void	run();
+	void	runV2();
 
 	AppMsw*	getApp() { return mApp; }
 	

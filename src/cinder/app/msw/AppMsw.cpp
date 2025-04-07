@@ -89,7 +89,7 @@ void AppMsw::launch()
 		platformMsw->directConsoleToCout( true );
 	}
 
-	mImpl->run();
+	mImpl->runV2();
 }
 
 WindowRef AppMsw::createWindow( const Window::Format &format )
