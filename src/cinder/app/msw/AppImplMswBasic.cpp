@@ -226,10 +226,10 @@ void AppImplMswBasic::runV2()
 				window->redraw();
 		}
 		mSyncFrameNumber++;
-		const double drawTimeEx = mApp->getElapsedSeconds() - drawTime;
+		/*const double drawTimeEx = mApp->getElapsedSeconds() - drawTime;
 		if (drawTimeEx > secondsPerFrame) {
 			mNextFrameTime += drawTimeEx;
-		}
+		}*/
 		/*drawTime = mApp->getElapsedSeconds() - drawTime;
 		if (mAutoEpochReset && mFrameRateEnabled) {
 			if (drawTime > secondsPerFrame) {
@@ -244,8 +244,8 @@ void AppImplMswBasic::runV2()
 		mApp->privatePostUpdateDraw__();
 
 		if (mEpochOffset != 0.f) {
-			mNextFrameTime = drawTime; // mApp->getElapsedSeconds();
-			mNextFrameTime += mEpochOffset * 0.001f;
+			mNextFrameTime = mApp->getElapsedSeconds();
+			mNextFrameTime -= mEpochOffset * 0.001f;
 			mEpochOffset = 0.f;
 		}
 
@@ -263,9 +263,9 @@ void AppImplMswBasic::runV2()
 		mNextFrameTime += secondsPerFrame;
 		bool makeCinderSleep = mFrameRateEnabled;
 		if (mNextFrameTime > currentSeconds) {
-			if( mSyncRole == 2) {
+			/*if( mSyncRole == 2) {
 				makeCinderSleep = false;
-			}
+			}*/
 		} else {
 			makeCinderSleep = false;
 		}
