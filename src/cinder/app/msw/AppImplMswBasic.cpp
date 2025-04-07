@@ -194,6 +194,8 @@ void AppImplMswBasic::runV2()
 	// inner loop
 	while (!mShouldQuit) {
 
+		auto nowTime = std::chrono::high_resolution_clock::now();
+
 		// when in sync mode, wait for trigger		
 		if (mSyncRole == 1 || mSyncRole == 2) {
 			std::unique_lock lk(frame_mutex);
@@ -243,9 +245,8 @@ void AppImplMswBasic::runV2()
 			mNextFrameTime = mApp->getElapsedSeconds();
 			mNextFrameTime += mEpochOffset * 0.001f;
 			mEpochOffset = 0.f;
-		} else {
-			mNextFrameTime += secondsPerFrame;
 		}
+		mNextFrameTime += secondsPerFrame;
 
 		// get current time in seconds
 		// double currentSeconds = mApp->getElapsedSeconds();
@@ -271,10 +272,13 @@ void AppImplMswBasic::runV2()
 				::DispatchMessage(&msg);
 			}
 		}		
-		if (makeCinderSleep) {			
-			const double cinderSleep = mNextFrameTime - mApp->getElapsedSeconds() - 0.003;
-			if (cinderSleep > 0.0) {
-				sleep(cinderSleep);
+		if (makeCinderSleep) {
+
+			const int microseconds = (int)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - nowTime).count();
+			// const double cinderSleep = mNextFrameTime - mApp->getElapsedSeconds() - 0.003;
+			if (microseconds > 0.0) {
+				std::this_thread::sleep_for(std::chrono::microseconds(microseconds));
+
 			}
 		}
 		mApp->privateEndFrame__();
