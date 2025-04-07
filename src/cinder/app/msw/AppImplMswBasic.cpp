@@ -182,22 +182,20 @@ void AppImplMswBasic::runV2()
 	// issue initial app activation event
 	mApp->emitDidBecomeActive();
 
-	for (auto& window : mWindows)
+	for( auto &window : mWindows )
 		window->resize();
 
 	// initialize our next frame time
 	mNextFrameTime = getElapsedSeconds();
-
+	
 	epochResetCounter = 0;
-	int nextFrameCounter = 0;
+	int nextFrameCounter = 0;	
 
 	// inner loop
-	while (!mShouldQuit) {
-
-		auto nowTime = std::chrono::high_resolution_clock::now();
+	while( !mShouldQuit ) {
 
 		// when in sync mode, wait for trigger		
-		if (mSyncRole == 1 || mSyncRole == 2) {
+		if ( mSyncRole == 1 || mSyncRole == 2 ) {
 			std::unique_lock lk(frame_mutex);
 			frame_wait.wait(lk, [this] { return mSyncNextFrame; });
 			// unlock for next frame
@@ -210,30 +208,34 @@ void AppImplMswBasic::runV2()
 		mApp->privateBeginFrame__();
 
 		// all of our Windows will have marked this as true if the user has unplugged, plugged or modified a Monitor
-		if (mNeedsToRefreshDisplays) {
+		if( mNeedsToRefreshDisplays ) {
 			mNeedsToRefreshDisplays = false;
 			PlatformMsw::get()->refreshDisplays();
 			// if this app is high-DPI aware, we need to issue resizes with possible contentScale changes
-			if (getHighDensityDisplayEnabled())
-				for (auto& window : mWindows)
+			if( getHighDensityDisplayEnabled() )
+				for( auto &window : mWindows )
 					window->resize();
 		}
 
 		// update and draw
 		mApp->privateUpdate__();
 
-		double drawTime = mApp->getElapsedSeconds();
-		for (auto& window : mWindows) {
-			if (!mShouldQuit) // test for quit() issued either from update() or prior draw()
+		const double drawTime = mApp->getElapsedSeconds();
+		for( auto &window : mWindows ) {
+			if( ! mShouldQuit ) // test for quit() issued either from update() or prior draw()
 				window->redraw();
 		}
 		mSyncFrameNumber++;
-		drawTime = mApp->getElapsedSeconds() - drawTime;
+		const double drawTimeEx = mApp->getElapsedSeconds() - drawTime;
+		if (drawTimeEx > secondsPerFrame) {
+			mNextFrameTime += drawTimeEx;
+		}
+		/*drawTime = mApp->getElapsedSeconds() - drawTime;
 		if (mAutoEpochReset && mFrameRateEnabled) {
 			if (drawTime > secondsPerFrame) {
 				epochResetCounter++;
 			}
-		}
+		}*/
 		//// trigger reset
 		//if (epochResetter != epochResetCounter)
 		//	mEpochReset = true;
@@ -242,49 +244,46 @@ void AppImplMswBasic::runV2()
 		mApp->privatePostUpdateDraw__();
 
 		if (mEpochOffset != 0.f) {
-			mNextFrameTime = mApp->getElapsedSeconds();
+			mNextFrameTime = drawTime; // mApp->getElapsedSeconds();
 			mNextFrameTime += mEpochOffset * 0.001f;
 			mEpochOffset = 0.f;
 		}
-		mNextFrameTime += secondsPerFrame;
 
 		// get current time in seconds
-		// double currentSeconds = mApp->getElapsedSeconds();
+		double currentSeconds = mApp->getElapsedSeconds();
 
 		// determine if application was frozen for a while and adjust next frame time		
-		/*double elapsedSeconds = currentSeconds - mNextFrameTime;
-		if (elapsedSeconds > 1.0) {
+		double elapsedSeconds = currentSeconds - mNextFrameTime;
+		if( elapsedSeconds > 1.0 ) {
 			int numSkipFrames = (int)(elapsedSeconds / secondsPerFrame);
 			mNextFrameTime += (numSkipFrames * secondsPerFrame);
-		}*/
-
-		// determine when next frame should be drawn
-		// mNextFrameTime += secondsPerFrame;
-		bool makeCinderSleep = mFrameRateEnabled;
-		if (mSyncRole == 2) {
-			makeCinderSleep = false;
 		}
 
-		{
+		// determine when next frame should be drawn
+		mNextFrameTime += secondsPerFrame;
+		bool makeCinderSleep = mFrameRateEnabled;
+		if (mNextFrameTime > currentSeconds) {
+			if( mSyncRole == 2) {
+				makeCinderSleep = false;
+			}
+		} else {
+			makeCinderSleep = false;
+		}
+		if (makeCinderSleep) {
+			const double cinderSleep = mNextFrameTime - currentSeconds;
+			sleep(cinderSleep);
+		} else {
 			MSG msg;
 			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 				::TranslateMessage(&msg);
 				::DispatchMessage(&msg);
 			}
-		}		
-		if (makeCinderSleep) {
-
-			const int microseconds = (int)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - nowTime).count();
-			// const double cinderSleep = mNextFrameTime - mApp->getElapsedSeconds() - 0.003;
-			if (microseconds > 0.0) {
-				std::this_thread::sleep_for(std::chrono::microseconds(microseconds));
-
-			}
 		}
 		mApp->privateEndFrame__();
+
 	}
 
-	//	killWindow( mFullScreen );
+//	killWindow( mFullScreen );
 	mApp->emitCleanup();
 	delete mApp;
 }
