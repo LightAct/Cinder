@@ -278,6 +278,8 @@ void AppImplMswBasic::runV2()
 				::TranslateMessage(&msg);
 				::DispatchMessage(&msg);
 			}
+			// now
+			mNextFrameTime = mApp->getElapsedSeconds();;
 		}
 		mApp->privateEndFrame__();
 
