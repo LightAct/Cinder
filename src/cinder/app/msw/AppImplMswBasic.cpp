@@ -228,14 +228,30 @@ void AppImplMswBasic::runV2()
 			}*/
 		}
 
+		bool redrawEx = false;
+		for (auto& window : mWindows) {
+			if (!mShouldQuit && redrawEx) { // test for quit() issued either from update() or prior draw()
+				window->redraw();
+			}
+			redrawEx = true;
+		}
+
 		// update and draw
 		mApp->privateUpdate__();
 
 		double drawTime = mApp->getElapsedSeconds();
-		for (auto& window : mWindows) {
-			if (!mShouldQuit) // test for quit() issued either from update() or prior draw()
-				window->redraw();
-		}
+		/*
+			for (auto& window : mWindows) {
+				if (!mShouldQuit) { // test for quit() issued either from update() or prior draw()
+					window->redraw();
+				}
+			}
+		*/
+
+		auto mainWindow = mWindows.begin();
+		if (mainWindow != mWindows.end() && !mShouldQuit) {
+			(*mainWindow)->redraw();
+		}		
 		mSyncFrameNumber++;
 		drawTime = mApp->getElapsedSeconds() - drawTime;
 		if (mAutoEpochReset && mFrameRateEnabled) {
@@ -251,9 +267,9 @@ void AppImplMswBasic::runV2()
 		mApp->privatePostUpdateDraw__();
 
 		if (mEpochOffset != 0.f) {
-			mNextFrameTime = mApp->getElapsedSeconds();
-			mNextFrameTime += mEpochOffset * 0.001f;
-			mEpochOffset = 0.f;
+			 mNextFrameTime = mApp->getElapsedSeconds();
+			 mNextFrameTime += mEpochOffset * 0.001f;
+			 mEpochOffset = 0.f;
 		}
 
 		// get current time in seconds
@@ -273,8 +289,8 @@ void AppImplMswBasic::runV2()
 			if (mSyncRole == 2) {
 				makeCinderSleep = false;
 			}
-		}
-		else {
+		} else {
+			mNextFrameTime = currentSeconds - 2.0;
 			makeCinderSleep = false;
 		}
 		if (makeCinderSleep) {
@@ -289,6 +305,15 @@ void AppImplMswBasic::runV2()
 			}
 		}
 		mApp->privateEndFrame__();
+
+		//redrawEx = false;
+		//for (auto& window : mWindows) {
+		//	if (!mShouldQuit && redrawEx) { // test for quit() issued either from update() or prior draw()
+		//		window->redraw();
+		//	}
+		//	redrawEx = true;
+		//}
+
 
 	}
 
