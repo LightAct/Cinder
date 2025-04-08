@@ -220,12 +220,12 @@ void AppImplMswBasic::runV2()
 		}
 		if (mWindowCount != mWindows.size()) {
 			mWindowCount = mWindows.size();
-			bool enableVsync = (mWindowCount == 1);
+			/*bool enableVsync = (mWindowCount == 1);
 			for (auto& window : mWindows) {
 				window->getRenderer()->makeCurrentContext(true);
 				::wglSwapIntervalEXT(enableVsync ? 1 : 0);
 				enableVsync = false;
-			}
+			}*/
 		}
 
 		// update and draw
