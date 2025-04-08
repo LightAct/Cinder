@@ -187,11 +187,7 @@ void AppImplMswBasic::runV2()
 
 	// initialize our next frame time
 	mNextFrameTime = getElapsedSeconds();
-
 	epochResetCounter = 0;
-	int nextFrameCounter = 0;
-
-	size_t mWindowCount = 1;
 
 	// inner loop
 	while (!mShouldQuit) {
@@ -218,59 +214,30 @@ void AppImplMswBasic::runV2()
 				for (auto& window : mWindows)
 					window->resize();
 		}
-		if (mWindowCount != mWindows.size()) {
-			mWindowCount = mWindows.size();
-			/*bool enableVsync = (mWindowCount == 1);
-			for (auto& window : mWindows) {
-				window->getRenderer()->makeCurrentContext(true);
-				::wglSwapIntervalEXT(enableVsync ? 1 : 0);
-				enableVsync = false;
-			}*/
-		}
-
-		bool redrawEx = false;
-		for (auto& window : mWindows) {
-			if (!mShouldQuit && redrawEx) { // test for quit() issued either from update() or prior draw()
-				window->redraw();
-			}
-			redrawEx = true;
-		}
 
 		// update and draw
+		double updateTime = mApp->getElapsedSeconds();
 		mApp->privateUpdate__();
+		updateTime = mApp->getElapsedSeconds() - updateTime;
 
 		double drawTime = mApp->getElapsedSeconds();
-		/*
-			for (auto& window : mWindows) {
-				if (!mShouldQuit) { // test for quit() issued either from update() or prior draw()
-					window->redraw();
-				}
+		for (auto& window : mWindows) {
+			if (!mShouldQuit) { // test for quit() issued either from update() or prior draw()
+				window->redraw();
 			}
-		*/
-
-		auto mainWindow = mWindows.begin();
-		if (mainWindow != mWindows.end() && !mShouldQuit) {
-			(*mainWindow)->redraw();
 		}		
-		mSyncFrameNumber++;
-		drawTime = mApp->getElapsedSeconds() - drawTime;
-		if (mAutoEpochReset && mFrameRateEnabled) {
-			if (drawTime > secondsPerFrame) {
-				epochResetCounter++;
+		for (auto& window : mWindows) {
+			if (!mShouldQuit) { // test for quit() issued either from update() or prior draw()
+				window->getRenderer()->makeCurrentContext();
+				window->getRenderer()->finishDraw();
 			}
 		}
-		//// trigger reset
-		//if (epochResetter != epochResetCounter)
-		//	mEpochReset = true;
+		drawTime = mApp->getElapsedSeconds() - drawTime;
+
+		mSyncFrameNumber++;	
 
 		// everything done
 		mApp->privatePostUpdateDraw__();
-
-		if (mEpochOffset != 0.f) {
-			 mNextFrameTime = mApp->getElapsedSeconds();
-			 mNextFrameTime += mEpochOffset * 0.001f;
-			 mEpochOffset = 0.f;
-		}
 
 		// get current time in seconds
 		double currentSeconds = mApp->getElapsedSeconds();
@@ -281,9 +248,19 @@ void AppImplMswBasic::runV2()
 			int numSkipFrames = (int)(elapsedSeconds / secondsPerFrame);
 			mNextFrameTime += (numSkipFrames * secondsPerFrame);
 		}
+		//if (drawTime > secondsPerFrame * .95) {
+		//	mEpochOffset = 1.f;
+		//}
 
-		// determine when next frame should be drawn
-		mNextFrameTime += secondsPerFrame;
+		if (mEpochOffset != 0.f) {
+			mNextFrameTime = mApp->getElapsedSeconds();
+			mNextFrameTime -= (drawTime + updateTime);
+			mEpochOffset = 0.f;
+		} else {
+			mNextFrameTime += secondsPerFrame;
+		}
+
+		// determine when next frame should be drawn		
 		bool makeCinderSleep = mFrameRateEnabled;
 		if (mNextFrameTime > currentSeconds) {
 			if (mSyncRole == 2) {
@@ -296,8 +273,7 @@ void AppImplMswBasic::runV2()
 		if (makeCinderSleep) {
 			const double cinderSleep = mNextFrameTime - currentSeconds;
 			sleep(cinderSleep);
-		}
-		else {
+		} else {
 			MSG msg;
 			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 				::TranslateMessage(&msg);
@@ -305,15 +281,6 @@ void AppImplMswBasic::runV2()
 			}
 		}
 		mApp->privateEndFrame__();
-
-		//redrawEx = false;
-		//for (auto& window : mWindows) {
-		//	if (!mShouldQuit && redrawEx) { // test for quit() issued either from update() or prior draw()
-		//		window->redraw();
-		//	}
-		//	redrawEx = true;
-		//}
-
 
 	}
 

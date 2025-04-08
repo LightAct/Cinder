@@ -42,6 +42,7 @@ class AppImplMswBasic : public AppImplMsw {
 
 	void	run();
 	void	runV2();
+	void	runV3();
 
 	AppMsw*	getApp() { return mApp; }
 	
