@@ -182,20 +182,22 @@ void AppImplMswBasic::runV2()
 	// issue initial app activation event
 	mApp->emitDidBecomeActive();
 
-	for( auto &window : mWindows )
+	for (auto& window : mWindows)
 		window->resize();
 
 	// initialize our next frame time
 	mNextFrameTime = getElapsedSeconds();
-	
+
 	epochResetCounter = 0;
-	int nextFrameCounter = 0;	
+	int nextFrameCounter = 0;
+
+	size_t mWindowCount = 1;
 
 	// inner loop
-	while( !mShouldQuit ) {
+	while (!mShouldQuit) {
 
 		// when in sync mode, wait for trigger		
-		if ( mSyncRole == 1 || mSyncRole == 2 ) {
+		if (mSyncRole == 1 || mSyncRole == 2) {
 			std::unique_lock lk(frame_mutex);
 			frame_wait.wait(lk, [this] { return mSyncNextFrame; });
 			// unlock for next frame
@@ -208,37 +210,39 @@ void AppImplMswBasic::runV2()
 		mApp->privateBeginFrame__();
 
 		// all of our Windows will have marked this as true if the user has unplugged, plugged or modified a Monitor
-		if( mNeedsToRefreshDisplays ) {
+		if (mNeedsToRefreshDisplays) {
 			mNeedsToRefreshDisplays = false;
 			PlatformMsw::get()->refreshDisplays();
 			// if this app is high-DPI aware, we need to issue resizes with possible contentScale changes
-			if( getHighDensityDisplayEnabled() )
-				for( auto &window : mWindows )
+			if (getHighDensityDisplayEnabled())
+				for (auto& window : mWindows)
 					window->resize();
 		}
+		if (mWindowCount != mWindows.size()) {
+			mWindowCount = mWindows.size();
+			bool enableVsync = (mWindowCount == 1);
+			for (auto& window : mWindows) {
+				window->getRenderer()->makeCurrentContext(true);
+				::wglSwapIntervalEXT(enableVsync ? 1 : 0);
+				enableVsync = false;
+			}
+		}
 
-		//// update and draw
-		//mApp->privateUpdate__();
+		// update and draw
+		mApp->privateUpdate__();
 
-		const double drawTime = mApp->getElapsedSeconds();
-		for( auto &window : mWindows ) {
-			if( ! mShouldQuit ) // test for quit() issued either from update() or prior draw()
+		double drawTime = mApp->getElapsedSeconds();
+		for (auto& window : mWindows) {
+			if (!mShouldQuit) // test for quit() issued either from update() or prior draw()
 				window->redraw();
 		}
 		mSyncFrameNumber++;
-
-		mApp->privateUpdate__();
-
-		/*const double drawTimeEx = mApp->getElapsedSeconds() - drawTime;
-		if (drawTimeEx > secondsPerFrame) {
-			mNextFrameTime += drawTimeEx;
-		}*/
-		/*drawTime = mApp->getElapsedSeconds() - drawTime;
+		drawTime = mApp->getElapsedSeconds() - drawTime;
 		if (mAutoEpochReset && mFrameRateEnabled) {
 			if (drawTime > secondsPerFrame) {
 				epochResetCounter++;
 			}
-		}*/
+		}
 		//// trigger reset
 		//if (epochResetter != epochResetCounter)
 		//	mEpochReset = true;
@@ -248,7 +252,7 @@ void AppImplMswBasic::runV2()
 
 		if (mEpochOffset != 0.f) {
 			mNextFrameTime = mApp->getElapsedSeconds();
-			mNextFrameTime -= mEpochOffset * 0.001f;
+			mNextFrameTime += mEpochOffset * 0.001f;
 			mEpochOffset = 0.f;
 		}
 
@@ -257,7 +261,7 @@ void AppImplMswBasic::runV2()
 
 		// determine if application was frozen for a while and adjust next frame time		
 		double elapsedSeconds = currentSeconds - mNextFrameTime;
-		if( elapsedSeconds > 1.0 ) {
+		if (elapsedSeconds > 1.0) {
 			int numSkipFrames = (int)(elapsedSeconds / secondsPerFrame);
 			mNextFrameTime += (numSkipFrames * secondsPerFrame);
 		}
@@ -266,29 +270,29 @@ void AppImplMswBasic::runV2()
 		mNextFrameTime += secondsPerFrame;
 		bool makeCinderSleep = mFrameRateEnabled;
 		if (mNextFrameTime > currentSeconds) {
-			/*if( mSyncRole == 2) {
+			if (mSyncRole == 2) {
 				makeCinderSleep = false;
-			}*/
-		} else {
+			}
+		}
+		else {
 			makeCinderSleep = false;
 		}
 		if (makeCinderSleep) {
 			const double cinderSleep = mNextFrameTime - currentSeconds;
 			sleep(cinderSleep);
-		} else {
+		}
+		else {
 			MSG msg;
 			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 				::TranslateMessage(&msg);
 				::DispatchMessage(&msg);
 			}
-			// now
-			mNextFrameTime = mApp->getElapsedSeconds();;
 		}
 		mApp->privateEndFrame__();
 
 	}
 
-//	killWindow( mFullScreen );
+	//	killWindow( mFullScreen );
 	mApp->emitCleanup();
 	delete mApp;
 }
