@@ -174,8 +174,15 @@ void AppImplMswBasic::run()
 	mApp->emitCleanup();
 	delete mApp;
 }
+void AppImplMswBasic::SwapBuffers() {
+	for (auto& window : mWindows) {
+		if (!mShouldQuit) { // test for quit() issued either from update() or prior draw()
+			window->getRenderer()->makeCurrentContext();
+			window->getRenderer()->finishDraw();
+		}
+	}
+}
 void AppImplMswBasic::RedrawWindows() {
-
 	mApp->privateBeginDraw__();
 	for (auto& window : mWindows) {
 		if (!mShouldQuit) { // test for quit() issued either from update() or prior draw()
@@ -184,6 +191,9 @@ void AppImplMswBasic::RedrawWindows() {
 	}
 	mApp->privateEndDraw__();
 
+}
+double AppImplMswBasic::GetElapsedSeconds() {
+	return esOffset + getElapsedSeconds();
 }
 void AppImplMswBasic::runV2()
 {
@@ -197,7 +207,7 @@ void AppImplMswBasic::runV2()
 		window->resize();
 
 	// initialize our next frame time
-	mNextFrameTime = getElapsedSeconds();
+	mNextFrameTime = GetElapsedSeconds();
 	epochResetCounter = 0;
 	size_t mWindowsSize = 1;
 
@@ -239,48 +249,41 @@ void AppImplMswBasic::runV2()
 		}
 
 		// update and draw
-		double updateTime = mApp->getElapsedSeconds();
+		double updateTime = GetElapsedSeconds();
 		mApp->privateUpdate__();
-		updateTime = mApp->getElapsedSeconds() - updateTime;
+		updateTime = GetElapsedSeconds() - updateTime;
 
-		double drawTime = mApp->getElapsedSeconds();
+		double drawTime = GetElapsedSeconds();
 		RedrawWindows();
-		drawTime = mApp->getElapsedSeconds() - drawTime;
+		drawTime = GetElapsedSeconds() - drawTime;
 
-		double waitForSwapTime = mApp->getElapsedSeconds();		
-		for (auto& window : mWindows) {
-			if (!mShouldQuit) { // test for quit() issued either from update() or prior draw()
-				window->getRenderer()->makeCurrentContext();
-				window->getRenderer()->finishDraw();
-			}
-		}
-		waitForSwapTime = mApp->getElapsedSeconds() - waitForSwapTime;
+		double waitForSwapTime = GetElapsedSeconds();
+		SwapBuffers();
+		waitForSwapTime = GetElapsedSeconds() - waitForSwapTime;
 		// everything done
 		mApp->privateEndSwap__();
 		
 		mSyncFrameNumber++;	
 
 		// get current time in seconds
-		double currentSeconds = mApp->getElapsedSeconds();
+		double currentSeconds = GetElapsedSeconds();
 		// determine if application was frozen for a while and adjust next frame time				
 		double elapsedSeconds = currentSeconds - mNextFrameTime;
 		if (elapsedSeconds > 1.0) {
-			// align seconds
 			int numSkipFrames = (int)(elapsedSeconds / secondsPerFrame);
 			mNextFrameTime += (numSkipFrames * secondsPerFrame);			
-		} 
-		if (mEpochOffset != 0.f) {
-			mNextFrameTime = waitForSwapTime; // now into next frame
-			mNextFrameTime += secondsPerFrame;
-			mNextFrameTime -= ( drawTime + updateTime + 0.002 );
-			mEpochOffset = 0.f;
-		} else {
-			mNextFrameTime += secondsPerFrame;
 		}
+		double nextSleep = 0.;
+		if (mEpochOffset != 0.f) {
+			nextSleep = (mEpochOffset * 0.001);
+			mEpochOffset = 0.f;
+		}
+		mNextFrameTime += secondsPerFrame;
 
+		currentSeconds = GetElapsedSeconds();
 		// determine when next frame should be drawn		
 		bool makeCinderSleep = mFrameRateEnabled;
-		if (mNextFrameTime > currentSeconds) {
+		if (mNextFrameTime > currentSeconds || nextSleep != 0.0) {
 			if (mSyncRole == 2) {
 				makeCinderSleep = false;
 			}
@@ -288,7 +291,13 @@ void AppImplMswBasic::runV2()
 			makeCinderSleep = false;
 		}
 		if (makeCinderSleep) {
-			const double cinderSleep = mNextFrameTime - currentSeconds;
+			double cinderSleep = 0.0;
+			if (nextSleep != 0.0) {
+				cinderSleep = nextSleep;
+				mNextFrameTime = currentSeconds + cinderSleep;
+			} else {
+				cinderSleep = (mNextFrameTime - currentSeconds);
+			}			
 			sleep(cinderSleep);
 		} else {
 			MSG msg;

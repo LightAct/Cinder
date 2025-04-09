@@ -39,6 +39,9 @@ class WindowImplMswBasic;
 class AppImplMswBasic : public AppImplMsw {
 private:
 	void RedrawWindows();
+	void SwapBuffers();
+	double esOffset = 0.0;
+	double GetElapsedSeconds();
   public:
 	AppImplMswBasic( AppMsw *app, const AppMsw::Settings &settings );
 
