@@ -255,21 +255,21 @@ void AppImplMswBasic::runV2()
 
 		// get current time in seconds
 		double currentSeconds = mApp->getElapsedSeconds();
-
-		// determine if application was frozen for a while and adjust next frame time		
+		// determine if application was frozen for a while and adjust next frame time				
 		double elapsedSeconds = currentSeconds - mNextFrameTime;
 		if (elapsedSeconds > 1.0) {
+			// align seconds
 			int numSkipFrames = (int)(elapsedSeconds / secondsPerFrame);
-			mNextFrameTime += (numSkipFrames * secondsPerFrame);
-		}
-
-		if (mEpochOffset != 0.f) {
-			mNextFrameTime = mApp->getElapsedSeconds();
-			mNextFrameTime -= (drawTime + updateTime);
+			mNextFrameTime += (numSkipFrames * secondsPerFrame);			
+		} 
+		/*if (mEpochOffset != 0.f) {
+			mNextFrameTime = currentSeconds;
+			mNextFrameTime += secondsPerFrame;
+			mNextFrameTime -= secondsPerFrame * .25;
 			mEpochOffset = 0.f;
 		} else {
 			mNextFrameTime += secondsPerFrame;
-		}
+		}*/
 
 		// determine when next frame should be drawn		
 		bool makeCinderSleep = mFrameRateEnabled;
