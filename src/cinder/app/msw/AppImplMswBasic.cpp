@@ -188,6 +188,7 @@ void AppImplMswBasic::runV2()
 	// initialize our next frame time
 	mNextFrameTime = getElapsedSeconds();
 	epochResetCounter = 0;
+	size_t mWindowsSize = 1;
 
 	// inner loop
 	while (!mShouldQuit) {
@@ -203,7 +204,19 @@ void AppImplMswBasic::runV2()
 		// calculate time per frame in seconds
 		const double secondsPerFrame = 1.0 / (double)mFrameRate;
 		const unsigned int epochResetter = epochResetCounter;
+		double frameBeginTime = mApp->getElapsedSeconds();
 		mApp->privateBeginFrame__();
+
+		if (mWindowsSize != mWindows.size()) {
+			mWindowsSize = mWindows.size();
+			bool vsync = (mWindowsSize == 1);
+			for (auto& window : mWindows) {
+				window->getRenderer()->makeCurrentContext();
+				GLint sync = (vsync) ? 1 : 0;
+				::wglSwapIntervalEXT(sync);
+				vsync = true;
+			}
+		}
 
 		// all of our Windows will have marked this as true if the user has unplugged, plugged or modified a Monitor
 		if (mNeedsToRefreshDisplays) {
@@ -225,19 +238,20 @@ void AppImplMswBasic::runV2()
 			if (!mShouldQuit) { // test for quit() issued either from update() or prior draw()
 				window->redraw();
 			}
-		}		
+		}
+		drawTime = mApp->getElapsedSeconds() - drawTime;
 		for (auto& window : mWindows) {
 			if (!mShouldQuit) { // test for quit() issued either from update() or prior draw()
 				window->getRenderer()->makeCurrentContext();
 				window->getRenderer()->finishDraw();
 			}
 		}
-		drawTime = mApp->getElapsedSeconds() - drawTime;
-
+		
 		mSyncFrameNumber++;	
 
 		// everything done
 		mApp->privatePostUpdateDraw__();
+		frameBeginTime = mApp->getElapsedSeconds() - frameBeginTime;
 
 		// get current time in seconds
 		double currentSeconds = mApp->getElapsedSeconds();
@@ -248,9 +262,6 @@ void AppImplMswBasic::runV2()
 			int numSkipFrames = (int)(elapsedSeconds / secondsPerFrame);
 			mNextFrameTime += (numSkipFrames * secondsPerFrame);
 		}
-		//if (drawTime > secondsPerFrame * .95) {
-		//	mEpochOffset = 1.f;
-		//}
 
 		if (mEpochOffset != 0.f) {
 			mNextFrameTime = mApp->getElapsedSeconds();
@@ -267,7 +278,6 @@ void AppImplMswBasic::runV2()
 				makeCinderSleep = false;
 			}
 		} else {
-			mNextFrameTime = currentSeconds - 2.0;
 			makeCinderSleep = false;
 		}
 		if (makeCinderSleep) {
