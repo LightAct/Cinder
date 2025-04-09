@@ -40,12 +40,13 @@ class AppImplMswBasic : public AppImplMsw {
 private:
 	void RedrawWindows();
 	void SwapBuffers();
+	void HandleSwapGroups();
+	int swGroupMode = -1;
   public:
 	AppImplMswBasic( AppMsw *app, const AppMsw::Settings &settings );
 
 	void	run();
 	void	runV2();
-	void	runV3();
 
 	AppMsw*	getApp() { return mApp; }
 	

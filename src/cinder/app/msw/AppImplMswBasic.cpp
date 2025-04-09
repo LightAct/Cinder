@@ -174,6 +174,39 @@ void AppImplMswBasic::run()
 	mApp->emitCleanup();
 	delete mApp;
 }
+void AppImplMswBasic::HandleSwapGroups() {
+	if (swGroupMode == -1)
+		return;
+	if(swGroupMode == 0) {
+		bool include = false;
+		for (auto wind : mWindows) {
+			if (include) {
+				wind->getRenderer()->makeCurrentContext();
+				leaveSwapGroupNVEx(wind->getDc());
+				wind->getRenderer()->finishDraw();
+			}
+			include = true;
+		}
+	} else if (swGroupMode == 1) {
+		bool include = false;
+		for (auto wind : mWindows) {
+			if(include) {
+				wind->getRenderer()->makeCurrentContext();
+				joinSwapGroupNVEx(wind->getDc());				
+			}
+			include = true;
+		}
+		include = false;
+		for (auto wind : mWindows) {
+			if (include) {
+				wind->getRenderer()->makeCurrentContext();				
+				wind->getRenderer()->finishDraw();
+			}
+			include = true;
+		}
+	}
+	swGroupMode = -1;
+}
 void AppImplMswBasic::SwapBuffers() {	
 	// outputs
 	bool bProcess = false;
@@ -187,13 +220,10 @@ void AppImplMswBasic::SwapBuffers() {
 		bProcess = true;
 	}
 	// gui
-	for (auto& window : mWindows) {
-		if (!mShouldQuit) {
-			window->getRenderer()->makeCurrentContext();
-			window->getRenderer()->finishDraw();
-		}
-		break;
-	}
+	if (!mShouldQuit) {
+		mWindows.front()->getRenderer()->makeCurrentContext();
+		mWindows.front()->getRenderer()->finishDraw();
+	}	
 }
 void AppImplMswBasic::RedrawWindows() {
 	mApp->privateBeginDraw__();
@@ -315,7 +345,7 @@ void AppImplMswBasic::runV2()
 			}
 		}
 		mApp->privateEndFrame__();
-
+		HandleSwapGroups();
 	}
 
 	//	killWindow( mFullScreen );
@@ -526,11 +556,13 @@ uint32_t AppImplMswBasic::getSyncFrameNumber() {
 void AppImplMswBasic::setDebug( bool val )
 {
 	mDebug = val;
+	swGroupMode = val ? 1 : 0;
 }
 void AppImplMswBasic::joinSwapGroup(bool val) {
 	if (val) {
 		for (auto wind : mWindows) {
 			joinSwapGroupNVEx(wind->getDc());
+			
 		}
 	} else {
 		for (auto wind : mWindows) {
