@@ -174,12 +174,25 @@ void AppImplMswBasic::run()
 	mApp->emitCleanup();
 	delete mApp;
 }
-void AppImplMswBasic::SwapBuffers() {
+void AppImplMswBasic::SwapBuffers() {	
+	// outputs
+	bool bProcess = false;
 	for (auto& window : mWindows) {
-		if (!mShouldQuit) { // test for quit() issued either from update() or prior draw()
+		if (bProcess) {
+			if (!mShouldQuit) {
+				window->getRenderer()->makeCurrentContext();
+				window->getRenderer()->finishDraw();
+			}
+		}
+		bProcess = true;
+	}
+	// gui
+	for (auto& window : mWindows) {
+		if (!mShouldQuit) {
 			window->getRenderer()->makeCurrentContext();
 			window->getRenderer()->finishDraw();
 		}
+		break;
 	}
 }
 void AppImplMswBasic::RedrawWindows() {
