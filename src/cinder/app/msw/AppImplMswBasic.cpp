@@ -127,7 +127,8 @@ void AppImplMswBasic::run()
 		//	mEpochReset = true;
 
 		// everything done
-		mApp->privatePostUpdateDraw__();
+		// everything done
+		mApp->privateEndSwap__();
 
 		if (mEpochOffset != 0.f) {
 			mNextFrameTime = mApp->getElapsedSeconds();
@@ -173,7 +174,17 @@ void AppImplMswBasic::run()
 	mApp->emitCleanup();
 	delete mApp;
 }
+void AppImplMswBasic::RedrawWindows() {
 
+	mApp->privateBeginDraw__();
+	for (auto& window : mWindows) {
+		if (!mShouldQuit) { // test for quit() issued either from update() or prior draw()
+			window->redraw();
+		}
+	}
+	mApp->privateEndDraw__();
+
+}
 void AppImplMswBasic::runV2()
 {
 	mApp->privateSetup__();
@@ -204,7 +215,6 @@ void AppImplMswBasic::runV2()
 		// calculate time per frame in seconds
 		const double secondsPerFrame = 1.0 / (double)mFrameRate;
 		const unsigned int epochResetter = epochResetCounter;
-		double frameBeginTime = mApp->getElapsedSeconds();
 		mApp->privateBeginFrame__();
 
 		if (mWindowsSize != mWindows.size()) {
@@ -234,24 +244,21 @@ void AppImplMswBasic::runV2()
 		updateTime = mApp->getElapsedSeconds() - updateTime;
 
 		double drawTime = mApp->getElapsedSeconds();
-		for (auto& window : mWindows) {
-			if (!mShouldQuit) { // test for quit() issued either from update() or prior draw()
-				window->redraw();
-			}
-		}
+		RedrawWindows();
 		drawTime = mApp->getElapsedSeconds() - drawTime;
+
+		double waitForSwapTime = mApp->getElapsedSeconds();		
 		for (auto& window : mWindows) {
 			if (!mShouldQuit) { // test for quit() issued either from update() or prior draw()
 				window->getRenderer()->makeCurrentContext();
 				window->getRenderer()->finishDraw();
 			}
 		}
+		waitForSwapTime = mApp->getElapsedSeconds() - waitForSwapTime;
+		// everything done
+		mApp->privateEndSwap__();
 		
 		mSyncFrameNumber++;	
-
-		// everything done
-		mApp->privatePostUpdateDraw__();
-		frameBeginTime = mApp->getElapsedSeconds() - frameBeginTime;
 
 		// get current time in seconds
 		double currentSeconds = mApp->getElapsedSeconds();
@@ -262,14 +269,14 @@ void AppImplMswBasic::runV2()
 			int numSkipFrames = (int)(elapsedSeconds / secondsPerFrame);
 			mNextFrameTime += (numSkipFrames * secondsPerFrame);			
 		} 
-		/*if (mEpochOffset != 0.f) {
-			mNextFrameTime = currentSeconds;
+		if (mEpochOffset != 0.f) {
+			mNextFrameTime = waitForSwapTime; // now into next frame
 			mNextFrameTime += secondsPerFrame;
-			mNextFrameTime -= secondsPerFrame * .25;
+			mNextFrameTime -= ( drawTime + updateTime + 0.002 );
 			mEpochOffset = 0.f;
 		} else {
 			mNextFrameTime += secondsPerFrame;
-		}*/
+		}
 
 		// determine when next frame should be drawn		
 		bool makeCinderSleep = mFrameRateEnabled;

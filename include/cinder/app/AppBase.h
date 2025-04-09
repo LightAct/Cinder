@@ -251,7 +251,9 @@ class CI_API AppBase {
 	signals::Signal<void()>&	getSignalEndFrame()				{ return mFrameEnd; }
 	signals::Signal<void()>&	getSignalBeginUpdate()			{ return mBeginUpdate; }
 	signals::Signal<void()>&	getSignalEndUpdate()			{ return mEndUpdate; }
-	signals::Signal<void()>&	getSignalPostUpdateDraw()		{ return mPostUpdateDraw; }
+	signals::Signal<void()>&	getSignalBeginDraw()			{ return mBeginDraw; }
+	signals::Signal<void()>&	getSignalEndDraw()				{ return mEndDraw; }
+	signals::Signal<void()>&	getSignalEndSwap()				{ return mEndSwap; }
 	
 	//! Signal that emits before the app quit process begins. If any slots return false then the app quitting is canceled.
 	EventSignalShouldQuit&		getSignalShouldQuit() { return mSignalShouldQuit; }
@@ -451,9 +453,11 @@ class CI_API AppBase {
 	virtual void	privateSetup__();
 	virtual void	privateUpdate__();
 	
-	virtual void	privatePostUpdateDraw__();
+	virtual void	privateEndSwap__();
 	virtual void	privateBeginFrame__();
 	virtual void	privateEndFrame__();
+	virtual void	privateBeginDraw__();
+	virtual void	privateEndDraw__();
 
 	bool			privateEmitShouldQuit()		{ return mSignalShouldQuit.emit(); }
 	//! \endcond
@@ -494,7 +498,8 @@ class CI_API AppBase {
 	std::shared_ptr<Timeline>	mTimeline;
 
 	signals::Signal<void()>		mFrameBegin, mFrameEnd;
-	signals::Signal<void()>		mBeginUpdate, mEndUpdate, mPostUpdateDraw;
+	signals::Signal<void()>		mBeginUpdate, mEndUpdate;
+	signals::Signal<void()>		mBeginDraw, mEndDraw, mEndSwap;
 	signals::Signal<void()>		mSignalUpdate, mSignalCleanup, mSignalWillResignActive, mSignalDidBecomeActive;
 	EventSignalShouldQuit		mSignalShouldQuit;
 	

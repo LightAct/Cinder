@@ -231,14 +231,20 @@ void AppBase::privateSetup__()
 	setup();
 }
 
-void AppBase::privatePostUpdateDraw__() {
-	mPostUpdateDraw.emit();
+void AppBase::privateEndSwap__() {
+	mEndSwap.emit();
 }
 void AppBase::privateBeginFrame__() {
 	mFrameBegin.emit();
 }
 void AppBase::privateEndFrame__() {
 	mFrameEnd.emit();
+}
+void AppBase::privateBeginDraw__() {
+	mBeginDraw.emit();
+}
+void AppBase::privateEndDraw__() {
+	mEndDraw.emit();
 }
 
 void AppBase::privateUpdate__()

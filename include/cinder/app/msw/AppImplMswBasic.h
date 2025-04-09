@@ -37,6 +37,8 @@ namespace cinder { namespace app {
 class WindowImplMswBasic;
 
 class AppImplMswBasic : public AppImplMsw {
+private:
+	void RedrawWindows();
   public:
 	AppImplMswBasic( AppMsw *app, const AppMsw::Settings &settings );
 
