@@ -351,7 +351,11 @@ void AppImplMswBasic::runV2()
 			mNextFrameTime = currentSeconds;
 			mNextFrameTime += (nextVBlank - currentSeconds);
 #else
-			mNextFrameTime = currentSeconds + mEpochOffset * 0.001;
+			if (specialModeEx) {
+				specialSleep = mEpochOffset * 0.001;
+			} else {
+				mNextFrameTime = currentSeconds + mEpochOffset * 0.001;
+			}
 #endif // DAVIDDEV			
 			mEpochOffset = 0.f;
 		} else {
@@ -375,7 +379,7 @@ void AppImplMswBasic::runV2()
 		}
 
 		if (makeCinderSleep) {
-			const double cinderSleep = (mNextFrameTime - getElapsedSeconds());
+			const double cinderSleep = specialModeEx ? specialSleep : (mNextFrameTime - getElapsedSeconds());
 			if(cinderSleep > 0.0) {
 				// sleep(cinderSleep);
 				std::this_thread::sleep_for(std::chrono::milliseconds((int)(cinderSleep * 1000)));

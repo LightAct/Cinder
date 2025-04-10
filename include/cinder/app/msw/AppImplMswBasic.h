@@ -42,6 +42,7 @@ private:
 	void SwapBuffers();
 	void HandleSwapGroups();
 	int swGroupMode = -1;
+	double specialSleep = 0.0;
 	bool specialMode = false;
   public:
 	AppImplMswBasic( AppMsw *app, const AppMsw::Settings &settings );
