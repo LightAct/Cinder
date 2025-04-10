@@ -268,6 +268,8 @@ void AppImplMswBasic::runV2()
 	// inner loop
 	while (!mShouldQuit) {
 
+		const bool sMode = specialMode;
+
 		// when in sync mode, wait for trigger		
 		if (mSyncRole == 1 || mSyncRole == 2) {
 			std::unique_lock lk(frame_mutex);
@@ -307,9 +309,12 @@ void AppImplMswBasic::runV2()
 		mApp->privateUpdate__();
 		updateTime = getElapsedSeconds() - updateTime;
 
-		double drawTime = getElapsedSeconds();
-		RedrawWindows();
-		drawTime = getElapsedSeconds() - drawTime;
+		if (!sMode) {
+
+			double drawTime = getElapsedSeconds();
+			RedrawWindows();
+			drawTime = getElapsedSeconds() - drawTime;
+		}
 
 		{
 			GLsync gpuFence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
@@ -328,6 +333,13 @@ void AppImplMswBasic::runV2()
 		
 		// everything done
 		mApp->privateEndSwap__();
+
+		if ( sMode ) {
+
+			double drawTime = getElapsedSeconds();
+			RedrawWindows();
+			drawTime = getElapsedSeconds() - drawTime;
+		}
 		
 		mSyncFrameNumber++;	
 
@@ -605,7 +617,8 @@ void AppImplMswBasic::setDebug( bool val )
 	swGroupMode = val ? 1 : 0;
 }
 void AppImplMswBasic::joinSwapGroup(bool val) {
-	if (val) {
+	specialMode = val;
+	/*if (val) {
 		for (auto wind : mWindows) {
 			joinSwapGroupNVEx(wind->getDc());
 			
@@ -614,7 +627,7 @@ void AppImplMswBasic::joinSwapGroup(bool val) {
 		for (auto wind : mWindows) {
 			leaveSwapGroupNVEx(wind->getDc());
 		}
-	}
+	}*/
 }
 void AppImplMswBasic::disableFrameRate()
 {
