@@ -374,7 +374,8 @@ void AppImplMswBasic::runV2()
 		if (makeCinderSleep) {
 			const double cinderSleep = (mNextFrameTime - getElapsedSeconds());
 			if(cinderSleep > 0.0) {
-				sleep(cinderSleep);
+				// sleep(cinderSleep);
+				std::this_thread::sleep_for(std::chrono::milliseconds((int)(cinderSleep * 1000)));
 			}
 		}
 		/*else {
