@@ -311,6 +311,17 @@ void AppImplMswBasic::runV2()
 		RedrawWindows();
 		drawTime = getElapsedSeconds() - drawTime;
 
+		{
+			GLsync gpuFence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+			glFlush(); // Make sure it's actually pushed
+
+			double gpuWaitStart = getElapsedSeconds();
+			GLenum result = glClientWaitSync(gpuFence, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000000);
+			double gpuRenderTime = getElapsedSeconds() - gpuWaitStart;
+
+			glDeleteSync(gpuFence);
+		}
+
 		double waitForSwapTime = getElapsedSeconds();
 		SwapBuffers();
 		waitForSwapTime = getElapsedSeconds() - waitForSwapTime;
@@ -354,7 +365,7 @@ void AppImplMswBasic::runV2()
 			makeCinderSleep = false;
 		}
 		if (makeCinderSleep) {
-			const double cinderSleep = (mNextFrameTime - currentSeconds);		
+			const double cinderSleep = (mNextFrameTime - currentSeconds);			
 			sleep(cinderSleep);
 		} else {
 			MSG msg;
@@ -363,6 +374,11 @@ void AppImplMswBasic::runV2()
 				::DispatchMessage(&msg);
 			}
 		}
+
+		/*double waitForSwapTime = getElapsedSeconds();
+		SwapBuffers();
+		waitForSwapTime = getElapsedSeconds() - waitForSwapTime;*/
+
 		mApp->privateEndFrame__();
 		HandleSwapGroups();
 	}
