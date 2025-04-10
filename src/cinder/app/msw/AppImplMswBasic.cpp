@@ -207,24 +207,24 @@ void AppImplMswBasic::HandleSwapGroups() {
 	}
 	swGroupMode = -1;
 }
-//void AppImplMswBasic::SwapBuffers() {	
-//	// outputs
-//	bool bProcess = false;
-//	for (auto& window : mWindows) {
-//		if (bProcess) {
-//			if (!mShouldQuit) {
-//				window->getRenderer()->makeCurrentContext();
-//				window->getRenderer()->finishDraw();
-//			}
-//		}
-//		bProcess = true;
-//	}
-//	// gui
-//	if (!mShouldQuit) {
-//		mWindows.front()->getRenderer()->makeCurrentContext();
-//		mWindows.front()->getRenderer()->finishDraw();
-//	}	
-//}
+void AppImplMswBasic::SwapBuffers() {	
+	// outputs
+	bool bProcess = false;
+	for (auto& window : mWindows) {
+		if (bProcess) {
+			if (!mShouldQuit) {
+				window->getRenderer()->makeCurrentContext();
+				window->getRenderer()->finishDraw();
+			}
+		}
+		bProcess = true;
+	}
+	// gui
+	if (!mShouldQuit) {
+		mWindows.front()->getRenderer()->makeCurrentContext();
+		mWindows.front()->getRenderer()->finishDraw();
+	}	
+}
 void AppImplMswBasic::RedrawWindows() {
 	mApp->privateBeginDraw__();
 
@@ -311,9 +311,10 @@ void AppImplMswBasic::runV2()
 		RedrawWindows();
 		drawTime = getElapsedSeconds() - drawTime;
 
-		//double waitForSwapTime = getElapsedSeconds();
-		//SwapBuffers();
-		//waitForSwapTime = getElapsedSeconds() - waitForSwapTime;
+		double waitForSwapTime = getElapsedSeconds();
+		SwapBuffers();
+		waitForSwapTime = getElapsedSeconds() - waitForSwapTime;
+		
 		// everything done
 		mApp->privateEndSwap__();
 		

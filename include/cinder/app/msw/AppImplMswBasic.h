@@ -39,7 +39,7 @@ class WindowImplMswBasic;
 class AppImplMswBasic : public AppImplMsw {
 private:
 	void RedrawWindows();
-	// void SwapBuffers();
+	void SwapBuffers();
 	void HandleSwapGroups();
 	int swGroupMode = -1;
   public:
