@@ -268,7 +268,7 @@ void AppImplMswBasic::runV2()
 	// inner loop
 	while (!mShouldQuit) {
 
-		const bool sMode = specialMode;
+		const bool specialModeEx = specialMode;
 
 		// when in sync mode, wait for trigger		
 		if (mSyncRole == 1 || mSyncRole == 2) {
@@ -309,14 +309,12 @@ void AppImplMswBasic::runV2()
 		mApp->privateUpdate__();
 		updateTime = getElapsedSeconds() - updateTime;
 
-		if (!sMode) {
+		double drawTime = getElapsedSeconds();
+		RedrawWindows();
+		drawTime = getElapsedSeconds() - drawTime;
 
-			double drawTime = getElapsedSeconds();
-			RedrawWindows();
-			drawTime = getElapsedSeconds() - drawTime;
-		}
+		if( !specialModeEx ) {
 
-		{
 			GLsync gpuFence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 			glFlush(); // Make sure it's actually pushed
 
@@ -325,22 +323,15 @@ void AppImplMswBasic::runV2()
 			double gpuRenderTime = getElapsedSeconds() - gpuWaitStart;
 
 			glDeleteSync(gpuFence);
-		}
 
-		double waitForSwapTime = getElapsedSeconds();
-		SwapBuffers();
-		waitForSwapTime = getElapsedSeconds() - waitForSwapTime;
-		
-		// everything done
-		mApp->privateEndSwap__();
+			double waitForSwapTime = getElapsedSeconds();
+			SwapBuffers();
+			waitForSwapTime = getElapsedSeconds() - waitForSwapTime;
 
-		if ( sMode ) {
-
-			double drawTime = getElapsedSeconds();
-			RedrawWindows();
-			drawTime = getElapsedSeconds() - drawTime;
-		}
-		
+			// everything done
+			mApp->privateEndSwap__();
+		}		
+				
 		mSyncFrameNumber++;	
 
 		// get current time in seconds
@@ -360,7 +351,7 @@ void AppImplMswBasic::runV2()
 			mNextFrameTime = currentSeconds;
 			mNextFrameTime += (nextVBlank - currentSeconds);
 #else
-			mNextFrameTime = getElapsedSeconds() + mEpochOffset * 0.001;
+			mNextFrameTime = currentSeconds + mEpochOffset * 0.001;
 #endif // DAVIDDEV			
 			mEpochOffset = 0.f;
 		} else {
@@ -390,6 +381,26 @@ void AppImplMswBasic::runV2()
 				std::this_thread::sleep_for(std::chrono::milliseconds((int)(cinderSleep * 1000)));
 			}
 		}
+
+		if ( specialModeEx ) {
+
+			GLsync gpuFence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+			glFlush(); // Make sure it's actually pushed
+
+			double gpuWaitStart = getElapsedSeconds();
+			GLenum result = glClientWaitSync(gpuFence, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000000);
+			double gpuRenderTime = getElapsedSeconds() - gpuWaitStart;
+
+			glDeleteSync(gpuFence);
+
+			double waitForSwapTime = getElapsedSeconds();
+			SwapBuffers();
+			waitForSwapTime = getElapsedSeconds() - waitForSwapTime;
+
+			// everything done
+			mApp->privateEndSwap__();
+		}
+
 		/*else {
 			MSG msg;
 			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
