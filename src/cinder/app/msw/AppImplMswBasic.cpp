@@ -364,16 +364,26 @@ void AppImplMswBasic::runV2()
 		} else {
 			makeCinderSleep = false;
 		}
+
+		MSG msg;
+		while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+			::TranslateMessage(&msg);
+			::DispatchMessage(&msg);
+		}
+
 		if (makeCinderSleep) {
-			const double cinderSleep = (mNextFrameTime - currentSeconds);			
-			sleep(cinderSleep);
-		} else {
+			const double cinderSleep = (mNextFrameTime - getElapsedSeconds());
+			if(cinderSleep > 0.0) {
+				sleep(cinderSleep);
+			}
+		}
+		/*else {
 			MSG msg;
 			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 				::TranslateMessage(&msg);
 				::DispatchMessage(&msg);
 			}
-		}
+		}*/
 
 		/*double waitForSwapTime = getElapsedSeconds();
 		SwapBuffers();
