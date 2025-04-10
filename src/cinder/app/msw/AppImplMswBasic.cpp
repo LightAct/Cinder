@@ -207,31 +207,45 @@ void AppImplMswBasic::HandleSwapGroups() {
 	}
 	swGroupMode = -1;
 }
-void AppImplMswBasic::SwapBuffers() {	
-	// outputs
+//void AppImplMswBasic::SwapBuffers() {	
+//	// outputs
+//	bool bProcess = false;
+//	for (auto& window : mWindows) {
+//		if (bProcess) {
+//			if (!mShouldQuit) {
+//				window->getRenderer()->makeCurrentContext();
+//				window->getRenderer()->finishDraw();
+//			}
+//		}
+//		bProcess = true;
+//	}
+//	// gui
+//	if (!mShouldQuit) {
+//		mWindows.front()->getRenderer()->makeCurrentContext();
+//		mWindows.front()->getRenderer()->finishDraw();
+//	}	
+//}
+void AppImplMswBasic::RedrawWindows() {
+	mApp->privateBeginDraw__();
+
 	bool bProcess = false;
 	for (auto& window : mWindows) {
 		if (bProcess) {
-			if (!mShouldQuit) {
-				window->getRenderer()->makeCurrentContext();
-				window->getRenderer()->finishDraw();
+			if (!mShouldQuit) {				
+				window->redraw();
 			}
 		}
 		bProcess = true;
 	}
 	// gui
 	if (!mShouldQuit) {
-		mWindows.front()->getRenderer()->makeCurrentContext();
-		mWindows.front()->getRenderer()->finishDraw();
-	}	
-}
-void AppImplMswBasic::RedrawWindows() {
-	mApp->privateBeginDraw__();
-	for (auto& window : mWindows) {
-		if (!mShouldQuit) { // test for quit() issued either from update() or prior draw()
-			window->redraw();
-		}
+		mWindows.front()->redraw();
 	}
+	//for (auto& window : mWindows) {
+	//	if (!mShouldQuit) { // test for quit() issued either from update() or prior draw()
+	//		window->redraw();
+	//	}
+	//}
 	mApp->privateEndDraw__();
 
 }
@@ -297,9 +311,9 @@ void AppImplMswBasic::runV2()
 		RedrawWindows();
 		drawTime = getElapsedSeconds() - drawTime;
 
-		double waitForSwapTime = getElapsedSeconds();
-		SwapBuffers();
-		waitForSwapTime = getElapsedSeconds() - waitForSwapTime;
+		//double waitForSwapTime = getElapsedSeconds();
+		//SwapBuffers();
+		//waitForSwapTime = getElapsedSeconds() - waitForSwapTime;
 		// everything done
 		mApp->privateEndSwap__();
 		
@@ -322,7 +336,7 @@ void AppImplMswBasic::runV2()
 			mNextFrameTime = currentSeconds;
 			mNextFrameTime += (nextVBlank - currentSeconds);
 #else
-			mNextFrameTime = getElapsedSeconds() + 0.001;
+			mNextFrameTime = getElapsedSeconds() + mEpochOffset * 0.001;
 #endif // DAVIDDEV			
 			mEpochOffset = 0.f;
 		} else {
