@@ -444,15 +444,14 @@ WindowImplMsw::WindowImplMsw( HWND hwnd, RendererRef renderer, RendererRef share
 
 void WindowImplMsw::setWindowStyleValues()
 {
-	if( mFullScreen ) {
+
+	if (mBorderless) {
+		mWindowExStyle = WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE;
+		mWindowStyle = WS_POPUP;
+	} else if( mFullScreen ) {
 		mWindowExStyle = WS_EX_APPWINDOW | WS_EX_ACCEPTFILES;								// Window Extended Style
 		mWindowStyle = WS_POPUP;										// Windows Style
-	}
-	else if( mBorderless ) {
-		mWindowExStyle = WS_EX_APPWINDOW | WS_EX_ACCEPTFILES;
-		mWindowStyle = WS_POPUP;
-	}
-	else {
+	} else {
 		mWindowExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE | WS_EX_ACCEPTFILES;				// Window Extended Style
 		mWindowStyle = ( mResizable ) ? WS_OVERLAPPEDWINDOW
 			:	( WS_OVERLAPPEDWINDOW & ~WS_THICKFRAME & ~WS_MINIMIZEBOX & ~WS_MAXIMIZEBOX );	// Windows Style
