@@ -314,12 +314,16 @@ void AppImplMswBasic::runV2()
 			mNextFrameTime += (numSkipFrames * secondsPerFrame);			
 		}
 		if (mEpochOffset != 0.f) {
+#ifdef DAVIDDEV
 			const double currentSeconds = getElapsedSeconds();
 			double nextVBlank = currentSeconds;
 			nextVBlank += secondsPerFrame;	// next frame	
 			nextVBlank -= mEpochOffset * 0.001; // swap buffer time
 			mNextFrameTime = currentSeconds;
 			mNextFrameTime += (nextVBlank - currentSeconds);
+#else
+			mNextFrameTime = getElapsedSeconds() + 0.001;
+#endif // DAVIDDEV			
 			mEpochOffset = 0.f;
 		} else {
 			mNextFrameTime += secondsPerFrame;
