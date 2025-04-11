@@ -199,14 +199,8 @@ void AppImplMswBasic::RenderGUI() {
 
 	if (!mShouldQuit) {
 		mWindows.front()->redraw();
-	}
-	mWindows.front()->getRenderer()->finishDraw();
-	glFlush();
-
-	GLsync fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-	glClientWaitSync(fence, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000000);
-	glDeleteSync(fence);
-
+		glFlush();
+	}	
 }
 void AppImplMswBasic::RenderOutputs() {
 	if (mWindows.size() < 2)
@@ -216,7 +210,7 @@ void AppImplMswBasic::RenderOutputs() {
 	for (auto& window : mWindows) {
 		if (!mShouldQuit && redraw) { // test for quit() issued either from update() or prior draw()
 			window->redraw();
-			window->getRenderer()->finishDraw();
+			glFlush();
 		}
 		redraw = true;
 	}
@@ -287,6 +281,16 @@ void AppImplMswBasic::runV2()
 			mApp->privateEndDraw__();
 		}		
 		drawTime = getElapsedSeconds() - drawTime;
+
+		{
+			GLsync fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+			glClientWaitSync(fence, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000000);
+			glDeleteSync(fence);
+
+			SwapBuffers();
+
+		}
+
 		// everything done
 		mApp->privateEndSwap__();
 		
