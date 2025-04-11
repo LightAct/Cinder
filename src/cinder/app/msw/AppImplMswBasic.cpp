@@ -286,11 +286,8 @@ void AppImplMswBasic::runV2()
 			RenderGUI();
 			RenderOutputs();
 			mApp->privateEndDraw__();
-		}		
-
-		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
 		drawTime = getElapsedSeconds() - drawTime;
-
 		{
 			SwapBuffers();
 		}
@@ -412,7 +409,9 @@ WindowRef AppImplMswBasic::createWindow( Window::Format format )
 	if( ! format.getRenderer() )
 		format.setRenderer( mApp->getDefaultRenderer()->clone() );
 
-	mWindows.push_back( new WindowImplMswBasic( format, findSharedRenderer( format.getRenderer() ), this ) );
+	WindowImplMswBasic* newWindow = new WindowImplMswBasic(format, findSharedRenderer(format.getRenderer()), this);
+	newWindow->setIsGUI(mWindows.size() == 0);
+	mWindows.push_back(newWindow);
 
 	// emit initial resize if we have fired setup
 	if( mSetupHasBeenCalled )
