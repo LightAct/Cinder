@@ -174,43 +174,11 @@ void AppImplMswBasic::run()
 	mApp->emitCleanup();
 	delete mApp;
 }
-void AppImplMswBasic::SwapBuffers() {	
-	
-	// gui
-	if (!mShouldQuit) {
-		mWindows.front()->getRenderer()->makeCurrentContext();
-		mWindows.front()->getRenderer()->finishDraw();
-	}
-	// outputs
-	bool bProcess = false;
+void AppImplMswBasic::RenderWindows() {
 	for (auto& window : mWindows) {
-		if (bProcess) {
-			if (!mShouldQuit) {
-				window->getRenderer()->makeCurrentContext();
-				window->getRenderer()->finishDraw();
-			}
-		}
-		bProcess = true;
-	}
-		
-}
-
-void AppImplMswBasic::RenderGUI() {
-
-	if (!mShouldQuit) {
-		mWindows.front()->redraw();		
-	}	
-}
-void AppImplMswBasic::RenderOutputs() {
-	if (mWindows.size() < 2)
-		return;
-
-	bool redraw = false;
-	for (auto& window : mWindows) {
-		if (!mShouldQuit && redraw) { // test for quit() issued either from update() or prior draw()			
+		if (!mShouldQuit) { // test for quit() issued either from update() or prior draw()			
 			window->redraw();		
 		}
-		redraw = true;
 	}
 }
 
@@ -246,7 +214,7 @@ void AppImplMswBasic::runV2()
 		const unsigned int epochResetter = epochResetCounter;
 		mApp->privateBeginFrame__();
 
-		if (mWindowsSize != mWindows.size()) {
+		/*if (mWindowsSize != mWindows.size()) {
 			mWindowsSize = mWindows.size();
 			bool vsync = (mWindowsSize == 1);
 			for (auto& window : mWindows) {
@@ -255,7 +223,7 @@ void AppImplMswBasic::runV2()
 				::wglSwapIntervalEXT(sync);
 				vsync = true;
 			}
-		}
+		}*/
 
 		// all of our Windows will have marked this as true if the user has unplugged, plugged or modified a Monitor
 		if (mNeedsToRefreshDisplays) {
@@ -267,14 +235,6 @@ void AppImplMswBasic::runV2()
 					window->resize();
 		}
 
-		{
-			MSG msg;
-			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-				::TranslateMessage(&msg);
-				::DispatchMessage(&msg);
-			}
-		}
-
 		// update and draw
 		double updateTime = getElapsedSeconds();
 		mApp->privateUpdate__();
@@ -283,15 +243,10 @@ void AppImplMswBasic::runV2()
 		double drawTime = getElapsedSeconds();
 		{
 			mApp->privateBeginDraw__();
-			RenderGUI();
-			RenderOutputs();
+			RenderWindows();
 			mApp->privateEndDraw__();
 		}
 		drawTime = getElapsedSeconds() - drawTime;
-		{
-			SwapBuffers();
-		}
-
 		// everything done
 		mApp->privateEndSwap__();		
 				
@@ -320,11 +275,15 @@ void AppImplMswBasic::runV2()
 		if (makeCinderSleep) {
 			const double cinderSleep = mNextFrameTime - getElapsedSeconds();
 			if(cinderSleep > 0.0) {
-				// sleep(cinderSleep);
-				std::this_thread::sleep_for(std::chrono::milliseconds((int)(cinderSleep * 1000)));
+				sleep(cinderSleep);
 			}
-		}
-		
+		} else {
+			MSG msg;
+			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+				::TranslateMessage(&msg);
+				::DispatchMessage(&msg);
+			}
+		}		
 
 		mApp->privateEndFrame__();
 	}
@@ -410,7 +369,7 @@ WindowRef AppImplMswBasic::createWindow( Window::Format format )
 		format.setRenderer( mApp->getDefaultRenderer()->clone() );
 
 	WindowImplMswBasic* newWindow = new WindowImplMswBasic(format, findSharedRenderer(format.getRenderer()), this);
-	newWindow->setIsGUI(mWindows.size() == 0);
+	newWindow->setWindowIndex((uint8_t)mWindows.size());
 	mWindows.push_back(newWindow);
 
 	// emit initial resize if we have fired setup

@@ -38,10 +38,7 @@ class WindowImplMswBasic;
 
 class AppImplMswBasic : public AppImplMsw {
 private:
-	// void RedrawWindows();
-	void RenderGUI();
-	void RenderOutputs();
-	void SwapBuffers();
+	void RenderWindows();
 
   public:
 	AppImplMswBasic( AppMsw *app, const AppMsw::Settings &settings );

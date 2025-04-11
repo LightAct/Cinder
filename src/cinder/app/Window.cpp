@@ -475,7 +475,7 @@ void Window::emitDraw()
 	applyCurrentContext();
 	
 	mSignalDraw.emit();
-	getApp()->draw( mImpl->getIsGUI() );
+	getApp()->draw( mImpl->getWindowIndex() );
 	mSignalPostDraw.emit();
 }
 

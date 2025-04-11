@@ -209,7 +209,7 @@ class CI_API AppBase {
 	//! Override to perform any once-per-loop computation.
 	virtual void	update() {}
 	//! Override to perform any rendering once-per-loop or in response to OS-prompted requests for refreshes.
-	virtual void	draw( bool renderGui ) {}
+	virtual void	draw( uint8_t windowIndd ) {}
 	
 	//! Override to receive mouse-down events.
 	virtual void	mouseDown( MouseEvent event ) {}

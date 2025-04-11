@@ -175,8 +175,8 @@ class WindowImplMsw {
 
 	void			setUseCustomCloseEvent(bool val = true) { mUseCustomCloseEvents = val; }
 	bool			getUseCustomCloseEvent() { return mUseCustomCloseEvents; }
-	void			setIsGUI( bool val ) { mIsGUI = val; }
-	bool			getIsGUI() { return mIsGUI; }
+	void			setWindowIndex( uint8_t index ) { mWindowIndex = index; }
+	uint8_t			getWindowIndex() { return mWindowIndex; }
 
   protected:
 	//! Sets 'mWindowStyle' and 'mWindowExStyle' based on 'mFullScreen' and 'mBorderless'
@@ -190,7 +190,7 @@ class WindowImplMsw {
 	virtual void	toggleFullScreen( const app::FullScreenOptions &options );
 
 	bool					mUseCustomCloseEvents = false;
-	bool					mIsGUI = false;
+	uint8_t					mWindowIndex = 0;
 
 	AppImplMsw				*mAppImpl;
 	WindowRef				mWindowRef;
