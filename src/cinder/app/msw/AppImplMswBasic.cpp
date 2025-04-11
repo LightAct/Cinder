@@ -229,9 +229,6 @@ void AppImplMswBasic::runV2()
 	mNextFrameTime = getElapsedSeconds();
 	epochResetCounter = 0;
 	size_t mWindowsSize = 1;
-
-	double testTimeOffset = mNextFrameTime;
-	auto timePoint = std::chrono::high_resolution_clock::now();
 	
 	// inner loop
 	while (!mShouldQuit) {
@@ -318,15 +315,10 @@ void AppImplMswBasic::runV2()
 				makeCinderSleep = false;
 			}
 		} else {
+			mNextFrameTime += secondsPerFrame;
 			makeCinderSleep = false;
 		}
 		if (makeCinderSleep) {
-
-			double timeDiff = (getElapsedSeconds() - ((double)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - timePoint).count() / 1000000 + testTimeOffset));
-			if (timeDiff != 0.0) {
-				timeDiff = 0.0;
-			}
-
 			const double cinderSleep = mNextFrameTime - getElapsedSeconds();
 			if(cinderSleep > 0.0) {
 				// sleep(cinderSleep);
