@@ -406,13 +406,17 @@ WindowImplMsw::WindowImplMsw( const Window::Format &format, RendererRef sharedRe
 	if( appImpl->getHighDensityDisplayEnabled() )
 		mWindowedSizePx = ivec2( vec2( format.getSize() ) * mDisplay->getContentScale() );
 	else
-		mWindowedSizePx = format.getSize();		
+		mWindowedSizePx = format.getSize();	
+
 	mWindowWidthPx = mWindowedSizePx.x;
 	mWindowHeightPx = mWindowedSizePx.y;
+
+	glm::ivec2 upperLeft(0);
+	glm::ivec2 bottomRight(0);
+
 	if( format.isPosSpecified() ) {
 		mWindowOffset = mWindowedPos = mDisplay->getBounds().getUL() + format.getPos();
-	}
-	else {
+	} else {
 		ivec2 displaySize = mDisplay->getSize();
 		mWindowOffset = mWindowedPos = mDisplay->getBounds().getUL() + ( displaySize - mWindowedSizePx ) / 2;
 	}
@@ -446,7 +450,8 @@ void WindowImplMsw::setWindowStyleValues()
 {
 
 	if (mBorderless) {
-		mWindowExStyle = WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE;
+		// mWindowExStyle = WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE;
+		mWindowExStyle = WS_EX_APPWINDOW | WS_EX_ACCEPTFILES;
 		mWindowStyle = WS_POPUP;
 	} else if( mFullScreen ) {
 		mWindowExStyle = WS_EX_APPWINDOW | WS_EX_ACCEPTFILES;								// Window Extended Style

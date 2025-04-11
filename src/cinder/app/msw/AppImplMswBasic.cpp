@@ -175,6 +175,12 @@ void AppImplMswBasic::run()
 	delete mApp;
 }
 void AppImplMswBasic::SwapBuffers() {	
+	
+	// gui
+	if (!mShouldQuit) {
+		mWindows.front()->getRenderer()->makeCurrentContext();
+		mWindows.front()->getRenderer()->finishDraw();
+	}
 	// outputs
 	bool bProcess = false;
 	for (auto& window : mWindows) {
@@ -186,35 +192,34 @@ void AppImplMswBasic::SwapBuffers() {
 		}
 		bProcess = true;
 	}
-	// gui
-	if (!mShouldQuit) {
-		mWindows.front()->getRenderer()->makeCurrentContext();
-		mWindows.front()->getRenderer()->finishDraw();
-	}	
+		
 }
-void AppImplMswBasic::RedrawWindows() {
-	mApp->privateBeginDraw__();
 
-	bool bProcess = false;
-	for (auto& window : mWindows) {
-		if (bProcess) {
-			if (!mShouldQuit) {				
-				window->redraw();
-			}
-		}
-		bProcess = true;
-	}
-	// gui
+void AppImplMswBasic::RenderGUI() {
+
 	if (!mShouldQuit) {
 		mWindows.front()->redraw();
 	}
-	//for (auto& window : mWindows) {
-	//	if (!mShouldQuit) { // test for quit() issued either from update() or prior draw()
-	//		window->redraw();
-	//	}
-	//}
-	mApp->privateEndDraw__();
+	mWindows.front()->getRenderer()->finishDraw();
+	glFlush();
 
+	GLsync fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+	glClientWaitSync(fence, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000000);
+	glDeleteSync(fence);
+
+}
+void AppImplMswBasic::RenderOutputs() {
+	if (mWindows.size() < 2)
+		return;
+
+	bool redraw = false;
+	for (auto& window : mWindows) {
+		if (!mShouldQuit && redraw) { // test for quit() issued either from update() or prior draw()
+			window->redraw();
+			window->getRenderer()->finishDraw();
+		}
+		redraw = true;
+	}
 }
 void AppImplMswBasic::runV2()
 {
@@ -275,27 +280,16 @@ void AppImplMswBasic::runV2()
 		updateTime = getElapsedSeconds() - updateTime;
 
 		double drawTime = getElapsedSeconds();
-		RedrawWindows();
-		drawTime = getElapsedSeconds() - drawTime;
-
 		{
-
-			GLsync gpuFence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-			glFlush(); // Make sure it's actually pushed
-
-			double gpuWaitStart = getElapsedSeconds();
-			GLenum result = glClientWaitSync(gpuFence, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000000);
-			double gpuRenderTime = getElapsedSeconds() - gpuWaitStart;
-
-			glDeleteSync(gpuFence);
-
-			double waitForSwapTime = getElapsedSeconds();
-			SwapBuffers();
-			waitForSwapTime = getElapsedSeconds() - waitForSwapTime;
-
-			// everything done
-			mApp->privateEndSwap__();
+			mApp->privateBeginDraw__();
+			RenderGUI();
+			RenderOutputs();
+			mApp->privateEndDraw__();
 		}		
+		drawTime = getElapsedSeconds() - drawTime;
+		// everything done
+		mApp->privateEndSwap__();
+		
 				
 		mSyncFrameNumber++;	
 
