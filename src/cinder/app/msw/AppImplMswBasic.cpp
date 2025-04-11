@@ -197,6 +197,9 @@ void AppImplMswBasic::runV2()
 	mNextFrameTime = getElapsedSeconds();
 	epochResetCounter = 0;
 	size_t mWindowsSize = 1;
+
+	bool pendingAutoFrameReset = false;
+	auto autoFrameReset = std::chrono::high_resolution_clock::now();
 	
 	// inner loop
 	while (!mShouldQuit) {
@@ -213,17 +216,6 @@ void AppImplMswBasic::runV2()
 		const double secondsPerFrame = 1.0 / (double)mFrameRate;
 		const unsigned int epochResetter = epochResetCounter;
 		mApp->privateBeginFrame__();
-
-		/*if (mWindowsSize != mWindows.size()) {
-			mWindowsSize = mWindows.size();
-			bool vsync = (mWindowsSize == 1);
-			for (auto& window : mWindows) {
-				window->getRenderer()->makeCurrentContext();
-				GLint sync = (vsync) ? 1 : 0;
-				::wglSwapIntervalEXT(sync);
-				vsync = true;
-			}
-		}*/
 
 		// all of our Windows will have marked this as true if the user has unplugged, plugged or modified a Monitor
 		if (mNeedsToRefreshDisplays) {
@@ -282,16 +274,32 @@ void AppImplMswBasic::runV2()
 			makeCinderSleep = false;
 		}
 		if (makeCinderSleep) {
+			
 			const double cinderSleep = mNextFrameTime - getElapsedSeconds();
 			if(cinderSleep > 0.0) {
 				sleep(cinderSleep);
 			}
+			pendingAutoFrameReset = false;
+
 		} else {
+
 			MSG msg;
 			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 				::TranslateMessage(&msg);
 				::DispatchMessage(&msg);
 			}
+
+			if (!pendingAutoFrameReset) {
+				autoFrameReset = std::chrono::high_resolution_clock::now();
+				pendingAutoFrameReset = true;
+			} else {
+				const int milis = (int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - autoFrameReset).count();
+				if (milis > 2000) {					
+					mDebugFlag = 1; // auto correct test
+					pendingAutoFrameReset = false; // not too often, obviously
+				}
+			}
+
 		}		
 
 		mApp->privateEndFrame__();
