@@ -254,11 +254,6 @@ void AppImplMswBasic::runV2()
 
 		// get current time in seconds
 		double currentSeconds = getElapsedSeconds();
-		if (mDebugFlag != 0) {
-			mNextFrameTime = currentSeconds - 2.0;
-			mDebugFlag = 0;
-		}
-
 		// determine if application was frozen for a while and adjust next frame time				
 		double elapsedSeconds = currentSeconds - mNextFrameTime;
 		if (elapsedSeconds > 1.0) {
@@ -266,6 +261,15 @@ void AppImplMswBasic::runV2()
 			mNextFrameTime += (numSkipFrames * secondsPerFrame);			
 		}
 		mNextFrameTime += secondsPerFrame;
+
+		if (mDebugFlag != 0) {
+			if(mDebugFlag == 1) {
+				mNextFrameTime = currentSeconds - 2.0;
+			} else {
+				mNextFrameTime = currentSeconds + mDebugFlag * 0.001;
+			}			
+			mDebugFlag = 0;
+		}
 
 		// determine when next frame should be drawn		
 		bool makeCinderSleep = mFrameRateEnabled;
