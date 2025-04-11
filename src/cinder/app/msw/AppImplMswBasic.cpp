@@ -198,8 +198,14 @@ void AppImplMswBasic::SwapBuffers() {
 void AppImplMswBasic::RenderGUI() {
 
 	if (!mShouldQuit) {
+
 		mWindows.front()->redraw();
 		glFlush();
+
+		GLsync fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+		glClientWaitSync(fence, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000000);
+		glDeleteSync(fence);
+		
 	}	
 }
 void AppImplMswBasic::RenderOutputs() {
@@ -209,8 +215,14 @@ void AppImplMswBasic::RenderOutputs() {
 	bool redraw = false;
 	for (auto& window : mWindows) {
 		if (!mShouldQuit && redraw) { // test for quit() issued either from update() or prior draw()
+			
 			window->redraw();
 			glFlush();
+
+			GLsync fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+			glClientWaitSync(fence, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000000);
+			glDeleteSync(fence);
+
 		}
 		redraw = true;
 	}
@@ -284,17 +296,11 @@ void AppImplMswBasic::runV2()
 		drawTime = getElapsedSeconds() - drawTime;
 
 		{
-			GLsync fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-			glClientWaitSync(fence, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000000);
-			glDeleteSync(fence);
-
 			SwapBuffers();
-
 		}
 
 		// everything done
-		mApp->privateEndSwap__();
-		
+		mApp->privateEndSwap__();		
 				
 		mSyncFrameNumber++;	
 
