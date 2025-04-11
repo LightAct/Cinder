@@ -231,12 +231,9 @@ void AppImplMswBasic::runV2()
 	mNextFrameTime = getElapsedSeconds();
 	epochResetCounter = 0;
 	size_t mWindowsSize = 1;
-
 	
 	// inner loop
 	while (!mShouldQuit) {
-
-		auto frameTimer = std::chrono::high_resolution_clock::now();
 
 		// when in sync mode, wait for trigger		
 		if (mSyncRole == 1 || mSyncRole == 2) {
