@@ -287,6 +287,8 @@ void AppImplMswBasic::runV2()
 			RenderOutputs();
 			mApp->privateEndDraw__();
 		}		
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		drawTime = getElapsedSeconds() - drawTime;
 
 		{
