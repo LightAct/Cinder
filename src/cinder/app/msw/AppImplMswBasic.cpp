@@ -340,24 +340,22 @@ void AppImplMswBasic::runV2()
 			makeCinderSleep = false;
 		}
 
-		bool makeQuickPeek = true;
-		if (makeCinderSleep) {
-
-			const double cinderSleep = secondsPerFrame - (double)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameTimer).count() * 0.001;
-			// const double cinderSleep = mNextFrameTime - getElapsedSeconds();
-			if(cinderSleep > 0.0) {
-				sleep(cinderSleep);
-				// std::this_thread::sleep_for(std::chrono::milliseconds((int)(cinderSleep * 1000)));
-				makeQuickPeek = false;
-			}
-		}
-		if(makeQuickPeek) {
+		{
 			MSG msg;
 			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 				::TranslateMessage(&msg);
 				::DispatchMessage(&msg);
 			}
 		}
+		
+		if (makeCinderSleep) {
+			const double cinderSleep = mNextFrameTime - getElapsedSeconds();
+			if(cinderSleep > 0.0) {
+				// sleep(cinderSleep);
+				std::this_thread::sleep_for(std::chrono::milliseconds((int)(cinderSleep * 1000)));
+			}
+		}
+		
 
 		mApp->privateEndFrame__();
 	}
