@@ -137,9 +137,9 @@ void AppMsw::disableFrameRate()
 {
 	mImpl->disableFrameRate();
 }
-void AppMsw::setDebug(bool val) 
+void AppMsw::setDebugFlag( int val) 
 {
-	mImpl->setDebug(val);
+	mImpl->setDebugFlag( val );
 }
 void AppMsw::setSyncFrameNumber(uint32_t n) 
 {
@@ -148,10 +148,6 @@ void AppMsw::setSyncFrameNumber(uint32_t n)
 uint32_t AppMsw::getSyncFrameNumber() 
 {
 	return mImpl->getSyncFrameNumber();
-}
-void AppMsw::joinSwapGroup(bool val)
-{
-	mImpl->joinSwapGroup(val);
 }
 bool AppMsw::isFrameRateEnabled() const
 {

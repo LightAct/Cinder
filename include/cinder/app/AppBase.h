@@ -353,10 +353,9 @@ class CI_API AppBase {
 	//! Disables frameRate limiting.
 	virtual void		disableFrameRate() = 0;
 	//! Debug feature
-	virtual void		setDebug( bool val ) = 0;
+	virtual void		setDebugFlag( int val ) = 0;
 	virtual void		setSyncFrameNumber( uint32_t n ) = 0;
 	virtual uint32_t	getSyncFrameNumber( ) = 0;
-	virtual void		joinSwapGroup(bool val) = 0;
 	//! Returns whether frameRate limiting is enabled.
 	virtual bool		isFrameRateEnabled() const = 0;
 	//! Returns the average frame-rate attained by the App as measured in frames-per-second

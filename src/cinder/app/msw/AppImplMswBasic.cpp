@@ -174,39 +174,6 @@ void AppImplMswBasic::run()
 	mApp->emitCleanup();
 	delete mApp;
 }
-void AppImplMswBasic::HandleSwapGroups() {
-	if (swGroupMode == -1)
-		return;
-	if(swGroupMode == 0) {
-		bool include = false;
-		for (auto wind : mWindows) {
-			if (include) {
-				wind->getRenderer()->makeCurrentContext();
-				leaveSwapGroupNVEx(wind->getDc());
-				wind->getRenderer()->finishDraw();
-			}
-			include = true;
-		}
-	} else if (swGroupMode == 1) {
-		bool include = false;
-		for (auto wind : mWindows) {
-			if(include) {
-				wind->getRenderer()->makeCurrentContext();
-				joinSwapGroupNVEx(wind->getDc());				
-			}
-			include = true;
-		}
-		include = false;
-		for (auto wind : mWindows) {
-			if (include) {
-				wind->getRenderer()->makeCurrentContext();				
-				wind->getRenderer()->finishDraw();
-			}
-			include = true;
-		}
-	}
-	swGroupMode = -1;
-}
 void AppImplMswBasic::SwapBuffers() {	
 	// outputs
 	bool bProcess = false;
@@ -268,8 +235,6 @@ void AppImplMswBasic::runV2()
 	// inner loop
 	while (!mShouldQuit) {
 
-		const bool specialModeEx = specialMode;
-
 		// when in sync mode, wait for trigger		
 		if (mSyncRole == 1 || mSyncRole == 2) {
 			std::unique_lock lk(frame_mutex);
@@ -313,7 +278,7 @@ void AppImplMswBasic::runV2()
 		RedrawWindows();
 		drawTime = getElapsedSeconds() - drawTime;
 
-		if( !specialModeEx ) {
+		{
 
 			GLsync gpuFence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 			glFlush(); // Make sure it's actually pushed
@@ -342,25 +307,26 @@ void AppImplMswBasic::runV2()
 			int numSkipFrames = (int)(elapsedSeconds / secondsPerFrame);
 			mNextFrameTime += (numSkipFrames * secondsPerFrame);			
 		}
-		if (mEpochOffset != 0.f) {
-#ifdef DAVIDDEV
-			const double currentSeconds = getElapsedSeconds();
-			double nextVBlank = currentSeconds;
-			nextVBlank += secondsPerFrame;	// next frame	
-			nextVBlank -= mEpochOffset * 0.001; // swap buffer time
-			mNextFrameTime = currentSeconds;
-			mNextFrameTime += (nextVBlank - currentSeconds);
-#else
-			if (specialModeEx) {
-				specialSleep = mEpochOffset * 0.001;
-			} else {
-				mNextFrameTime = currentSeconds + mEpochOffset * 0.001;
-			}
-#endif // DAVIDDEV			
-			mEpochOffset = 0.f;
-		} else {
-			mNextFrameTime += secondsPerFrame;
-		}
+//		if (mEpochOffset != 0.f) {
+//#ifdef DAVIDDEV
+//			const double currentSeconds = getElapsedSeconds();
+//			double nextVBlank = currentSeconds;
+//			nextVBlank += secondsPerFrame;	// next frame	
+//			nextVBlank -= mEpochOffset * 0.001; // swap buffer time
+//			mNextFrameTime = currentSeconds;
+//			mNextFrameTime += (nextVBlank - currentSeconds);
+//#else
+//			if (specialModeEx) {
+//				specialSleep = mEpochOffset * 0.001;
+//			} else {
+//				mNextFrameTime = currentSeconds + mEpochOffset * 0.001;
+//			}
+//#endif // DAVIDDEV			
+//			mEpochOffset = 0.f;
+//		} else {
+//			mNextFrameTime += secondsPerFrame;
+//		}
+		mNextFrameTime += secondsPerFrame;
 
 		// determine when next frame should be drawn		
 		bool makeCinderSleep = mFrameRateEnabled;
@@ -372,53 +338,24 @@ void AppImplMswBasic::runV2()
 			makeCinderSleep = false;
 		}
 
-		MSG msg;
-		while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-			::TranslateMessage(&msg);
-			::DispatchMessage(&msg);
-		}
-
+		bool makeQuickPeek = true;
 		if (makeCinderSleep) {
-			const double cinderSleep = specialModeEx ? specialSleep : (mNextFrameTime - getElapsedSeconds());
+			const double cinderSleep = mNextFrameTime - getElapsedSeconds();
 			if(cinderSleep > 0.0) {
-				// sleep(cinderSleep);
-				std::this_thread::sleep_for(std::chrono::milliseconds((int)(cinderSleep * 1000)));
+				sleep(cinderSleep);
+				// std::this_thread::sleep_for(std::chrono::milliseconds((int)(cinderSleep * 1000)));
+				makeQuickPeek = false;
 			}
 		}
-
-		if ( specialModeEx ) {
-
-			GLsync gpuFence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-			glFlush(); // Make sure it's actually pushed
-
-			double gpuWaitStart = getElapsedSeconds();
-			GLenum result = glClientWaitSync(gpuFence, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000000);
-			double gpuRenderTime = getElapsedSeconds() - gpuWaitStart;
-
-			glDeleteSync(gpuFence);
-
-			double waitForSwapTime = getElapsedSeconds();
-			SwapBuffers();
-			waitForSwapTime = getElapsedSeconds() - waitForSwapTime;
-
-			// everything done
-			mApp->privateEndSwap__();
-		}
-
-		/*else {
+		if(makeQuickPeek) {
 			MSG msg;
 			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 				::TranslateMessage(&msg);
 				::DispatchMessage(&msg);
 			}
-		}*/
-
-		/*double waitForSwapTime = getElapsedSeconds();
-		SwapBuffers();
-		waitForSwapTime = getElapsedSeconds() - waitForSwapTime;*/
+		}
 
 		mApp->privateEndFrame__();
-		HandleSwapGroups();
 	}
 
 	//	killWindow( mFullScreen );
@@ -626,23 +563,9 @@ void AppImplMswBasic::setSyncFrameNumber(uint32_t n) {
 uint32_t AppImplMswBasic::getSyncFrameNumber() {
 	return mSyncFrameNumber;
 }
-void AppImplMswBasic::setDebug( bool val )
+void AppImplMswBasic::setDebugFlag( int val ) 
 {
-	mDebug = val;
-	swGroupMode = val ? 1 : 0;
-}
-void AppImplMswBasic::joinSwapGroup(bool val) {
-	specialMode = val;
-	/*if (val) {
-		for (auto wind : mWindows) {
-			joinSwapGroupNVEx(wind->getDc());
-			
-		}
-	} else {
-		for (auto wind : mWindows) {
-			leaveSwapGroupNVEx(wind->getDc());
-		}
-	}*/
+	mDebugFlag = val;
 }
 void AppImplMswBasic::disableFrameRate()
 {

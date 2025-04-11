@@ -66,10 +66,9 @@ class CI_API AppMsw : public AppBase {
 	void		epochReset(float offset = 0.f) override;
 	void		enableAutoEpochReset(bool val = true) override;
 	void		disableFrameRate() override;
-	void		setDebug( bool val ) override;
+	void		setDebugFlag( int val ) override;
 	void		setSyncFrameNumber(uint32_t n) override;
 	uint32_t	getSyncFrameNumber() override;
-	void		joinSwapGroup(bool val) override;
 	bool		isFrameRateEnabled() const override;
 
 	WindowRef	getWindow() const override;

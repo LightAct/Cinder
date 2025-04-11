@@ -40,10 +40,6 @@ class AppImplMswBasic : public AppImplMsw {
 private:
 	void RedrawWindows();
 	void SwapBuffers();
-	void HandleSwapGroups();
-	int swGroupMode = -1;
-	double specialSleep = 0.0;
-	bool specialMode = false;
   public:
 	AppImplMswBasic( AppMsw *app, const AppMsw::Settings &settings );
 
@@ -60,10 +56,9 @@ private:
 	void	epochReset(float offset = 0.f) override;
 	void	enableAutoEpochReset(bool val = true) override;
 	void	disableFrameRate();
-	void	setDebug( bool val );
+	void	setDebugFlag( int val );
 	void		setSyncFrameNumber(uint32_t n);
 	uint32_t	getSyncFrameNumber();
-	void	joinSwapGroup(bool val);
 	bool	isFrameRateEnabled() const;
 
 	size_t		getNumWindows() const;
@@ -96,7 +91,7 @@ private:
 	HINSTANCE		mInstance;
 	double			mNextFrameTime;
 	bool			mFrameRateEnabled;
-	bool			mDebug = false;
+	int				mDebugFlag = 0;
 	uint32_t		mSyncFrameNumber = 0;
 	bool			mShouldQuit;
 	bool			mQuitOnLastWindowClosed;
