@@ -215,6 +215,7 @@ void AppImplMswBasic::RenderOutputs() {
 		redraw = true;
 	}
 }
+
 void AppImplMswBasic::runV2()
 {
 	mApp->privateSetup__();
@@ -231,8 +232,11 @@ void AppImplMswBasic::runV2()
 	epochResetCounter = 0;
 	size_t mWindowsSize = 1;
 
+	
 	// inner loop
 	while (!mShouldQuit) {
+
+		auto frameTimer = std::chrono::high_resolution_clock::now();
 
 		// when in sync mode, wait for trigger		
 		if (mSyncRole == 1 || mSyncRole == 2) {
@@ -338,7 +342,9 @@ void AppImplMswBasic::runV2()
 
 		bool makeQuickPeek = true;
 		if (makeCinderSleep) {
-			const double cinderSleep = mNextFrameTime - getElapsedSeconds();
+
+			const double cinderSleep = secondsPerFrame - (double)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameTimer).count() * 0.001;
+			// const double cinderSleep = mNextFrameTime - getElapsedSeconds();
 			if(cinderSleep > 0.0) {
 				sleep(cinderSleep);
 				// std::this_thread::sleep_for(std::chrono::milliseconds((int)(cinderSleep * 1000)));

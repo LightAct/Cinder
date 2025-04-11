@@ -42,6 +42,7 @@ private:
 	void RenderGUI();
 	void RenderOutputs();
 	void SwapBuffers();
+
   public:
 	AppImplMswBasic( AppMsw *app, const AppMsw::Settings &settings );
 
