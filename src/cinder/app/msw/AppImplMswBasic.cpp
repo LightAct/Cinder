@@ -198,14 +198,7 @@ void AppImplMswBasic::SwapBuffers() {
 void AppImplMswBasic::RenderGUI() {
 
 	if (!mShouldQuit) {
-
-		mWindows.front()->redraw();
-		glFlush();
-
-		GLsync fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-		glClientWaitSync(fence, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000000);
-		glDeleteSync(fence);
-		
+		mWindows.front()->redraw();		
 	}	
 }
 void AppImplMswBasic::RenderOutputs() {
@@ -214,15 +207,8 @@ void AppImplMswBasic::RenderOutputs() {
 
 	bool redraw = false;
 	for (auto& window : mWindows) {
-		if (!mShouldQuit && redraw) { // test for quit() issued either from update() or prior draw()
-			
-			window->redraw();
-			glFlush();
-
-			GLsync fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-			glClientWaitSync(fence, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000000);
-			glDeleteSync(fence);
-
+		if (!mShouldQuit && redraw) { // test for quit() issued either from update() or prior draw()			
+			window->redraw();		
 		}
 		redraw = true;
 	}
@@ -243,6 +229,9 @@ void AppImplMswBasic::runV2()
 	mNextFrameTime = getElapsedSeconds();
 	epochResetCounter = 0;
 	size_t mWindowsSize = 1;
+
+	double testTimeOffset = mNextFrameTime;
+	auto timePoint = std::chrono::high_resolution_clock::now();
 	
 	// inner loop
 	while (!mShouldQuit) {
@@ -281,6 +270,14 @@ void AppImplMswBasic::runV2()
 					window->resize();
 		}
 
+		{
+			MSG msg;
+			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+				::TranslateMessage(&msg);
+				::DispatchMessage(&msg);
+			}
+		}
+
 		// update and draw
 		double updateTime = getElapsedSeconds();
 		mApp->privateUpdate__();
@@ -312,25 +309,6 @@ void AppImplMswBasic::runV2()
 			int numSkipFrames = (int)(elapsedSeconds / secondsPerFrame);
 			mNextFrameTime += (numSkipFrames * secondsPerFrame);			
 		}
-//		if (mEpochOffset != 0.f) {
-//#ifdef DAVIDDEV
-//			const double currentSeconds = getElapsedSeconds();
-//			double nextVBlank = currentSeconds;
-//			nextVBlank += secondsPerFrame;	// next frame	
-//			nextVBlank -= mEpochOffset * 0.001; // swap buffer time
-//			mNextFrameTime = currentSeconds;
-//			mNextFrameTime += (nextVBlank - currentSeconds);
-//#else
-//			if (specialModeEx) {
-//				specialSleep = mEpochOffset * 0.001;
-//			} else {
-//				mNextFrameTime = currentSeconds + mEpochOffset * 0.001;
-//			}
-//#endif // DAVIDDEV			
-//			mEpochOffset = 0.f;
-//		} else {
-//			mNextFrameTime += secondsPerFrame;
-//		}
 		mNextFrameTime += secondsPerFrame;
 
 		// determine when next frame should be drawn		
@@ -342,16 +320,13 @@ void AppImplMswBasic::runV2()
 		} else {
 			makeCinderSleep = false;
 		}
-
-		{
-			MSG msg;
-			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-				::TranslateMessage(&msg);
-				::DispatchMessage(&msg);
-			}
-		}
-		
 		if (makeCinderSleep) {
+
+			double timeDiff = (getElapsedSeconds() - ((double)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - timePoint).count() / 1000000 + testTimeOffset));
+			if (timeDiff != 0.0) {
+				timeDiff = 0.0;
+			}
+
 			const double cinderSleep = mNextFrameTime - getElapsedSeconds();
 			if(cinderSleep > 0.0) {
 				// sleep(cinderSleep);
