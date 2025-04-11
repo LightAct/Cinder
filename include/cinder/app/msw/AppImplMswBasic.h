@@ -79,6 +79,8 @@ private:
   private:
 	void		sleep( double seconds );
 
+	int globalWindowIndex = 0;
+
 	WindowRef		createWindow( Window::Format format );
 	RendererRef		findSharedRenderer( const RendererRef &searchRenderer );
 	void			closeWindow( class WindowImplMsw *windowImpl ) override;

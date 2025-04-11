@@ -378,7 +378,7 @@ WindowRef AppImplMswBasic::createWindow( Window::Format format )
 		format.setRenderer( mApp->getDefaultRenderer()->clone() );
 
 	WindowImplMswBasic* newWindow = new WindowImplMswBasic(format, findSharedRenderer(format.getRenderer()), this);
-	newWindow->setWindowIndex((uint8_t)mWindows.size());
+	newWindow->setWindowIndex(globalWindowIndex++);
 	mWindows.push_back(newWindow);
 
 	// emit initial resize if we have fired setup
