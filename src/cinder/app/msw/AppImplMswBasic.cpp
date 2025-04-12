@@ -227,6 +227,19 @@ void AppImplMswBasic::runV2()
 					window->resize();
 		}
 
+		if (mWindowsSize != mWindows.size()) {
+			mWindowsSize = mWindows.size();
+			GLint enable = (mWindowsSize == 1) ? 1 : 0;
+			if (WGL_EXT_swap_control) {
+				for (auto& window : mWindows) {
+					window->getRenderer()->makeCurrentContext();
+					::wglSwapIntervalEXT(enable);
+				}
+				enable = 1;
+			}
+			mDebugFlag = 1;
+		}
+
 		// update and draw
 		double updateTime = getElapsedSeconds();
 		mApp->privateUpdate__();
