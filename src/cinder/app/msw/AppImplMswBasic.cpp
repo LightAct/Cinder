@@ -287,7 +287,7 @@ void AppImplMswBasic::runV2()
 				const int accFrames = (int)(currentSeconds / secondsPerFrame);
 				mNextFrameTime = (accFrames + 1) * secondsPerFrame;
 			} else {
-				mNextFrameTime = currentSeconds + (mDebugFlag - 2) * 0.002;
+				mNextFrameTime = currentSeconds + (mDebugFlag - 2) * 0.003;
 			}
 			mDebugFlag = 0;
 		}		
