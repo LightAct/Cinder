@@ -293,11 +293,8 @@ void AppImplMswBasic::runV2()
 			} else if (mDebugFlag == 2) {
 				const int accFrames = (int)(currentSeconds / secondsPerFrame);
 				mNextFrameTime = (accFrames + 1) * secondsPerFrame;
-			} else if(mDebugFlag == 3) {
-				mNextFrameTime = mApp->getElapsedSeconds();
-				AppBase::get()->mTimer.start(mNextFrameTime - 0.004);
 			} else {
-				mNextFrameTime = currentSeconds + (mDebugFlag - 3) * 0.003;
+				AppBase::get()->mTimer.start(mNextFrameTime - (mDebugFlag - 2) * 0.002);
 			}
 			mDebugFlag = 0;
 		}		
