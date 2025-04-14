@@ -372,6 +372,7 @@ class CI_API AppBase {
 
 	//! Returns the number of seconds which have elapsed since application launch
 	double				getElapsedSeconds() const { return mTimer.getSeconds(); }
+	Timer				mTimer;
 	//! Returns the number of animation frames which have elapsed since application launch
 	uint32_t			getElapsedFrames() const { return mFrameCount; }
 
@@ -491,7 +492,6 @@ class CI_API AppBase {
   private:
 	static void		onTerminate();
 
-	Timer					mTimer;
 	uint32_t				mFrameCount;
 	float					mAverageFps;
 	uint32_t				mFpsLastSampleFrame;

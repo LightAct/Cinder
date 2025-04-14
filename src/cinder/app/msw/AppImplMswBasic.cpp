@@ -203,6 +203,7 @@ void AppImplMswBasic::runV2()
 	// auto autoFrameReset = std::chrono::high_resolution_clock::now();
 
 	auto frameProfiler = std::chrono::high_resolution_clock::now();
+	float currentFrameRate = mFrameRate;
 
 	// inner loop
 	while (!mShouldQuit) {
@@ -265,6 +266,12 @@ void AppImplMswBasic::runV2()
 		// mApp->privateEndSwap__();		
 
 		mApp->mFrameProfile[1] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
+
+		if (currentFrameRate != mFrameRate) {
+			currentFrameRate = mFrameRate;
+			mDebugFlag = 3;
+		}
+
 		frameProfiler = std::chrono::high_resolution_clock::now();
 				
 		mSyncFrameNumber++;
@@ -286,8 +293,11 @@ void AppImplMswBasic::runV2()
 			} else if (mDebugFlag == 2) {
 				const int accFrames = (int)(currentSeconds / secondsPerFrame);
 				mNextFrameTime = (accFrames + 1) * secondsPerFrame;
+			} else if(mDebugFlag == 3) {
+				mNextFrameTime = mApp->getElapsedSeconds();
+				AppBase::get()->mTimer.start(mNextFrameTime - 0.004);
 			} else {
-				mNextFrameTime = currentSeconds + (mDebugFlag - 2) * 0.003;
+				mNextFrameTime = currentSeconds + (mDebugFlag - 3) * 0.003;
 			}
 			mDebugFlag = 0;
 		}		
