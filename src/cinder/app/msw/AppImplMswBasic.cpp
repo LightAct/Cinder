@@ -255,7 +255,8 @@ void AppImplMswBasic::runV2()
 		// everything done
 		mApp->privateEndSwap__();		
 				
-		mSyncFrameNumber++;	
+		mSyncFrameNumber++;
+		mApp->cinderFrameDone();
 
 		// get current time in seconds
 		double currentSeconds = getElapsedSeconds();

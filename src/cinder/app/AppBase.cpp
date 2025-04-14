@@ -246,6 +246,10 @@ void AppBase::privateBeginDraw__() {
 void AppBase::privateEndDraw__() {
 	mEndDraw.emit();
 }
+void AppBase::cinderFrameDone() {
+	std::unique_lock<std::mutex> lock(cinderFrameUpdate_mutex);
+	cinderFrameUpdate_cv.notify_one();
+}
 
 void AppBase::privateUpdate__()
 {

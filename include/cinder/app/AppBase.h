@@ -458,6 +458,11 @@ class CI_API AppBase {
 	virtual void	privateBeginDraw__();
 	virtual void	privateEndDraw__();
 
+	// cinder frame update cv
+	std::mutex cinderFrameUpdate_mutex;
+	std::condition_variable cinderFrameUpdate_cv;
+	virtual void	cinderFrameDone();
+
 	bool			privateEmitShouldQuit()		{ return mSignalShouldQuit.emit(); }
 	//! \endcond
 
@@ -479,6 +484,7 @@ class CI_API AppBase {
 	//! This is called from executeLaunch(), subclasses implement to launch the application in a platform-specific manner
 	virtual void	launch() = 0;
 	//! \endcond
+	//! 
 
   private:
 	static void		onTerminate();
