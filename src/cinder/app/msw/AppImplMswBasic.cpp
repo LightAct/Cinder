@@ -301,7 +301,7 @@ void AppImplMswBasic::runV2()
 			}
 			*/
 		} else {
-			// mNextFrameTime += secondsPerFrame;
+			mNextFrameTime += secondsPerFrame;
 			makeCinderSleep = false;
 		}
 		if (makeCinderSleep) {	
