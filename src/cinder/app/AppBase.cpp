@@ -231,21 +231,21 @@ void AppBase::privateSetup__()
 	setup();
 }
 
-void AppBase::privateEndSwap__() {
-	mEndSwap.emit();
-}
-void AppBase::privateBeginFrame__() {
-	mFrameBegin.emit();
-}
+//void AppBase::privateEndSwap__() {
+//	mEndSwap.emit();
+//}
+//void AppBase::privateBeginFrame__() {
+//	mFrameBegin.emit();
+//}
 void AppBase::privateEndFrame__() {
 	mFrameEnd.emit();
 }
-void AppBase::privateBeginDraw__() {
-	mBeginDraw.emit();
-}
-void AppBase::privateEndDraw__() {
-	mEndDraw.emit();
-}
+//void AppBase::privateBeginDraw__() {
+//	mBeginDraw.emit();
+//}
+//void AppBase::privateEndDraw__() {
+//	mEndDraw.emit();
+//}
 void AppBase::cinderFrameDone() {
 	std::unique_lock<std::mutex> lock(cinderFrameUpdate_mutex);
 	cinderFrameUpdate_cv.notify_one();
@@ -256,7 +256,7 @@ void AppBase::privateUpdate__()
 	mFrameCount++;
 
 	// signals frame begin
-	mBeginUpdate.emit();
+	// mBeginUpdate.emit();
 
 	// service asio::io_context
 	mIo->poll();
@@ -284,7 +284,7 @@ void AppBase::privateUpdate__()
 	}
 
 	// signals frame end
-	mEndUpdate.emit();
+	// mEndUpdate.emit();
 
 }
 

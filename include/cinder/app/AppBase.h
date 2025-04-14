@@ -247,13 +247,13 @@ class CI_API AppBase {
 	signals::Signal<void()>&	getSignalUpdate() { return mSignalUpdate; }
 
 	//! Custom signals
-	signals::Signal<void()>&	getSignalBeginFrame()			{ return mFrameBegin; }
+	//signals::Signal<void()>&	getSignalBeginFrame()			{ return mFrameBegin; }
 	signals::Signal<void()>&	getSignalEndFrame()				{ return mFrameEnd; }
-	signals::Signal<void()>&	getSignalBeginUpdate()			{ return mBeginUpdate; }
-	signals::Signal<void()>&	getSignalEndUpdate()			{ return mEndUpdate; }
-	signals::Signal<void()>&	getSignalBeginDraw()			{ return mBeginDraw; }
-	signals::Signal<void()>&	getSignalEndDraw()				{ return mEndDraw; }
-	signals::Signal<void()>&	getSignalEndSwap()				{ return mEndSwap; }
+	//signals::Signal<void()>&	getSignalBeginUpdate()			{ return mBeginUpdate; }
+	//signals::Signal<void()>&	getSignalEndUpdate()			{ return mEndUpdate; }
+	//signals::Signal<void()>&	getSignalBeginDraw()			{ return mBeginDraw; }
+	//signals::Signal<void()>&	getSignalEndDraw()				{ return mEndDraw; }
+	//signals::Signal<void()>&	getSignalEndSwap()				{ return mEndSwap; }
 	
 	//! Signal that emits before the app quit process begins. If any slots return false then the app quitting is canceled.
 	EventSignalShouldQuit&		getSignalShouldQuit() { return mSignalShouldQuit; }
@@ -429,6 +429,8 @@ class CI_API AppBase {
 
 	//! Executes a std::function on the App's primary thread ahead of the next update()
 	void	dispatchAsync( const std::function<void()> &fn );
+
+	uint32_t mFrameProfile[3];
 	
 	template<typename T>
 	decltype(std::declval<T>()()) dispatchSync( T fn );
@@ -452,11 +454,11 @@ class CI_API AppBase {
 	virtual void	privateSetup__();
 	virtual void	privateUpdate__();
 	
-	virtual void	privateEndSwap__();
-	virtual void	privateBeginFrame__();
+	//virtual void	privateEndSwap__();
+	//virtual void	privateBeginFrame__();
 	virtual void	privateEndFrame__();
-	virtual void	privateBeginDraw__();
-	virtual void	privateEndDraw__();
+	//virtual void	privateBeginDraw__();
+	//virtual void	privateEndDraw__();
 
 	// cinder frame update cv
 	std::mutex cinderFrameUpdate_mutex;
@@ -502,12 +504,13 @@ class CI_API AppBase {
 	std::vector<std::string>	mCommandLineArgs;
 	std::shared_ptr<Timeline>	mTimeline;
 
-	signals::Signal<void()>		mFrameBegin, mFrameEnd;
-	signals::Signal<void()>		mBeginUpdate, mEndUpdate;
-	signals::Signal<void()>		mBeginDraw, mEndDraw, mEndSwap;
+	//signals::Signal<void()>		mFrameBegin, mFrameEnd;
+	signals::Signal<void()>		mFrameEnd;
+	//signals::Signal<void()>		mBeginUpdate, mEndUpdate;
+	//signals::Signal<void()>		mBeginDraw, mEndDraw, mEndSwap;
 	signals::Signal<void()>		mSignalUpdate, mSignalCleanup, mSignalWillResignActive, mSignalDidBecomeActive;
 	EventSignalShouldQuit		mSignalShouldQuit;
-	
+
 	signals::Signal<void(const DisplayRef &display)>	mSignalDisplayConnected, mSignalDisplayDisconnected, mSignalDisplayChanged;
 
 	std::shared_ptr<asio::io_context>	mIo;

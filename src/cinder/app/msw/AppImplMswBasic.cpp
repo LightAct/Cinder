@@ -95,7 +95,7 @@ void AppImplMswBasic::run()
 		// calculate time per frame in seconds
 		const double secondsPerFrame = 1.0 / (double)mFrameRate;
 		const unsigned int epochResetter = epochResetCounter;
-		mApp->privateBeginFrame__();
+		// mApp->privateBeginFrame__();
 
 		// all of our Windows will have marked this as true if the user has unplugged, plugged or modified a Monitor
 		if( mNeedsToRefreshDisplays ) {
@@ -128,7 +128,7 @@ void AppImplMswBasic::run()
 
 		// everything done
 		// everything done
-		mApp->privateEndSwap__();
+		// mApp->privateEndSwap__();
 
 		if (mEpochOffset != 0.f) {
 			mNextFrameTime = mApp->getElapsedSeconds();
@@ -166,7 +166,7 @@ void AppImplMswBasic::run()
 				::DispatchMessage(&msg);
 			}
 		}
-		mApp->privateEndFrame__();
+		// mApp->privateEndFrame__();
 
 	}
 
@@ -184,6 +184,7 @@ void AppImplMswBasic::RenderWindows() {
 
 void AppImplMswBasic::runV2()
 {
+
 	mApp->privateSetup__();
 	mSetupHasBeenCalled = true;
 
@@ -200,7 +201,9 @@ void AppImplMswBasic::runV2()
 
 	// bool pendingAutoFrameReset = false;
 	// auto autoFrameReset = std::chrono::high_resolution_clock::now();
-	
+
+	auto frameProfiler = std::chrono::high_resolution_clock::now();
+
 	// inner loop
 	while (!mShouldQuit) {
 
@@ -215,7 +218,8 @@ void AppImplMswBasic::runV2()
 		// calculate time per frame in seconds
 		const double secondsPerFrame = 1.0 / (double)mFrameRate;
 		const unsigned int epochResetter = epochResetCounter;
-		mApp->privateBeginFrame__();
+		
+		// mApp->privateBeginFrame__();		
 
 		// all of our Windows will have marked this as true if the user has unplugged, plugged or modified a Monitor
 		if (mNeedsToRefreshDisplays) {
@@ -240,20 +244,28 @@ void AppImplMswBasic::runV2()
 			mDebugFlag = 1;
 		}
 
-		// update and draw
-		double updateTime = getElapsedSeconds();
+		mApp->mFrameProfile[2] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
+		frameProfiler = std::chrono::high_resolution_clock::now();
+		// double updateTime = getElapsedSeconds();
 		mApp->privateUpdate__();
-		updateTime = getElapsedSeconds() - updateTime;
 
-		double drawTime = getElapsedSeconds();
+		mApp->mFrameProfile[0] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
+		frameProfiler = std::chrono::high_resolution_clock::now();
+
+		// updateTime = getElapsedSeconds() - updateTime;
+
+		// double drawTime = getElapsedSeconds();
 		{
-			mApp->privateBeginDraw__();
+			// mApp->privateBeginDraw__();
 			RenderWindows();
-			mApp->privateEndDraw__();
+			// mApp->privateEndDraw__();
 		}
-		drawTime = getElapsedSeconds() - drawTime;
+		// drawTime = getElapsedSeconds() - drawTime;
 		// everything done
-		mApp->privateEndSwap__();		
+		// mApp->privateEndSwap__();		
+
+		mApp->mFrameProfile[1] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
+		frameProfiler = std::chrono::high_resolution_clock::now();
 				
 		mSyncFrameNumber++;
 		mApp->cinderFrameDone();
@@ -271,11 +283,11 @@ void AppImplMswBasic::runV2()
 		if (mDebugFlag != 0) {
 			if(mDebugFlag == 1) {
 				mNextFrameTime = currentSeconds - 2.0;
-			} else if (mDebugFlag == 1) {
+			} else if (mDebugFlag == 2) {
 				const int accFrames = (int)(currentSeconds / secondsPerFrame);
 				mNextFrameTime = (accFrames + 1) * secondsPerFrame;
 			} else {
-				mNextFrameTime = currentSeconds + mDebugFlag * 0.001;
+				mNextFrameTime = currentSeconds + (mDebugFlag - 2) * 0.002;
 			}
 			mDebugFlag = 0;
 		}		
@@ -289,7 +301,7 @@ void AppImplMswBasic::runV2()
 			}
 			*/
 		} else {
-			mNextFrameTime += secondsPerFrame;
+			// mNextFrameTime += secondsPerFrame;
 			makeCinderSleep = false;
 		}
 		if (makeCinderSleep) {	
@@ -319,9 +331,9 @@ void AppImplMswBasic::runV2()
 			//	}
 			//}
 
-		}		
-
+		}	
 		mApp->privateEndFrame__();
+
 	}
 
 	//	killWindow( mFullScreen );
