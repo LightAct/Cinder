@@ -234,8 +234,8 @@ void AppImplMswBasic::runV2()
 				for (auto& window : mWindows) {
 					window->getRenderer()->makeCurrentContext();
 					::wglSwapIntervalEXT(enable);
-				}
-				enable = 1;
+					enable = 1;
+				}				
 			}
 			mDebugFlag = 1;
 		}
