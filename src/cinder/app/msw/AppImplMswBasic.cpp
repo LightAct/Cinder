@@ -281,11 +281,12 @@ void AppImplMswBasic::runV2()
 		double currentSeconds = getElapsedSeconds();
 		// determine if application was frozen for a while and adjust next frame time				
 		double elapsedSeconds = currentSeconds - mNextFrameTime;
-		if (elapsedSeconds > 1.0) {
+		if (glm::abs(elapsedSeconds) > 1.0) {
 			int numSkipFrames = (int)(elapsedSeconds / secondsPerFrame);
 			mNextFrameTime += (numSkipFrames * secondsPerFrame);			
+		} else {
+			mNextFrameTime += secondsPerFrame;
 		}
-		mNextFrameTime += secondsPerFrame;
 
 		if (mDebugFlag != 0) {
 			if(mDebugFlag == 1) {
@@ -293,9 +294,12 @@ void AppImplMswBasic::runV2()
 			} else if (mDebugFlag == 2) {
 				const int accFrames = (int)(currentSeconds / secondsPerFrame);
 				mNextFrameTime = (accFrames + 1) * secondsPerFrame;
+			} else if(mDebugFlag == 3) {
+				// mix test
+				mNextFrameTime = currentSeconds;
 			} else {
 				AppBase::get()->mTimer.start(mNextFrameTime);
-				mNextFrameTime = getElapsedSeconds() + (mDebugFlag - 2) * 0.002;				
+				mNextFrameTime = getElapsedSeconds() + (mDebugFlag - 3) * 0.002;				
 			}
 			mDebugFlag = 0;
 		}		
@@ -312,21 +316,30 @@ void AppImplMswBasic::runV2()
 			mNextFrameTime += secondsPerFrame;
 			makeCinderSleep = false;
 		}
-		if (makeCinderSleep) {	
 
-			const double cinderSleep = mNextFrameTime - getElapsedSeconds();
-			if(cinderSleep > 0.0) {
-				sleep(cinderSleep);
-			}
-			// pendingAutoFrameReset = false;
-
-		} else {
-
+		{
 			MSG msg;
 			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 				::TranslateMessage(&msg);
 				::DispatchMessage(&msg);
 			}
+		}
+
+		if (makeCinderSleep) {	
+			const double cinderSleep = mNextFrameTime - getElapsedSeconds();
+			if(cinderSleep > 0.0) {
+				// sleep(cinderSleep);
+				std::this_thread::sleep_for(std::chrono::microseconds((int)(cinderSleep * 1000000)));
+			}
+			// pendingAutoFrameReset = false;
+
+		} else {
+
+			/*MSG msg;
+			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+				::TranslateMessage(&msg);
+				::DispatchMessage(&msg);
+			}*/
 
 			//if (!pendingAutoFrameReset) {
 			//	autoFrameReset = std::chrono::high_resolution_clock::now();
