@@ -198,8 +198,8 @@ void AppImplMswBasic::runV2()
 	epochResetCounter = 0;
 	size_t mWindowsSize = 1;
 
-	bool pendingAutoFrameReset = false;
-	auto autoFrameReset = std::chrono::high_resolution_clock::now();
+	// bool pendingAutoFrameReset = false;
+	// auto autoFrameReset = std::chrono::high_resolution_clock::now();
 	
 	// inner loop
 	while (!mShouldQuit) {
@@ -271,29 +271,34 @@ void AppImplMswBasic::runV2()
 		if (mDebugFlag != 0) {
 			if(mDebugFlag == 1) {
 				mNextFrameTime = currentSeconds - 2.0;
+			} else if (mDebugFlag == 1) {
+				const int accFrames = (int)(currentSeconds / secondsPerFrame);
+				mNextFrameTime = (accFrames + 1) * secondsPerFrame;
 			} else {
 				mNextFrameTime = currentSeconds + mDebugFlag * 0.001;
-			}			
+			}
 			mDebugFlag = 0;
-		}
+		}		
 
 		// determine when next frame should be drawn		
 		bool makeCinderSleep = mFrameRateEnabled;
 		if ( mNextFrameTime > currentSeconds ) {
+			/*
 			if (mSyncRole == 2) {
-				// makeCinderSleep = false;
+				makeCinderSleep = false;
 			}
+			*/
 		} else {
 			mNextFrameTime += secondsPerFrame;
 			makeCinderSleep = false;
 		}
-		if (makeCinderSleep) {
-			
+		if (makeCinderSleep) {	
+
 			const double cinderSleep = mNextFrameTime - getElapsedSeconds();
 			if(cinderSleep > 0.0) {
 				sleep(cinderSleep);
 			}
-			pendingAutoFrameReset = false;
+			// pendingAutoFrameReset = false;
 
 		} else {
 
@@ -303,16 +308,16 @@ void AppImplMswBasic::runV2()
 				::DispatchMessage(&msg);
 			}
 
-			if (!pendingAutoFrameReset) {
-				autoFrameReset = std::chrono::high_resolution_clock::now();
-				pendingAutoFrameReset = true;
-			} else {
-				const int milis = (int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - autoFrameReset).count();
-				if (milis > 2000) {					
-					mDebugFlag = 1; // auto correct test
-					pendingAutoFrameReset = false; // not too often, obviously
-				}
-			}
+			//if (!pendingAutoFrameReset) {
+			//	autoFrameReset = std::chrono::high_resolution_clock::now();
+			//	pendingAutoFrameReset = true;
+			//} else {
+			//	const int milis = (int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - autoFrameReset).count();
+			//	if (milis > 2000) {					
+			//		mDebugFlag = 1; // auto correct test
+			//		pendingAutoFrameReset = false; // not too often, obviously
+			//	}
+			//}
 
 		}		
 
