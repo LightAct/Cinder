@@ -195,21 +195,46 @@ void AppImplMswBasic::RenderWindows() {
 	//	}
 	//}
 }
-void AppImplMswBasic::SwapBuffers() {
-	// gui
-	{
-		mWindows.front()->getRenderer()->makeCurrentContext();
-		mWindows.front()->getRenderer()->finishDraw();
+void AppImplMswBasic::SwapInfo::Grab() {
+	uint32_t ctt = (int)std::chrono::duration_cast<std::chrono::microseconds>(
+		std::chrono::high_resolution_clock::now() - tp).count();
+	if (us.size() == 120)
+		us.pop_back();
+	us.push_back(ctt);
+	tp = std::chrono::high_resolution_clock::now();
+}
+void AppImplMswBasic::SwapBuffers() {	
+
+	if (swaps.size() != mWindows.size()) {
+		while (swaps.size()) {
+			delete swaps.back();
+			swaps.pop_back();
+		}
+		for(size_t nsw = 0; nsw < mWindows.size(); nsw++)
+			swaps.push_back(new SwapInfo);
 	}
+
 	// outputs
+	int wIndex = 0;
 	{
 		for (auto& window : mWindows) {
-			if (!mShouldQuit && window != mWindows.front()) {
-				window->getRenderer()->makeCurrentContext();
-				window->getRenderer()->finishDraw();
-			}
+			if (!mShouldQuit) {
+				if (window != mWindows.front()) {
+					window->getRenderer()->makeCurrentContext();
+					window->getRenderer()->finishDraw();
+					swaps[wIndex++]->Grab();
+				}
+			}			
 		}
 	}
+	// gui
+	{
+		if (!mShouldQuit) {
+			mWindows.front()->getRenderer()->makeCurrentContext();
+			mWindows.front()->getRenderer()->finishDraw();
+			swaps[wIndex++]->Grab();
+		}
+	}	
 }
 
 void AppImplMswBasic::runV2()
@@ -298,8 +323,8 @@ void AppImplMswBasic::runV2()
 			for (auto& window : mWindows) {
 				GLenum waitResult = glClientWaitSync(fences[index++], GL_SYNC_FLUSH_COMMANDS_BIT, 1000000);
 				if (waitResult == GL_ALREADY_SIGNALED || waitResult == GL_CONDITION_SATISFIED) {} 
-				else {
-					// Timeout or failed; could log or handle differently
+				else { 
+					/* Timeout or failed; could log or handle differently */ 					
 				}
 			}
 
@@ -313,10 +338,10 @@ void AppImplMswBasic::runV2()
 			mApp->mFrameProfile[2] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 		}
 		
-		if (currentFrameRate != mFrameRate) {
+		/*if (currentFrameRate != mFrameRate) {
 			currentFrameRate = mFrameRate;
 			mDebugFlag = 3;
-		}
+		}*/
 				
 		mSyncFrameNumber++;
 		mApp->cinderFrameDone();
@@ -333,25 +358,40 @@ void AppImplMswBasic::runV2()
 			mNextFrameTime = currentSeconds;
 		}
 
-		// default
-		mNextFrameTime += secondsPerFrame;		
+		const int es = (int)currentSeconds;
+		if (es % 15 == 0) {
+			if (secondsRefresh != es) {
+				secondsRefresh = es;
+				mNextFrameTime = currentSeconds;
+				mNextFrameTime += milisecondsOffset * 0.001;
+				mNextFrameTime -= secondsPerFrame;
+			}
+		}
 
 		if (mDebugFlag != 0) {
 			if(mDebugFlag == 1) {
-				mNextFrameTime = currentSeconds - 2.0;
+				mNextFrameTime = currentSeconds - 3.0;
 			} else if (mDebugFlag == 2) {
+				// reset
 				const int accFrames = (int)(currentSeconds / secondsPerFrame);
 				mNextFrameTime = (accFrames + 1) * secondsPerFrame;
 			} else if(mDebugFlag == 3) {
 				// mix test
 				mNextFrameTime = currentSeconds;
 			} else {
-				// mNextFrameTime = currentSeconds + (mDebugFlag - 3) * 0.002;
-				std::this_thread::sleep_for(std::chrono::milliseconds((mDebugFlag - 3) * 2));
+				milisecondsOffset = (mDebugFlag - 3) * 2;
+				mNextFrameTime = currentSeconds;
+				mNextFrameTime += milisecondsOffset * 0.001;
+				mNextFrameTime -= secondsPerFrame;
+				// mNextFrameTime = currentSeconds - (mDebugFlag - 3) * 0.002;
+				// mNextFrameTime += secondsPerFrame;
+				// std::this_thread::sleep_for(std::chrono::milliseconds((mDebugFlag - 3) * 2));
 			}
 			mDebugFlag = 0;
-		}	
+		}
 		
+		mNextFrameTime += secondsPerFrame;
+
 		{
 			MSG msg;
 			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -360,8 +400,9 @@ void AppImplMswBasic::runV2()
 			}
 		}
 
+		currentSeconds = getElapsedSeconds();		
 		bool makeCinderSleep = mFrameRateEnabled;
-		if (mNextFrameTime > currentSeconds && makeCinderSleep) {
+		if (mNextFrameTime > currentSeconds) {
 			/* if (mSyncRole == 2) {
 			* makeCinderSleep = false;
 			} */

@@ -303,6 +303,8 @@ bool initializeGl( HWND /*wnd*/, HDC dc, HGLRC sharedRC, const RendererGl::Optio
 		::wglShareLists( sharedRC, *resultRc );
 
 	::wglMakeCurrent( dc, *resultRc );
+	//GLuint group = 1;
+	//wglJoinSwapGroupNV(wglGetCurrentDC(), group);
 
 	return true;
 }
