@@ -175,9 +175,39 @@ void AppImplMswBasic::run()
 	delete mApp;
 }
 void AppImplMswBasic::RenderWindows() {
-	for (auto& window : mWindows) {
-		if (!mShouldQuit) { // test for quit() issued either from update() or prior draw()			
-			window->redraw();		
+
+	// outputs
+	{
+		for (auto& window : mWindows) {
+			if (!mShouldQuit && window != mWindows.front()) {
+				window->redraw();				
+			}
+		}
+	}
+	// gui
+	{
+		mWindows.front()->redraw();
+	}
+
+	//for (auto& window : mWindows) {
+	//	if (!mShouldQuit) { // test for quit() issued either from update() or prior draw()			
+	//		window->redraw();		
+	//	}
+	//}
+}
+void AppImplMswBasic::SwapBuffers() {
+	// gui
+	{
+		mWindows.front()->getRenderer()->makeCurrentContext();
+		mWindows.front()->getRenderer()->finishDraw();
+	}
+	// outputs
+	{
+		for (auto& window : mWindows) {
+			if (!mShouldQuit && window != mWindows.front()) {
+				window->getRenderer()->makeCurrentContext();
+				window->getRenderer()->finishDraw();
+			}
 		}
 	}
 }
@@ -220,8 +250,6 @@ void AppImplMswBasic::runV2()
 		const double secondsPerFrame = 1.0 / (double)mFrameRate;
 		const unsigned int epochResetter = epochResetCounter;
 		
-		// mApp->privateBeginFrame__();		
-
 		// all of our Windows will have marked this as true if the user has unplugged, plugged or modified a Monitor
 		if (mNeedsToRefreshDisplays) {
 			mNeedsToRefreshDisplays = false;
@@ -245,48 +273,68 @@ void AppImplMswBasic::runV2()
 			mDebugFlag = 1;
 		}
 
-		mApp->mFrameProfile[2] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
-		frameProfiler = std::chrono::high_resolution_clock::now();
-		// double updateTime = getElapsedSeconds();
-		mApp->privateUpdate__();
+		// sleep time for frame
+		mApp->mFrameProfile[3] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 
-		mApp->mFrameProfile[0] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
-		frameProfiler = std::chrono::high_resolution_clock::now();
-
-		// updateTime = getElapsedSeconds() - updateTime;
-
-		// double drawTime = getElapsedSeconds();
-		{
-			// mApp->privateBeginDraw__();
-			RenderWindows();
-			// mApp->privateEndDraw__();
+		{ // update
+			frameProfiler = std::chrono::high_resolution_clock::now();
+			mApp->privateUpdate__();
+			mApp->mFrameProfile[0] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 		}
-		// drawTime = getElapsedSeconds() - drawTime;
-		// everything done
-		// mApp->privateEndSwap__();		
+		{ // draw
+			frameProfiler = std::chrono::high_resolution_clock::now();
+			RenderWindows();
+			mApp->mFrameProfile[1] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
+		}
+		{ // swap
+			frameProfiler = std::chrono::high_resolution_clock::now();
 
-		mApp->mFrameProfile[1] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
+			std::vector<GLsync> fences;
+			int index = 0;
+			for (auto& window : mWindows) {
+				fences.push_back(glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0));
+			}
+			index = 0;
+			for (auto& window : mWindows) {
+				GLenum waitResult = glClientWaitSync(fences[index++], GL_SYNC_FLUSH_COMMANDS_BIT, 1000000);
+				if (waitResult == GL_ALREADY_SIGNALED || waitResult == GL_CONDITION_SATISFIED) {} 
+				else {
+					// Timeout or failed; could log or handle differently
+				}
+			}
 
+			SwapBuffers();
+
+			index = 0;
+			for (auto& window : mWindows) {
+				glDeleteSync(fences[index++]);
+			}
+
+			mApp->mFrameProfile[2] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
+		}
+		
 		if (currentFrameRate != mFrameRate) {
 			currentFrameRate = mFrameRate;
 			mDebugFlag = 3;
 		}
-
-		frameProfiler = std::chrono::high_resolution_clock::now();
 				
 		mSyncFrameNumber++;
 		mApp->cinderFrameDone();
 
 		// get current time in seconds
 		double currentSeconds = getElapsedSeconds();
+		// for sleep time
+		frameProfiler = std::chrono::high_resolution_clock::now();
 		// determine if application was frozen for a while and adjust next frame time				
 		double elapsedSeconds = currentSeconds - mNextFrameTime;
 		if (glm::abs(elapsedSeconds) > 1.0) {
-			int numSkipFrames = (int)(elapsedSeconds / secondsPerFrame);
-			mNextFrameTime += (numSkipFrames * secondsPerFrame);			
-		} else {
-			mNextFrameTime += secondsPerFrame;
+			// int numSkipFrames = (int)(elapsedSeconds / secondsPerFrame);
+			// mNextFrameTime += (numSkipFrames * secondsPerFrame);			
+			mNextFrameTime = currentSeconds;
 		}
+
+		// default
+		mNextFrameTime += secondsPerFrame;		
 
 		if (mDebugFlag != 0) {
 			if(mDebugFlag == 1) {
@@ -298,25 +346,12 @@ void AppImplMswBasic::runV2()
 				// mix test
 				mNextFrameTime = currentSeconds;
 			} else {
-				AppBase::get()->mTimer.start(mNextFrameTime);
-				mNextFrameTime = getElapsedSeconds() + (mDebugFlag - 3) * 0.002;				
+				// mNextFrameTime = currentSeconds + (mDebugFlag - 3) * 0.002;
+				std::this_thread::sleep_for(std::chrono::milliseconds((mDebugFlag - 3) * 2));
 			}
 			mDebugFlag = 0;
-		}		
-
-		// determine when next frame should be drawn		
-		bool makeCinderSleep = mFrameRateEnabled;
-		if ( mNextFrameTime > currentSeconds ) {
-			/*
-			if (mSyncRole == 2) {
-				makeCinderSleep = false;
-			}
-			*/
-		} else {
-			mNextFrameTime += secondsPerFrame;
-			makeCinderSleep = false;
-		}
-
+		}	
+		
 		{
 			MSG msg;
 			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -325,14 +360,21 @@ void AppImplMswBasic::runV2()
 			}
 		}
 
+		bool makeCinderSleep = mFrameRateEnabled;
+		if (mNextFrameTime > currentSeconds && makeCinderSleep) {
+			/* if (mSyncRole == 2) {
+			* makeCinderSleep = false;
+			} */
+		} else {
+			makeCinderSleep = false;
+		}
+
 		if (makeCinderSleep) {	
-			const double cinderSleep = mNextFrameTime - getElapsedSeconds();
+			const double cinderSleep = mNextFrameTime - currentSeconds;
 			if(cinderSleep > 0.0) {
-				// sleep(cinderSleep);
+			//	// sleep(cinderSleep);				
 				std::this_thread::sleep_for(std::chrono::microseconds((int)(cinderSleep * 1000000)));
 			}
-			// pendingAutoFrameReset = false;
-
 		} else {
 
 			/*MSG msg;
