@@ -362,7 +362,7 @@ void AppImplMswBasic::runV2()
 		if (es % 15 == 0) {
 			if (secondsRefresh != es) {
 				secondsRefresh = es;
-				mDebugFlag = 3;
+				// mDebugFlag = 3;
 				// mNextFrameTime = currentSeconds;
 				// mNextFrameTime += milisecondsOffset * 0.001;
 				// mNextFrameTime -= secondsPerFrame;
