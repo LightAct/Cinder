@@ -411,14 +411,29 @@ WindowImplMsw::WindowImplMsw( const Window::Format &format, RendererRef sharedRe
 	mWindowWidthPx = mWindowedSizePx.x;
 	mWindowHeightPx = mWindowedSizePx.y;
 
-	glm::ivec2 upperLeft(0);
-	glm::ivec2 bottomRight(0);
-
 	if( format.isPosSpecified() ) {
 		mWindowOffset = mWindowedPos = mDisplay->getBounds().getUL() + format.getPos();
 	} else {
 		ivec2 displaySize = mDisplay->getSize();
 		mWindowOffset = mWindowedPos = mDisplay->getBounds().getUL() + ( displaySize - mWindowedSizePx ) / 2;
+	}
+
+	// override test
+	glm::ivec2 upperLeft(0);
+	glm::ivec2 bottomRight(0);
+	{
+		for (auto dsp : Display::getDisplays()) {
+			glm::ivec2 ul = dsp->getBounds().getUL();
+			glm::ivec2 br = ul + dsp->getSize();
+			if (ul.x < upperLeft.x) upperLeft.x = ul.x;
+			if (ul.y < upperLeft.y) upperLeft.y = ul.y;
+			if (br.x > bottomRight.x) bottomRight.x = br.x;
+			if (br.y > bottomRight.y) bottomRight.y = br.y;
+		}
+		mWindowWidthPx = bottomRight.x - upperLeft.x;
+		mWindowHeightPx = bottomRight.y - upperLeft.y;
+		mWindowOffset = mWindowedPos = upperLeft;		
+		mBorderless = true;
 	}
 
 	createWindow( ivec2( mWindowWidthPx, mWindowHeightPx ), format.getTitle(), mDisplay, sharedRenderer );

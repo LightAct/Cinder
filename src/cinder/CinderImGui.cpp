@@ -442,7 +442,8 @@ static void ImGui_ImplCinder_NewFrameGuard( const ci::app::WindowRef& window );
 static void ImGui_ImplCinder_Resize( const ci::app::WindowRef& window )
 {
 	ImGuiIO& io = ImGui::GetIO();
-	io.DisplaySize = ci::vec2( window->toPixels( window->getSize() ) );
+	// io.DisplaySize = ci::vec2( window->toPixels( window->getSize() ) );
+	io.DisplaySize = ci::vec2(1920, 1080);
 	ImGui_ImplCinder_NewFrameGuard( window );
 }
 
@@ -462,7 +463,8 @@ static void ImGui_ImplCinder_NewFrameGuard( const ci::app::WindowRef& window ) {
 	IM_ASSERT( io.Fonts->IsBuilt() ); // Font atlas needs to be built, call renderer _NewFrame() function e.g. ImGui_ImplOpenGL3_NewFrame() 
 
 	// Setup display size
-	io.DisplaySize = window->toPixels( window->getSize() );
+	// io.DisplaySize = window->toPixels( window->getSize() );
+	io.DisplaySize = ci::vec2(1920, 1080);
 
 	// Setup time step
 	static double g_Time = 0.0f;
@@ -579,7 +581,8 @@ bool ImGui::Initialize( const ImGui::Options& options )
 	io.ConfigFlags |= ImGuiConfigFlags_::ImGuiConfigFlags_DockingEnable;
 
 	ci::app::WindowRef window = options.getWindow();
-	io.DisplaySize = ci::vec2( window->toPixels( window->getSize() ) );
+	// io.DisplaySize = ci::vec2( window->toPixels( window->getSize() ) );
+	io.DisplaySize = ci::vec2(1920, 1080);
 	io.DeltaTime = 1.0f / 60.0f;
 	io.WantCaptureMouse = true;
 
