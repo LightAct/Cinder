@@ -259,6 +259,7 @@ void AppImplMswBasic::runV2()
 
 	auto frameProfiler = std::chrono::high_resolution_clock::now();
 	float currentFrameRate = mFrameRate;
+	uint32_t delayedReset = -1;
 
 	// inner loop
 	while (!mShouldQuit) {
@@ -295,7 +296,7 @@ void AppImplMswBasic::runV2()
 					enable = 1;
 				}				
 			}
-			mDebugFlag = 1;
+			delayedReset = getElapsedFrames() + 250;
 		}
 
 		// sleep time for frame
@@ -367,6 +368,9 @@ void AppImplMswBasic::runV2()
 				// mNextFrameTime += milisecondsOffset * 0.001;
 				// mNextFrameTime -= secondsPerFrame;
 			}
+		}
+		if (delayedReset == getElapsedFrames()) {
+			mDebugFlag = 8;
 		}
 
 		if (mDebugFlag != 0) {
