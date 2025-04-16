@@ -178,22 +178,25 @@ void AppImplMswBasic::RenderWindows() {
 
 	// outputs
 	{
-		for (auto& window : mWindows) {
-			if (!mShouldQuit && window != mWindows.front()) {
-				window->redraw();				
+		if(mRit) {
+			for (std::list<cinder::app::WindowImplMswBasic*>::reverse_iterator rit = mWindows.rbegin();
+				rit != mWindows.rend(); rit++) {
+				if (!mShouldQuit && (*rit) != mWindows.front()) {
+					(*rit)->redraw();
+				}
 			}
-		}
+		} else {
+			for (auto& window : mWindows) {
+				if (!mShouldQuit && window != mWindows.front()) {
+					window->redraw();
+				}
+			}
+		}		
 	}
 	// gui
 	{
 		mWindows.front()->redraw();
 	}
-
-	//for (auto& window : mWindows) {
-	//	if (!mShouldQuit) { // test for quit() issued either from update() or prior draw()			
-	//		window->redraw();		
-	//	}
-	//}
 }
 void AppImplMswBasic::SwapInfo::Grab() {
 	uint32_t ctt = (int)std::chrono::duration_cast<std::chrono::microseconds>(
@@ -217,14 +220,25 @@ void AppImplMswBasic::SwapBuffers() {
 	// outputs
 	int wIndex = 0;
 	{
-		for (auto& window : mWindows) {
-			if (!mShouldQuit) {
-				if (window != mWindows.front()) {
-					window->getRenderer()->makeCurrentContext();
-					window->getRenderer()->finishDraw();
+		if(mRit) {
+			for (std::list<cinder::app::WindowImplMswBasic*>::reverse_iterator rit = mWindows.rbegin();
+				rit != mWindows.rend(); rit++) {
+				if (!mShouldQuit && (*rit) != mWindows.front()) {
+					(*rit)->getRenderer()->makeCurrentContext();
+					(*rit)->getRenderer()->finishDraw();
 					swaps[wIndex++]->Grab();
 				}
-			}			
+			}
+		} else {
+			for (auto& window : mWindows) {
+				if (!mShouldQuit) {
+					if (window != mWindows.front()) {
+						window->getRenderer()->makeCurrentContext();
+						window->getRenderer()->finishDraw();
+						swaps[wIndex++]->Grab();
+					}
+				}
+			}
 		}
 	}
 	// gui
@@ -315,26 +329,26 @@ void AppImplMswBasic::runV2()
 		{ // swap
 			frameProfiler = std::chrono::high_resolution_clock::now();
 
-			std::vector<GLsync> fences;
-			int index = 0;
-			for (auto& window : mWindows) {
-				fences.push_back(glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0));
-			}
-			index = 0;
-			for (auto& window : mWindows) {
-				GLenum waitResult = glClientWaitSync(fences[index++], GL_SYNC_FLUSH_COMMANDS_BIT, 1000000);
-				if (waitResult == GL_ALREADY_SIGNALED || waitResult == GL_CONDITION_SATISFIED) {} 
-				else { 
-					/* Timeout or failed; could log or handle differently */ 					
-				}
-			}
+			//std::vector<GLsync> fences;
+			//int index = 0;
+			//for (auto& window : mWindows) {
+			//	fences.push_back(glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0));
+			//}
+			//index = 0;
+			//for (auto& window : mWindows) {
+			//	GLenum waitResult = glClientWaitSync(fences[index++], GL_SYNC_FLUSH_COMMANDS_BIT, 1000000);
+			//	if (waitResult == GL_ALREADY_SIGNALED || waitResult == GL_CONDITION_SATISFIED) {} 
+			//	else { 
+			//		/* Timeout or failed; could log or handle differently */ 					
+			//	}
+			//}
 
 			SwapBuffers();
 
-			index = 0;
+			/*index = 0;
 			for (auto& window : mWindows) {
 				glDeleteSync(fences[index++]);
-			}
+			}*/
 
 			mApp->mFrameProfile[2] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 		}
@@ -353,7 +367,7 @@ void AppImplMswBasic::runV2()
 		frameProfiler = std::chrono::high_resolution_clock::now();
 		// determine if application was frozen for a while and adjust next frame time				
 		double elapsedSeconds = currentSeconds - mNextFrameTime;
-		if (glm::abs(elapsedSeconds) > 1.0) {
+		if (elapsedSeconds > 1.0) {
 			// int numSkipFrames = (int)(elapsedSeconds / secondsPerFrame);
 			// mNextFrameTime += (numSkipFrames * secondsPerFrame);			
 			mNextFrameTime = currentSeconds;
@@ -382,7 +396,7 @@ void AppImplMswBasic::runV2()
 				mNextFrameTime = (accFrames + 1) * secondsPerFrame;
 			} else if(mDebugFlag == 3) {
 				// mix test
-				mNextFrameTime = currentSeconds;
+				mRit = !mRit;
 			} else {
 				milisecondsOffset = (mDebugFlag - 3) * 2;
 				mNextFrameTime = currentSeconds;

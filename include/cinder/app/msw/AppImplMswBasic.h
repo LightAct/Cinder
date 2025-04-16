@@ -107,6 +107,7 @@ private:
 	uint32_t		mSyncFrameNumber = 0;
 	bool			mShouldQuit;
 	bool			mQuitOnLastWindowClosed;
+	bool			mRit = false;
 
 	std::list<class WindowImplMswBasic*>	mWindows;
 	std::list<BlankingWindowRef>			mBlankingWindows;
