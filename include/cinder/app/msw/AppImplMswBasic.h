@@ -97,7 +97,7 @@ private:
 	HINSTANCE		mInstance;
 	double			mNextFrameTime;
 	bool			mFrameRateEnabled;
-	int				mDebugFlag = 0;
+	bool			mAutoOffset = false;
 	uint32_t		mSyncFrameNumber = 0;
 	uint32_t		mBaseFrameNumber = 0;
 	bool			mShouldQuit;

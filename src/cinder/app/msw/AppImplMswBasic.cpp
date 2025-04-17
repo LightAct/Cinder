@@ -220,8 +220,9 @@ void AppImplMswBasic::runV2()
 	epochResetCounter = 0;
 	size_t mWindowsSize = 1;
 
+	auto autoOffset = std::chrono::high_resolution_clock::now();
 	auto frameProfiler = std::chrono::high_resolution_clock::now();
-	float currentFrameRate = mFrameRate;
+	bool performAutoOffset = false;
 
 	// inner loop
 	while (!mShouldQuit) {
@@ -296,21 +297,23 @@ void AppImplMswBasic::runV2()
 			mNextFrameTime = currentSeconds;
 		}
 
-		if (mDebugFlag != 0) {
-			if(mDebugFlag == 1) {
-				mNextFrameTime = currentSeconds - 3.0;
-			} else if (mDebugFlag == 2) {
-				// reset
-				const int accFrames = (int)(currentSeconds / secondsPerFrame);
-				mNextFrameTime = (accFrames + 1) * secondsPerFrame;
+		if (mAutoOffset) {
+			// if wait exceeeds most of the frame
+			if (mApp->mFrameProfile[2] > secondsPerFrame * .5) {
+				if (!performAutoOffset) {					
+					autoOffset = std::chrono::high_resolution_clock::now();
+					performAutoOffset = true;
+				} else {					
+					if ((int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - autoOffset).count() > 5000) {
+						mNextFrameTime = currentSeconds - 3.0;
+						performAutoOffset = false;
+					}
+				}
 			} else {
-				mNextFrameTime = currentSeconds - (mDebugFlag - 3) * 0.002;
-				mNextFrameTime += secondsPerFrame;
-				// std::this_thread::sleep_for(std::chrono::milliseconds((mDebugFlag - 3) * 2));
+				// reset
+				performAutoOffset = false;
 			}
-			mDebugFlag = 0;
 		}
-		
 		mNextFrameTime += secondsPerFrame;
 
 		{
@@ -576,7 +579,7 @@ uint32_t AppImplMswBasic::getBaseFrameNumber() {
 }
 void AppImplMswBasic::setDebugFlag( int val ) 
 {
-	mDebugFlag = val;
+	mAutoOffset = (val == 1) ? true : false;
 }
 void AppImplMswBasic::disableFrameRate()
 {
