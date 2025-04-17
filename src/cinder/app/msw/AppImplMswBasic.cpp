@@ -249,7 +249,7 @@ void AppImplMswBasic::runV2()
 					window->resize();
 		}
 
-		if (mWindowsSize != mWindows.size()) {
+		/*if (mWindowsSize != mWindows.size()) {
 			mWindowsSize = mWindows.size();
 			GLint enable = (mWindowsSize == 1) ? 1 : 0;
 			if (WGL_EXT_swap_control) {
@@ -260,7 +260,7 @@ void AppImplMswBasic::runV2()
 				}				
 			}
 			wglDelayBeforeSwapNV(mWindows.front()->getDc(), 0.01f);
-		}
+		}*/
 
 		// sleep time for frame
 		mApp->mFrameProfile[3] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
@@ -297,16 +297,16 @@ void AppImplMswBasic::runV2()
 			mNextFrameTime = currentSeconds;
 		}
 
+		bool performOffsetCorrection = forcedAutoOffset;
 		if (mAutoOffset) {
 			// if wait exceeeds most of the frame
-			if (mApp->mFrameProfile[1] > secondsPerFrame * 1000000.0 * .5 || 
-				mApp->mFrameProfile[2] > secondsPerFrame * 1000000.0 * .5) {
+			if (mApp->mFrameProfile[1] > 5000) {
 				if (!performAutoOffset) {					
 					autoOffset = std::chrono::high_resolution_clock::now();
 					performAutoOffset = true;
 				} else {					
-					if ((int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - autoOffset).count() > 5000) {
-						mNextFrameTime = currentSeconds - 3.0;
+					if ((int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - autoOffset).count() > 1000) {
+						performOffsetCorrection = true;						
 						performAutoOffset = false;
 					}
 				}
@@ -314,6 +314,10 @@ void AppImplMswBasic::runV2()
 				// reset
 				performAutoOffset = false;
 			}
+		}
+		if(performOffsetCorrection) {
+			mNextFrameTime = currentSeconds - 3.0;
+			forcedAutoOffset = false;
 		}
 		mNextFrameTime += secondsPerFrame;
 
@@ -581,6 +585,7 @@ uint32_t AppImplMswBasic::getBaseFrameNumber() {
 void AppImplMswBasic::setDebugFlag( int val ) 
 {
 	mAutoOffset = (val == 1) ? true : false;
+	forcedAutoOffset = true;
 }
 void AppImplMswBasic::disableFrameRate()
 {

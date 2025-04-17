@@ -98,6 +98,7 @@ private:
 	double			mNextFrameTime;
 	bool			mFrameRateEnabled;
 	bool			mAutoOffset = false;
+	bool			forcedAutoOffset = false;
 	uint32_t		mSyncFrameNumber = 0;
 	uint32_t		mBaseFrameNumber = 0;
 	bool			mShouldQuit;
