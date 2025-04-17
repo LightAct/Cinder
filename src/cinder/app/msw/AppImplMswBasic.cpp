@@ -181,7 +181,7 @@ void AppImplMswBasic::RenderWindows() {
 			window->redraw();
 		}
 	}
-	glFinish();
+	// glFinish();
 }
 void AppImplMswBasic::SwapBuffers() {
 
@@ -276,9 +276,10 @@ void AppImplMswBasic::runV2()
 			mApp->mFrameProfile[1] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 		}
 		{ // swap
-			frameProfiler = std::chrono::high_resolution_clock::now();
-			SwapBuffers();
-			mApp->mFrameProfile[2] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
+			// frameProfiler = std::chrono::high_resolution_clock::now();
+			// SwapBuffers();
+			mApp->mFrameProfile[2] = 0;
+			// (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 		}
 				
 		mSyncFrameNumber++;
