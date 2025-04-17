@@ -299,7 +299,8 @@ void AppImplMswBasic::runV2()
 
 		if (mAutoOffset) {
 			// if wait exceeeds most of the frame
-			if (mApp->mFrameProfile[2] > secondsPerFrame * .5) {
+			if (mApp->mFrameProfile[1] > secondsPerFrame * 1000000.0 * .5 || 
+				mApp->mFrameProfile[2] > secondsPerFrame * 1000000.0 * .5) {
 				if (!performAutoOffset) {					
 					autoOffset = std::chrono::high_resolution_clock::now();
 					performAutoOffset = true;
