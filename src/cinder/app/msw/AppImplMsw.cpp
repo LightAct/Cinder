@@ -418,6 +418,7 @@ WindowImplMsw::WindowImplMsw( const Window::Format &format, RendererRef sharedRe
 		mWindowOffset = mWindowedPos = mDisplay->getBounds().getUL() + ( displaySize - mWindowedSizePx ) / 2;
 	}
 
+	/*
 	// override test
 	glm::ivec2 upperLeft(0);
 	glm::ivec2 bottomRight(0);
@@ -435,6 +436,7 @@ WindowImplMsw::WindowImplMsw( const Window::Format &format, RendererRef sharedRe
 		mWindowOffset = mWindowedPos = upperLeft;		
 		mBorderless = true;
 	}
+	*/
 
 	createWindow( ivec2( mWindowWidthPx, mWindowHeightPx ), format.getTitle(), mDisplay, sharedRenderer );
 	// set WindowRef and its impl pointer to this
