@@ -289,44 +289,23 @@ void AppImplMswBasic::runV2()
 		double currentSeconds = getElapsedSeconds();
 		// for sleep time
 		frameProfiler = std::chrono::high_resolution_clock::now();
+
+		if (mDebugFlag != 0) {
+			mNextFrameTime = currentSeconds - 3.0;
+			mDebugFlag = 0;
+		}
+
 		// determine if application was frozen for a while and adjust next frame time				
 		double elapsedSeconds = currentSeconds - mNextFrameTime;
 		if (elapsedSeconds > 1.0) {
-			// int numSkipFrames = (int)(elapsedSeconds / secondsPerFrame);
-			// mNextFrameTime += (numSkipFrames * secondsPerFrame);			
-			mNextFrameTime = currentSeconds;
+			int numSkipFrames = (int)(elapsedSeconds / secondsPerFrame);
+			mNextFrameTime += (numSkipFrames * secondsPerFrame);			
 		}
 
-		bool performOffsetCorrection = forcedAutoOffset;
-		if (mAutoOffset) {
-			// if wait exceeeds most of the frame
-			if (mApp->mFrameProfile[1] > 5000) {
-				if (!performAutoOffset) {					
-					autoOffset = std::chrono::high_resolution_clock::now();
-					performAutoOffset = true;
-				} else {					
-					if ((int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - autoOffset).count() > 1000) {
-						performOffsetCorrection = true;						
-						performAutoOffset = false;
-					}
-				}
-			} else {
-				// reset
-				performAutoOffset = false;
-			}
-		}
-		if(performOffsetCorrection) {
-			mNextFrameTime = currentSeconds - 3.0;
-			forcedAutoOffset = false;
-		}
 		mNextFrameTime += secondsPerFrame;
 
 		{
-			MSG msg;
-			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-				::TranslateMessage(&msg);
-				::DispatchMessage(&msg);
-			}
+			
 		}
 
 		currentSeconds = getElapsedSeconds();		
@@ -341,17 +320,17 @@ void AppImplMswBasic::runV2()
 
 		if (makeCinderSleep) {	
 			const double cinderSleep = mNextFrameTime - currentSeconds;
-			if(cinderSleep > 0.0) {
-			//	// sleep(cinderSleep);				
-				std::this_thread::sleep_for(std::chrono::microseconds((int)(cinderSleep * 1000000)));
-			}
+			// if(cinderSleep > 0.0) {
+			sleep(cinderSleep);				
+				// std::this_thread::sleep_for(std::chrono::microseconds((int)(cinderSleep * 1000000)));
+				// }
 		} else {
 
-			/*MSG msg;
+			MSG msg;
 			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 				::TranslateMessage(&msg);
 				::DispatchMessage(&msg);
-			}*/
+			}
 
 			//if (!pendingAutoFrameReset) {
 			//	autoFrameReset = std::chrono::high_resolution_clock::now();
@@ -584,8 +563,7 @@ uint32_t AppImplMswBasic::getBaseFrameNumber() {
 }
 void AppImplMswBasic::setDebugFlag( int val ) 
 {
-	mAutoOffset = (val == 1) ? true : false;
-	forcedAutoOffset = true;
+	mDebugFlag = val;
 }
 void AppImplMswBasic::disableFrameRate()
 {
