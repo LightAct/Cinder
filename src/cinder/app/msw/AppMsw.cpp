@@ -145,9 +145,17 @@ void AppMsw::setSyncFrameNumber(uint32_t n)
 {
 	mImpl->setSyncFrameNumber(n);
 }
+void AppMsw::setBaseFrameNumber(uint32_t n)
+{
+	mImpl->setBaseFrameNumber(n);
+}
 uint32_t AppMsw::getSyncFrameNumber() 
 {
 	return mImpl->getSyncFrameNumber();
+}
+uint32_t AppMsw::getBaseFrameNumber()
+{
+	return mImpl->getBaseFrameNumber();
 }
 bool AppMsw::isFrameRateEnabled() const
 {

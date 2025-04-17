@@ -116,6 +116,7 @@ void AppImplMswBasic::run()
 				window->redraw();
 		}
 		mSyncFrameNumber++;
+		mBaseFrameNumber++; // update control point
 		drawTime = mApp->getElapsedSeconds() - drawTime;
 		if (mAutoEpochReset && mFrameRateEnabled) {
 			if (drawTime > secondsPerFrame) {
@@ -280,6 +281,7 @@ void AppImplMswBasic::runV2()
 		}
 				
 		mSyncFrameNumber++;
+		mBaseFrameNumber++;
 		mApp->cinderFrameDone();
 
 		// get current time in seconds
@@ -563,8 +565,14 @@ void AppImplMswBasic::epochReset(float offset)
 void AppImplMswBasic::setSyncFrameNumber(uint32_t n) {
 	mSyncFrameNumber = n;
 }
+void AppImplMswBasic::setBaseFrameNumber(uint32_t n) {
+	mBaseFrameNumber = n;
+}
 uint32_t AppImplMswBasic::getSyncFrameNumber() {
 	return mSyncFrameNumber;
+}
+uint32_t AppImplMswBasic::getBaseFrameNumber() {
+	return mBaseFrameNumber;
 }
 void AppImplMswBasic::setDebugFlag( int val ) 
 {
