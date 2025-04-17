@@ -175,80 +175,31 @@ void AppImplMswBasic::run()
 	delete mApp;
 }
 void AppImplMswBasic::RenderWindows() {
+	for (auto window : mWindows) {
+		if (!mShouldQuit) {
+			window->redraw();
+		}
+	}
+	glFinish();
+}
+void AppImplMswBasic::SwapBuffers() {
 
-	// outputs
-	{
-		if(mRit) {
-			for (std::list<cinder::app::WindowImplMswBasic*>::reverse_iterator rit = mWindows.rbegin();
-				rit != mWindows.rend(); rit++) {
-				if (!mShouldQuit && (*rit) != mWindows.front()) {
-					(*rit)->redraw();
-				}
-			}
-		} else {
-			for (auto& window : mWindows) {
-				if (!mShouldQuit && window != mWindows.front()) {
-					window->redraw();
-				}
+	if (mWindows.size() > 1) {
+		// output windows first:
+		for (auto window : mWindows) {
+			if (!mShouldQuit && window != mWindows.front()) {
+				window->getRenderer()->makeCurrentContext();
+				window->getRenderer()->finishDraw();
 			}
 		}		
-	}
-	// gui
+	}	
 	{
-		mWindows.front()->redraw();
-	}
-}
-void AppImplMswBasic::SwapInfo::Grab() {
-	uint32_t ctt = (int)std::chrono::duration_cast<std::chrono::microseconds>(
-		std::chrono::high_resolution_clock::now() - tp).count();
-	if (us.size() == 120)
-		us.pop_back();
-	us.push_back(ctt);
-	tp = std::chrono::high_resolution_clock::now();
-}
-void AppImplMswBasic::SwapBuffers() {	
-
-	if (swaps.size() != mWindows.size()) {
-		while (swaps.size()) {
-			delete swaps.back();
-			swaps.pop_back();
-		}
-		for(size_t nsw = 0; nsw < mWindows.size(); nsw++)
-			swaps.push_back(new SwapInfo);
-	}
-
-	// outputs
-	int wIndex = 0;
-	{
-		if(mRit) {
-			for (std::list<cinder::app::WindowImplMswBasic*>::reverse_iterator rit = mWindows.rbegin();
-				rit != mWindows.rend(); rit++) {
-				if (!mShouldQuit && (*rit) != mWindows.front()) {
-					(*rit)->getRenderer()->makeCurrentContext();
-					(*rit)->getRenderer()->finishDraw();
-					swaps[wIndex++]->Grab();
-				}
-			}
-		} else {
-			for (auto& window : mWindows) {
-				if (!mShouldQuit) {
-					if (window != mWindows.front()) {
-						window->getRenderer()->makeCurrentContext();
-						window->getRenderer()->finishDraw();
-						swaps[wIndex++]->Grab();
-					}
-				}
-			}
-		}
-	}
-	// gui
-	{
+		// output window:
 		if (!mShouldQuit) {
 			mWindows.front()->getRenderer()->makeCurrentContext();
 			mWindows.front()->getRenderer()->finishDraw();
-			swaps[wIndex++]->Grab();
 		}
-	}	
+	}
 }
 
 void AppImplMswBasic::runV2()
@@ -268,12 +219,8 @@ void AppImplMswBasic::runV2()
 	epochResetCounter = 0;
 	size_t mWindowsSize = 1;
 
-	// bool pendingAutoFrameReset = false;
-	// auto autoFrameReset = std::chrono::high_resolution_clock::now();
-
 	auto frameProfiler = std::chrono::high_resolution_clock::now();
 	float currentFrameRate = mFrameRate;
-	uint32_t delayedReset = -1;
 
 	// inner loop
 	while (!mShouldQuit) {
@@ -310,7 +257,7 @@ void AppImplMswBasic::runV2()
 					enable = 1;
 				}				
 			}
-			delayedReset = getElapsedFrames() + 250;
+			wglDelayBeforeSwapNV(mWindows.front()->getDc(), 0.01f);
 		}
 
 		// sleep time for frame
@@ -328,35 +275,9 @@ void AppImplMswBasic::runV2()
 		}
 		{ // swap
 			frameProfiler = std::chrono::high_resolution_clock::now();
-
-			//std::vector<GLsync> fences;
-			//int index = 0;
-			//for (auto& window : mWindows) {
-			//	fences.push_back(glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0));
-			//}
-			//index = 0;
-			//for (auto& window : mWindows) {
-			//	GLenum waitResult = glClientWaitSync(fences[index++], GL_SYNC_FLUSH_COMMANDS_BIT, 1000000);
-			//	if (waitResult == GL_ALREADY_SIGNALED || waitResult == GL_CONDITION_SATISFIED) {} 
-			//	else { 
-			//		/* Timeout or failed; could log or handle differently */ 					
-			//	}
-			//}
-
 			SwapBuffers();
-
-			/*index = 0;
-			for (auto& window : mWindows) {
-				glDeleteSync(fences[index++]);
-			}*/
-
 			mApp->mFrameProfile[2] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 		}
-		
-		/*if (currentFrameRate != mFrameRate) {
-			currentFrameRate = mFrameRate;
-			mDebugFlag = 3;
-		}*/
 				
 		mSyncFrameNumber++;
 		mApp->cinderFrameDone();
@@ -373,20 +294,6 @@ void AppImplMswBasic::runV2()
 			mNextFrameTime = currentSeconds;
 		}
 
-		const int es = (int)currentSeconds;
-		if (es % 15 == 0) {
-			if (secondsRefresh != es) {
-				secondsRefresh = es;
-				// mDebugFlag = 3;
-				// mNextFrameTime = currentSeconds;
-				// mNextFrameTime += milisecondsOffset * 0.001;
-				// mNextFrameTime -= secondsPerFrame;
-			}
-		}
-		if (delayedReset == getElapsedFrames()) {
-			mDebugFlag = 8;
-		}
-
 		if (mDebugFlag != 0) {
 			if(mDebugFlag == 1) {
 				mNextFrameTime = currentSeconds - 3.0;
@@ -394,16 +301,9 @@ void AppImplMswBasic::runV2()
 				// reset
 				const int accFrames = (int)(currentSeconds / secondsPerFrame);
 				mNextFrameTime = (accFrames + 1) * secondsPerFrame;
-			} else if(mDebugFlag == 3) {
-				// mix test
-				mRit = !mRit;
 			} else {
-				milisecondsOffset = (mDebugFlag - 3) * 2;
-				mNextFrameTime = currentSeconds;
-				mNextFrameTime += milisecondsOffset * 0.001;
-				mNextFrameTime -= secondsPerFrame;
-				// mNextFrameTime = currentSeconds - (mDebugFlag - 3) * 0.002;
-				// mNextFrameTime += secondsPerFrame;
+				mNextFrameTime = currentSeconds - (mDebugFlag - 3) * 0.002;
+				mNextFrameTime += secondsPerFrame;
 				// std::this_thread::sleep_for(std::chrono::milliseconds((mDebugFlag - 3) * 2));
 			}
 			mDebugFlag = 0;

@@ -41,14 +41,6 @@ class AppImplMswBasic : public AppImplMsw {
 private:
 	void RenderWindows();
 	void SwapBuffers();
-	struct SwapInfo {
-		std::chrono::steady_clock::time_point tp = std::chrono::high_resolution_clock::now();
-		std::vector<uint32_t> us;
-		void Grab();
-	};
-	std::vector<SwapInfo*> swaps;
-	int secondsRefresh = 0;		// last refresh
-	int milisecondsOffset = 0; // in miliseconds
 
   public:
 	AppImplMswBasic( AppMsw *app, const AppMsw::Settings &settings );
@@ -107,7 +99,6 @@ private:
 	uint32_t		mSyncFrameNumber = 0;
 	bool			mShouldQuit;
 	bool			mQuitOnLastWindowClosed;
-	bool			mRit = false;
 
 	std::list<class WindowImplMswBasic*>	mWindows;
 	std::list<BlankingWindowRef>			mBlankingWindows;
