@@ -301,18 +301,7 @@ void AppImplMswBasic::runV2()
 			int numSkipFrames = (int)(elapsedSeconds / secondsPerFrame);
 			mNextFrameTime += (numSkipFrames * secondsPerFrame);			
 		}
-		mNextFrameTime += secondsPerFrame;
-
-		// listen once
-		{
-			MSG msg;
-			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-				::TranslateMessage(&msg);
-				::DispatchMessage(&msg);
-			}
-		}
-
-		currentSeconds = getElapsedSeconds();
+		// next frame modification
 		if(mDebugFlag != 0) {
 			if(mDebugFlag == 3) {
 				// reset / same as setting application framerate
@@ -325,6 +314,8 @@ void AppImplMswBasic::runV2()
 				mNextFrameTime = currentSeconds - 0.004;
 			}
 			mDebugFlag = 0;
+		} else {
+			mNextFrameTime += secondsPerFrame;
 		}
 		
 		bool makeCinderSleep = mFrameRateEnabled;
@@ -338,32 +329,17 @@ void AppImplMswBasic::runV2()
 
 		if (makeCinderSleep) {	
 			// sleep time for frame			
-			const double cinderSleep = mNextFrameTime - currentSeconds;
-			const int sleepDuration = (int)(cinderSleep * 1000000.0);
-			// if(cinderSleep > 0.0) {
-			//	sleep(cinderSleep);		
-			// }
-			std::this_thread::sleep_for(std::chrono::microseconds(sleepDuration));
+			const double cinderSleep = mNextFrameTime - currentSeconds;			
+			sleep(cinderSleep);		
+			// const int sleepDuration = (int)(cinderSleep * 1000000.0);
+			// std::this_thread::sleep_for(std::chrono::microseconds(sleepDuration));
 				
 		} else {
-
-			/*MSG msg;
+			MSG msg;
 			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 				::TranslateMessage(&msg);
 				::DispatchMessage(&msg);
-			}*/
-
-			//if (!pendingAutoFrameReset) {
-			//	autoFrameReset = std::chrono::high_resolution_clock::now();
-			//	pendingAutoFrameReset = true;
-			//} else {
-			//	const int milis = (int)std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - autoFrameReset).count();
-			//	if (milis > 2000) {					
-			//		mDebugFlag = 1; // auto correct test
-			//		pendingAutoFrameReset = false; // not too often, obviously
-			//	}
-			//}
-
+			}
 		}
 
 		mApp->mFrameProfile[2] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
