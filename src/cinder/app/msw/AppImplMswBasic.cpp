@@ -237,6 +237,8 @@ void AppImplMswBasic::runV2()
 	// inner loop
 	while (!mShouldQuit) {
 
+		fullFrameProfile = std::chrono::high_resolution_clock::now();
+
 		// when in sync mode, wait for trigger		
 		if (mSyncRole == 1 || mSyncRole == 2) {
 			std::unique_lock lk(frame_mutex);
@@ -358,7 +360,6 @@ void AppImplMswBasic::runV2()
 
 		// mApp->mFrameProfile[2] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 		mApp->mFrameProfile[3] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - fullFrameProfile).count();
-		fullFrameProfile = std::chrono::high_resolution_clock::now();
 
 		mApp->privateEndFrame__();
 
