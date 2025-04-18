@@ -259,9 +259,9 @@ void AppImplMswBasic::runV2()
 					window->resize();
 		}
 
-		/*if (mWindowsSize != mWindows.size()) {
+		if (mWindowsSize != mWindows.size()) {
 			mWindowsSize = mWindows.size();
-			GLint enable = (mWindowsSize == 1) ? 1 : 0;
+			/*GLint enable = (mWindowsSize == 1) ? 1 : 0;
 			if (WGL_EXT_swap_control) {
 				for (auto& window : mWindows) {
 					window->getRenderer()->makeCurrentContext();
@@ -269,8 +269,9 @@ void AppImplMswBasic::runV2()
 					enable = 1;
 				}				
 			}
-			wglDelayBeforeSwapNV(mWindows.front()->getDc(), 0.01f);
-		}*/
+			wglDelayBeforeSwapNV(mWindows.front()->getDc(), 0.01f);*/
+			setDebugFlag( 7 );
+		}
 
 #pragma region "UPATE"
 		{
@@ -332,16 +333,22 @@ void AppImplMswBasic::runV2()
 			makeCinderSleep = false;
 		}
 
-		frameProfiler = std::chrono::high_resolution_clock::now();
+		// mWindows.front()->getRenderer()->makeCurrentContext();
 
 		if (makeCinderSleep) {	
-			// sleep time for frame			
+
+			// sleep time for frame
 			const double cinderSleep = mNextFrameTime - currentSeconds;			
+			mApp->mFrameProfile[2] = (int)(cinderSleep * 1000000.0);
+
 			sleep(cinderSleep);		
 			// const int sleepDuration = (int)(cinderSleep * 1000000.0);
 			// std::this_thread::sleep_for(std::chrono::microseconds(sleepDuration));
 				
 		} else {
+
+			mApp->mFrameProfile[2] = 0;
+
 			MSG msg;
 			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 				::TranslateMessage(&msg);
@@ -349,7 +356,7 @@ void AppImplMswBasic::runV2()
 			}
 		}
 
-		mApp->mFrameProfile[2] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
+		// mApp->mFrameProfile[2] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 		mApp->mFrameProfile[3] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - fullFrameProfile).count();
 		fullFrameProfile = std::chrono::high_resolution_clock::now();
 
@@ -536,7 +543,7 @@ void AppImplMswBasic::setFrameRate( float frameRate )
 {
 	mFrameRate = frameRate;
 	mFrameRateEnabled = true;
-	// mNextFrameTime = mApp->getElapsedSeconds();
+	mNextFrameTime = mApp->getElapsedSeconds();
 }
 void AppImplMswBasic::syncNewFrame()
 {
