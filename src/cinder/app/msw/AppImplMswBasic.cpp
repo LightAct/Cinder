@@ -317,7 +317,7 @@ void AppImplMswBasic::runV2()
 					mNextFrameTime = currentSeconds + (0.004 + (mDebugFlag - 4) * 0.002);
 				} else if (mDebugFlag == 7) {
 					// move onto vblank only
-					mNextFrameTime = currentSeconds - 0.004;
+					mNextFrameTime = currentSeconds - 0.500;
 				}
 				mDebugFlag = 0;
 				appendDefault = false;
