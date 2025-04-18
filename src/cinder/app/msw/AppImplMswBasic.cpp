@@ -115,7 +115,6 @@ void AppImplMswBasic::run()
 			if( ! mShouldQuit ) // test for quit() issued either from update() or prior draw()
 				window->redraw();
 		}
-		mSyncFrameNumber++;
 		mBaseFrameNumber++; // update control point
 		drawTime = mApp->getElapsedSeconds() - drawTime;
 		if (mAutoEpochReset && mFrameRateEnabled) {
@@ -291,8 +290,7 @@ void AppImplMswBasic::runV2()
 			mApp->mFrameProfile[2] = 0;
 			// (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 		}
-				
-		mSyncFrameNumber++;
+			
 		mBaseFrameNumber++;
 		mApp->cinderFrameDone();
 
@@ -551,14 +549,8 @@ void AppImplMswBasic::epochReset(float offset)
 {
 	mEpochOffset = offset;
 }
-void AppImplMswBasic::setSyncFrameNumber(uint32_t n) {
-	mSyncFrameNumber = n;
-}
 void AppImplMswBasic::setBaseFrameNumber(uint32_t n) {
 	mBaseFrameNumber = n;
-}
-uint32_t AppImplMswBasic::getSyncFrameNumber() {
-	return mSyncFrameNumber;
 }
 uint32_t AppImplMswBasic::getBaseFrameNumber() {
 	return mBaseFrameNumber;

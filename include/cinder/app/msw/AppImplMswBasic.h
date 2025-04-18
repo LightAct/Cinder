@@ -59,9 +59,7 @@ private:
 	void	enableAutoEpochReset(bool val = true) override;
 	void	disableFrameRate();
 	void	setDebugFlag( int val );
-	void		setSyncFrameNumber(uint32_t n);
-	void		setBaseFrameNumber(uint32_t n);
-	uint32_t	getSyncFrameNumber();
+	void	setBaseFrameNumber(uint32_t n);
 	uint32_t	getBaseFrameNumber();
 	bool	isFrameRateEnabled() const;
 
@@ -100,7 +98,6 @@ private:
 	bool			mAutoOffset = false;
 	int				mDebugFlag = 0;
 	bool			mReverseOrder = false;
-	uint32_t		mSyncFrameNumber = 0;
 	uint32_t		mBaseFrameNumber = 0;
 	bool			mShouldQuit;
 	bool			mQuitOnLastWindowClosed;
