@@ -303,17 +303,19 @@ void AppImplMswBasic::runV2()
 		}
 		// next frame modification
 		if(mDebugFlag != 0) {
-			if(mDebugFlag == 3) {
-				// reset / same as setting application framerate
-				mNextFrameTime = currentSeconds;
-			} else if (mDebugFlag >= 4 && mDebugFlag <= 6) {
-				// allow some sleep
-				mNextFrameTime = currentSeconds + (0.004 + (mDebugFlag - 4) * 0.002);
-			} else if (mDebugFlag == 7) {
-				// move onto vblank only
-				mNextFrameTime = currentSeconds - 0.004;
+			if(mTriggerFrame == (int)getElapsedFrames()) {
+				if(mDebugFlag == 3) {
+					// reset / same as setting application framerate
+					mNextFrameTime = currentSeconds;
+				} else if (mDebugFlag >= 4 && mDebugFlag <= 6) {
+					// allow some sleep
+					mNextFrameTime = currentSeconds + (0.004 + (mDebugFlag - 4) * 0.002);
+				} else if (mDebugFlag == 7) {
+					// move onto vblank only
+					mNextFrameTime = currentSeconds - 0.004;
+				}
+				mDebugFlag = 0;
 			}
-			mDebugFlag = 0;
 		} else {
 			mNextFrameTime += secondsPerFrame;
 		}
@@ -565,6 +567,8 @@ void AppImplMswBasic::setDebugFlag( int val )
 		mReverseOrder = true;
 	} else {
 		mDebugFlag = val;
+		mTriggerFrame = getElapsedFrames();
+		mTriggerFrame += (int)getFrameRate();
 	}
 }
 void AppImplMswBasic::disableFrameRate()
