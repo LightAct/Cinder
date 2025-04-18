@@ -229,6 +229,9 @@ void AppImplMswBasic::runV2()
 	epochResetCounter = 0;
 	size_t mWindowsSize = 1;
 
+	// entire frame drugation (prev.end till current.end)
+	auto fullFrameProfile = std::chrono::high_resolution_clock::now();
+	// inner frame duration
 	auto frameProfiler = std::chrono::high_resolution_clock::now();
 
 	// inner loop
@@ -280,8 +283,7 @@ void AppImplMswBasic::runV2()
 		{ // draw
 			frameProfiler = std::chrono::high_resolution_clock::now();
 			RenderWindows();
-			mApp->mFrameProfile[1] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
-			mApp->mFrameProfile[2] = 0; // swap == 0
+			mApp->mFrameProfile[1] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();			
 		}
 #pragma endregion		
 			
@@ -327,26 +329,23 @@ void AppImplMswBasic::runV2()
 		
 		bool makeCinderSleep = mFrameRateEnabled;
 		if (mNextFrameTime > currentSeconds) {
-			/* if (mSyncRole == 2) {
-			* makeCinderSleep = false;
-			} */
+			/* if (mSyncRole == 2) { makeCinderSleep = false; } */
 		} else {
 			makeCinderSleep = false;
 		}
+
+		frameProfiler = std::chrono::high_resolution_clock::now();
 
 		if (makeCinderSleep) {	
 			// sleep time for frame			
 			const double cinderSleep = mNextFrameTime - currentSeconds;
 			const int sleepDuration = (int)(cinderSleep * 1000000.0);
-			mApp->mFrameProfile[3] = sleepDuration;
 			// if(cinderSleep > 0.0) {
 			//	sleep(cinderSleep);		
 			// }
 			std::this_thread::sleep_for(std::chrono::microseconds(sleepDuration));
 				
 		} else {
-
-			mApp->mFrameProfile[3] = 0;
 
 			/*MSG msg;
 			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -365,7 +364,12 @@ void AppImplMswBasic::runV2()
 			//	}
 			//}
 
-		}	
+		}
+
+		mApp->mFrameProfile[2] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
+		mApp->mFrameProfile[3] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - fullFrameProfile).count();
+		fullFrameProfile = std::chrono::high_resolution_clock::now();
+
 		mApp->privateEndFrame__();
 
 	}
@@ -549,7 +553,7 @@ void AppImplMswBasic::setFrameRate( float frameRate )
 {
 	mFrameRate = frameRate;
 	mFrameRateEnabled = true;
-	mNextFrameTime = mApp->getElapsedSeconds();
+	// mNextFrameTime = mApp->getElapsedSeconds();
 }
 void AppImplMswBasic::syncNewFrame()
 {
