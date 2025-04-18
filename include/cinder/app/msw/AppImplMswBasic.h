@@ -99,6 +99,7 @@ private:
 	bool			mFrameRateEnabled;
 	bool			mAutoOffset = false;
 	int				mDebugFlag = 0;
+	bool			mReverseOrder = false;
 	uint32_t		mSyncFrameNumber = 0;
 	uint32_t		mBaseFrameNumber = 0;
 	bool			mShouldQuit;

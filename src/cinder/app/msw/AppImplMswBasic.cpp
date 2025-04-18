@@ -176,9 +176,19 @@ void AppImplMswBasic::run()
 	delete mApp;
 }
 void AppImplMswBasic::RenderWindows() {
-	for (auto window : mWindows) {
-		if (!mShouldQuit) {
-			window->redraw();
+
+	if (mReverseOrder) {
+		for (std::list<cinder::app::WindowImplMswBasic*>::reverse_iterator rit = mWindows.rbegin();
+			rit != mWindows.rend(); rit++) {
+			if (!mShouldQuit) {
+				(*rit)->redraw();
+			}
+		}
+	} else {
+		for (auto window : mWindows) {
+			if (!mShouldQuit) {
+				window->redraw();
+			}
 		}
 	}
 	// glFinish();
@@ -291,11 +301,6 @@ void AppImplMswBasic::runV2()
 		// for sleep time
 		frameProfiler = std::chrono::high_resolution_clock::now();
 
-		if (mDebugFlag != 0) {
-			mNextFrameTime = currentSeconds - 3.0;
-			mDebugFlag = 0;
-		}
-
 		// determine if application was frozen for a while and adjust next frame time				
 		double elapsedSeconds = currentSeconds - mNextFrameTime;
 		if (elapsedSeconds > 1.0) {
@@ -304,10 +309,6 @@ void AppImplMswBasic::runV2()
 		}
 
 		mNextFrameTime += secondsPerFrame;
-
-		{
-			
-		}
 
 		currentSeconds = getElapsedSeconds();		
 		bool makeCinderSleep = mFrameRateEnabled;
@@ -565,6 +566,7 @@ uint32_t AppImplMswBasic::getBaseFrameNumber() {
 void AppImplMswBasic::setDebugFlag( int val ) 
 {
 	mDebugFlag = val;
+	mReverseOrder = (val == 2);
 }
 void AppImplMswBasic::disableFrameRate()
 {
