@@ -302,6 +302,8 @@ void AppImplMswBasic::runV2()
 			mNextFrameTime += (numSkipFrames * secondsPerFrame);			
 		}
 		// next frame modification
+
+		bool appendDefault = true;
 		if(mDebugFlag != 0) {
 			if(mTriggerFrame == (int)getElapsedFrames()) {
 				if(mDebugFlag == 3) {
@@ -315,8 +317,11 @@ void AppImplMswBasic::runV2()
 					mNextFrameTime = currentSeconds - 0.004;
 				}
 				mDebugFlag = 0;
+				appendDefault = false;
 			}
-		} else {
+		}
+		// default workflow
+		if(appendDefault){
 			mNextFrameTime += secondsPerFrame;
 		}
 		
