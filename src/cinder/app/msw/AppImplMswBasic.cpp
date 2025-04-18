@@ -229,9 +229,7 @@ void AppImplMswBasic::runV2()
 	epochResetCounter = 0;
 	size_t mWindowsSize = 1;
 
-	auto autoOffset = std::chrono::high_resolution_clock::now();
 	auto frameProfiler = std::chrono::high_resolution_clock::now();
-	bool performAutoOffset = false;
 
 	// inner loop
 	while (!mShouldQuit) {
@@ -271,25 +269,21 @@ void AppImplMswBasic::runV2()
 			wglDelayBeforeSwapNV(mWindows.front()->getDc(), 0.01f);
 		}*/
 
-		// sleep time for frame
-		mApp->mFrameProfile[3] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
-
-		{ // update
+#pragma region "UPATE"
+		{
 			frameProfiler = std::chrono::high_resolution_clock::now();
 			mApp->privateUpdate__();
 			mApp->mFrameProfile[0] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 		}
+#pragma endregion
+#pragma region "DRAW + SWAP"
 		{ // draw
 			frameProfiler = std::chrono::high_resolution_clock::now();
 			RenderWindows();
 			mApp->mFrameProfile[1] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
+			mApp->mFrameProfile[2] = 0; // swap == 0
 		}
-		{ // swap
-			// frameProfiler = std::chrono::high_resolution_clock::now();
-			// SwapBuffers();
-			mApp->mFrameProfile[2] = 0;
-			// (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
-		}
+#pragma endregion		
 			
 		mBaseFrameNumber++;
 		mApp->cinderFrameDone();
@@ -305,10 +299,32 @@ void AppImplMswBasic::runV2()
 			int numSkipFrames = (int)(elapsedSeconds / secondsPerFrame);
 			mNextFrameTime += (numSkipFrames * secondsPerFrame);			
 		}
-
 		mNextFrameTime += secondsPerFrame;
 
-		currentSeconds = getElapsedSeconds();		
+		// listen once
+		{
+			MSG msg;
+			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+				::TranslateMessage(&msg);
+				::DispatchMessage(&msg);
+			}
+		}
+
+		currentSeconds = getElapsedSeconds();
+		if(mDebugFlag != 0) {
+			if(mDebugFlag == 3) {
+				// reset / same as setting application framerate
+				mNextFrameTime = currentSeconds;
+			} else if (mDebugFlag >= 4 && mDebugFlag <= 6) {
+				// allow some sleep
+				mNextFrameTime = currentSeconds + (0.004 + (mDebugFlag - 4) * 0.002);
+			} else if (mDebugFlag == 7) {
+				// move onto vblank only
+				mNextFrameTime = currentSeconds - 0.004;
+			}
+			mDebugFlag = 0;
+		}
+		
 		bool makeCinderSleep = mFrameRateEnabled;
 		if (mNextFrameTime > currentSeconds) {
 			/* if (mSyncRole == 2) {
@@ -319,18 +335,24 @@ void AppImplMswBasic::runV2()
 		}
 
 		if (makeCinderSleep) {	
+			// sleep time for frame			
 			const double cinderSleep = mNextFrameTime - currentSeconds;
+			const int sleepDuration = (int)(cinderSleep * 1000000.0);
+			mApp->mFrameProfile[3] = sleepDuration;
 			// if(cinderSleep > 0.0) {
-			sleep(cinderSleep);				
-				// std::this_thread::sleep_for(std::chrono::microseconds((int)(cinderSleep * 1000000)));
-				// }
+			//	sleep(cinderSleep);		
+			// }
+			std::this_thread::sleep_for(std::chrono::microseconds(sleepDuration));
+				
 		} else {
 
-			MSG msg;
+			mApp->mFrameProfile[3] = 0;
+
+			/*MSG msg;
 			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 				::TranslateMessage(&msg);
 				::DispatchMessage(&msg);
-			}
+			}*/
 
 			//if (!pendingAutoFrameReset) {
 			//	autoFrameReset = std::chrono::high_resolution_clock::now();
@@ -557,8 +579,13 @@ uint32_t AppImplMswBasic::getBaseFrameNumber() {
 }
 void AppImplMswBasic::setDebugFlag( int val ) 
 {
-	mDebugFlag = val;
-	mReverseOrder = (val == 2);
+	if (val == 1) {
+		mReverseOrder = false;
+	} else if (val == 2) {
+		mReverseOrder = true;
+	} else {
+		mDebugFlag = val;
+	}
 }
 void AppImplMswBasic::disableFrameRate()
 {
