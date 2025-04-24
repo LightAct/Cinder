@@ -294,8 +294,7 @@ void AppImplMswBasic::runV2()
 		}
 #pragma endregion		
 			
-		mBaseFrameNumber++;
-		mApp->cinderFrameDone();
+		mBaseFrameNumber++;		
 
 		// get current time in seconds
 		double currentSeconds = getElapsedSeconds();
@@ -364,13 +363,14 @@ void AppImplMswBasic::runV2()
 			}
 		}
 		mApp->mFrameProfile[3] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - fullFrameProfile).count();		
-		mApp->mFrameProfile[3] += syncWait;
+		mApp->mFrameProfile[2] += syncWait;
 
 		if (mSyncRole == 2) { /* we are lead by someone else */ }
 		else {
 			mAppTickNumber++;
 		}
 
+		mApp->cinderFrameDone();
 		mApp->privateEndFrame__();
 
 	}
