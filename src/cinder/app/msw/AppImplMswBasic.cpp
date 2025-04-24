@@ -267,6 +267,8 @@ void AppImplMswBasic::runV2()
 		//	// setDebugFlag( 7 );
 		//}
 
+		frameProfiler = std::chrono::high_resolution_clock::now();
+
 		// when in sync mode, wait for trigger		
 		if (mSyncRole == 1 || mSyncRole == 2) {
 			std::unique_lock lk(frame_mutex);
@@ -274,6 +276,8 @@ void AppImplMswBasic::runV2()
 			// unlock for next frame
 			mSyncNextFrame = false;
 		}
+
+		uint32_t syncWait = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 
 #pragma region "UPDATE"
 		{
@@ -330,9 +334,9 @@ void AppImplMswBasic::runV2()
 		
 		bool makeCinderSleep = mFrameRateEnabled;
 		if (mNextFrameTime > currentSeconds) {
-			if (mSyncRole == 2) { 
+			/*if (mSyncRole == 2) { 
 				makeCinderSleep = false; 
-			}
+			}*/
 		} else {
 			makeCinderSleep = false;
 		}
@@ -359,9 +363,8 @@ void AppImplMswBasic::runV2()
 				::DispatchMessage(&msg);
 			}
 		}
-
-		// mApp->mFrameProfile[2] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 		mApp->mFrameProfile[3] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - fullFrameProfile).count();		
+		mApp->mFrameProfile[3] += syncWait;
 
 		if (mSyncRole == 2) { /* we are lead by someone else */ }
 		else {
