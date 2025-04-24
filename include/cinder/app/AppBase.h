@@ -456,6 +456,7 @@ class CI_API AppBase {
 	
 	virtual void	privateSetup__();
 	virtual void	privateUpdate__();
+	virtual void	privateUpdate2__();
 	
 	//virtual void	privateEndSwap__();
 	//virtual void	privateBeginFrame__();

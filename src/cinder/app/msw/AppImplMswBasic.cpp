@@ -107,12 +107,8 @@ void AppImplMswBasic::run()
 					window->resize();
 		}
 
-		// update and draw
-		if (mSyncRole == 2) {
-			mApp->privateUpdate2__();
-		} else {
-			mApp->privateUpdate__();
-		}
+		// update and draw		
+		mApp->privateUpdate__();
 
 		double drawTime = mApp->getElapsedSeconds();
 		for( auto &window : mWindows ) {
@@ -303,7 +299,11 @@ void AppImplMswBasic::runV2()
 		{
 			
 			frameProfiler = std::chrono::high_resolution_clock::now();
-			mApp->privateUpdate__();						
+			if (mSyncRole == 2) {
+				mApp->privateUpdate2__();
+			} else {
+				mApp->privateUpdate__();
+			}			
 			mApp->mFrameProfile[0] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();			
 		}
 #pragma endregion
