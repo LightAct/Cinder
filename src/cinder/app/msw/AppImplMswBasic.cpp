@@ -108,7 +108,10 @@ void AppImplMswBasic::run()
 		}
 
 		// update and draw
-		mApp->privateUpdate__();
+		// mApp->privateUpdate__();
+		mApp->privateUpdate0__();
+		mApp->privateUpdate1__();
+		mApp->privateUpdate2__();
 
 		double drawTime = mApp->getElapsedSeconds();
 		for( auto &window : mWindows ) {
@@ -288,8 +291,10 @@ void AppImplMswBasic::runV2()
 #pragma region "UPDATE"
 		{
 			frameProfiler = std::chrono::high_resolution_clock::now();
-			mApp->privateUpdate__();
+			mApp->privateUpdate0__();
 			mApp->mFrameProfile[0] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
+			mApp->privateUpdate1__();
+			mApp->privateUpdate1__();
 		}
 #pragma endregion
 #pragma region "DRAW + SWAP"

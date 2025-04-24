@@ -455,7 +455,11 @@ class CI_API AppBase {
 	void			setQuitRequested() { mQuitRequested = true; }	
 	
 	virtual void	privateSetup__();
-	virtual void	privateUpdate__();
+	// virtual void	privateUpdate__();
+
+	virtual void	privateUpdate0__();
+	virtual void	privateUpdate1__();
+	virtual void	privateUpdate2__();
 	
 	//virtual void	privateEndSwap__();
 	//virtual void	privateBeginFrame__();
