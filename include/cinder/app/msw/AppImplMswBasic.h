@@ -63,6 +63,9 @@ private:
 	uint32_t	getBaseFrameNumber();
 	bool	isFrameRateEnabled() const;
 
+	void	setAppTickNumber(uint32_t n);
+	uint32_t	getAppTickNumber();
+
 	size_t		getNumWindows() const;
 	WindowRef	getWindowIndex( size_t index );
 	WindowRef	getForegroundWindow() const;
@@ -100,6 +103,7 @@ private:
 	uint32_t		mTriggerFrame = 0;
 	bool			mReverseOrder = false;
 	uint32_t		mBaseFrameNumber = 0;
+	uint32_t		mAppTickNumber = 0;
 	bool			mShouldQuit;
 	bool			mQuitOnLastWindowClosed;
 

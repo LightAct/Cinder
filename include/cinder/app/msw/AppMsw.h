@@ -69,6 +69,8 @@ class CI_API AppMsw : public AppBase {
 	void		setDebugFlag( int val ) override;
 	void		setBaseFrameNumber(uint32_t n) override;
 	uint32_t	getBaseFrameNumber() override;;
+	void		setAppTickNumber(uint32_t n) override;
+	uint32_t	getAppTickNumber() override;
 	bool		isFrameRateEnabled() const override;
 
 	WindowRef	getWindow() const override;

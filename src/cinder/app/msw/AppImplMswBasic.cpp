@@ -239,14 +239,6 @@ void AppImplMswBasic::runV2()
 
 		fullFrameProfile = std::chrono::high_resolution_clock::now();
 
-		// when in sync mode, wait for trigger		
-		if (mSyncRole == 1 || mSyncRole == 2) {
-			std::unique_lock lk(frame_mutex);
-			frame_wait.wait(lk, [this] { return mSyncNextFrame; });
-			// unlock for next frame
-			mSyncNextFrame = false;
-		}
-
 		// calculate time per frame in seconds
 		const double secondsPerFrame = 1.0 / (double)mFrameRate;
 		const unsigned int epochResetter = epochResetCounter;
@@ -273,6 +265,14 @@ void AppImplMswBasic::runV2()
 			}
 			wglDelayBeforeSwapNV(mWindows.front()->getDc(), 0.01f);*/
 			// setDebugFlag( 7 );
+		}
+
+		// when in sync mode, wait for trigger		
+		if (mSyncRole == 1 || mSyncRole == 2) {
+			std::unique_lock lk(frame_mutex);
+			frame_wait.wait(lk, [this] { return mSyncNextFrame; });
+			// unlock for next frame
+			mSyncNextFrame = false;
 		}
 
 #pragma region "UPDATE"
@@ -362,6 +362,7 @@ void AppImplMswBasic::runV2()
 
 		// mApp->mFrameProfile[2] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 		mApp->mFrameProfile[3] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - fullFrameProfile).count();
+		mAppTickNumber++;
 
 		mApp->privateEndFrame__();
 
@@ -568,11 +569,21 @@ void AppImplMswBasic::epochReset(float offset)
 {
 	mEpochOffset = offset;
 }
-void AppImplMswBasic::setBaseFrameNumber(uint32_t n) {
+void AppImplMswBasic::setBaseFrameNumber(uint32_t n) 
+{
 	mBaseFrameNumber = n;
 }
-uint32_t AppImplMswBasic::getBaseFrameNumber() {
+uint32_t AppImplMswBasic::getBaseFrameNumber() 
+{
 	return mBaseFrameNumber;
+}
+void AppImplMswBasic::setAppTickNumber(uint32_t n)
+{
+	mAppTickNumber = n;
+}
+uint32_t AppImplMswBasic::getAppTickNumber()
+{
+	return mAppTickNumber;
 }
 void AppImplMswBasic::setDebugFlag( int val ) 
 {

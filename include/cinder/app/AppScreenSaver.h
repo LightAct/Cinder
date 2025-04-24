@@ -120,6 +120,8 @@ class AppScreenSaver : public AppBase {
 	void		setDebugFlag( int val ) override {}
 	void		setBaseFrameNumber(uint32_t n) override {};
 	uint32_t	getBaseFrameNumber() override { return 0; }
+	void		setAppTickNumber(uint32_t n) override {};
+	uint32_t	getAppTickNumber() override { return 0; };
 	//! ignored on screensavers
 	bool		isFrameRateEnabled() const	{ return false; }
 

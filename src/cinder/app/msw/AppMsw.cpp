@@ -149,6 +149,14 @@ uint32_t AppMsw::getBaseFrameNumber()
 {
 	return mImpl->getBaseFrameNumber();
 }
+void AppMsw::setAppTickNumber(uint32_t n) 
+{
+	mImpl->setAppTickNumber(n);
+}
+uint32_t AppMsw::getAppTickNumber() 
+{
+	return mImpl->getAppTickNumber();
+}
 bool AppMsw::isFrameRateEnabled() const
 {
 	return mImpl->isFrameRateEnabled();

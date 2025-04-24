@@ -356,6 +356,8 @@ class CI_API AppBase {
 	virtual void		setDebugFlag( int val ) = 0;
 	virtual void		setBaseFrameNumber(uint32_t n) = 0;
 	virtual uint32_t	getBaseFrameNumber() = 0;
+	virtual void		setAppTickNumber(uint32_t n) = 0;
+	virtual uint32_t	getAppTickNumber() = 0;
 	//! Returns whether frameRate limiting is enabled.
 	virtual bool		isFrameRateEnabled() const = 0;
 	//! Returns the average frame-rate attained by the App as measured in frames-per-second
