@@ -433,7 +433,7 @@ class CI_API AppBase {
 	//! Executes a std::function on the App's primary thread ahead of the next update()
 	void	dispatchAsync( const std::function<void()> &fn );
 
-	uint32_t mFrameProfile[9];
+	uint32_t mFrameProfile[5];
 	
 	template<typename T>
 	decltype(std::declval<T>()()) dispatchSync( T fn );
@@ -455,14 +455,7 @@ class CI_API AppBase {
 	void			setQuitRequested() { mQuitRequested = true; }	
 	
 	virtual void	privateSetup__();
-	// virtual void	privateUpdate__();
-
-	//virtual void	privateUpdate0__();
-	virtual void	privateUpdate00__();
-	virtual void	privateUpdate01__();
-	virtual void	privateUpdate02__();
-	virtual void	privateUpdate1__();
-	virtual void	privateUpdate2__();
+	virtual void	privateUpdate__();
 	
 	//virtual void	privateEndSwap__();
 	//virtual void	privateBeginFrame__();
