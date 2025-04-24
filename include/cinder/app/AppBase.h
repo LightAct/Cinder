@@ -433,7 +433,7 @@ class CI_API AppBase {
 	//! Executes a std::function on the App's primary thread ahead of the next update()
 	void	dispatchAsync( const std::function<void()> &fn );
 
-	uint32_t mFrameProfile[4];
+	uint32_t mFrameProfile[5];
 	
 	template<typename T>
 	decltype(std::declval<T>()()) dispatchSync( T fn );
