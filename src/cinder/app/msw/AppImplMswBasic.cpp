@@ -333,9 +333,9 @@ void AppImplMswBasic::runV2()
 		
 		bool makeCinderSleep = mFrameRateEnabled;
 		if (mNextFrameTime > currentSeconds) {
-			/*if (mSyncRole == 2) { 
+			if (mSyncRole == 2) { 
 				makeCinderSleep = false; 
-			}*/
+			}
 		} else {
 			makeCinderSleep = false;
 		}
