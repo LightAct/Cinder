@@ -275,11 +275,6 @@ void AppImplMswBasic::runV2()
 			mSyncNextFrame = false;
 		}
 
-		if(mSyncRole == 2) { /* we are lead by some primery */ }
-		else {
-			mAppTickNumber++;
-		}
-
 #pragma region "UPDATE"
 		{
 			frameProfiler = std::chrono::high_resolution_clock::now();
@@ -367,6 +362,11 @@ void AppImplMswBasic::runV2()
 
 		// mApp->mFrameProfile[2] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 		mApp->mFrameProfile[3] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - fullFrameProfile).count();		
+
+		if (mSyncRole == 2) { /* we are lead by someone else */ }
+		else {
+			mAppTickNumber++;
+		}
 
 		mApp->privateEndFrame__();
 
