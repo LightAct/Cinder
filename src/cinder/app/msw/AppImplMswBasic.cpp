@@ -253,19 +253,19 @@ void AppImplMswBasic::runV2()
 					window->resize();
 		}
 
-		if (mWindowsSize != mWindows.size()) {
-			mWindowsSize = mWindows.size();
-			/*GLint enable = (mWindowsSize == 1) ? 1 : 0;
-			if (WGL_EXT_swap_control) {
-				for (auto& window : mWindows) {
-					window->getRenderer()->makeCurrentContext();
-					::wglSwapIntervalEXT(enable);
-					enable = 1;
-				}				
-			}
-			wglDelayBeforeSwapNV(mWindows.front()->getDc(), 0.01f);*/
-			// setDebugFlag( 7 );
-		}
+		//if (mWindowsSize != mWindows.size()) {
+		//	mWindowsSize = mWindows.size();
+		//	/*GLint enable = (mWindowsSize == 1) ? 1 : 0;
+		//	if (WGL_EXT_swap_control) {
+		//		for (auto& window : mWindows) {
+		//			window->getRenderer()->makeCurrentContext();
+		//			::wglSwapIntervalEXT(enable);
+		//			enable = 1;
+		//		}				
+		//	}
+		//	wglDelayBeforeSwapNV(mWindows.front()->getDc(), 0.01f);*/
+		//	// setDebugFlag( 7 );
+		//}
 
 		// when in sync mode, wait for trigger		
 		if (mSyncRole == 1 || mSyncRole == 2) {
@@ -273,6 +273,11 @@ void AppImplMswBasic::runV2()
 			frame_wait.wait(lk, [this] { return mSyncNextFrame; });
 			// unlock for next frame
 			mSyncNextFrame = false;
+		}
+
+		if(mSyncRole == 2) { /* we are lead by some primery */ }
+		else {
+			mAppTickNumber++;
 		}
 
 #pragma region "UPDATE"
@@ -361,8 +366,7 @@ void AppImplMswBasic::runV2()
 		}
 
 		// mApp->mFrameProfile[2] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
-		mApp->mFrameProfile[3] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - fullFrameProfile).count();
-		mAppTickNumber++;
+		mApp->mFrameProfile[3] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - fullFrameProfile).count();		
 
 		mApp->privateEndFrame__();
 
