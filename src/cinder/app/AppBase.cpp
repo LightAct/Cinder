@@ -261,11 +261,11 @@ void AppBase::privateUpdate__()
 	// service asio::io_context
 	mIo->poll();
 
-	/*if( getNumWindows() > 0 ) {
+	if( getNumWindows() > 0 ) {
 		WindowRef mainWin = getWindowIndex( 0 );
 		if( mainWin )
 			mainWin->getRenderer()->makeCurrentContext();
-	}*/
+	}
 
 	mSignalUpdate.emit();
 
