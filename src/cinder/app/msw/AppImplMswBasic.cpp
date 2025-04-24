@@ -561,7 +561,8 @@ void AppImplMswBasic::syncNewFrame()
 	}
 	frame_wait.notify_one();
 }
-void AppImplMswBasic::setSyncRole(int nrole) {
+void AppImplMswBasic::setSyncRole(int nrole) 
+{
 	mSyncRole = nrole;
 }
 

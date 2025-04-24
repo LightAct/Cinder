@@ -109,7 +109,7 @@ class AppImplMsw {
 	/// <summary>
 	/// Syncing role; 0 = solo run, 1 = primary, 2 = secondary
 	/// </summary>
-	bool					mSyncRole = 0;
+	int					mSyncRole = 0;
 	//bool					mSleep = true;
 
 	std::vector<float>		mArgs = { 0.f, 0.f, 0.f };
