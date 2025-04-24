@@ -282,7 +282,7 @@ void AppImplMswBasic::runV2()
 			mSyncNextFrame = false;
 		}
 
-		mApp->mFrameProfile[3] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
+		mApp->mFrameProfile[7] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 		{
 			MSG msg;
 			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -293,20 +293,28 @@ void AppImplMswBasic::runV2()
 #pragma region "UPDATE"
 		{
 			
-			mApp->privateUpdate00__();			
+			frameProfiler = std::chrono::high_resolution_clock::now();
+			mApp->privateUpdate00__();						
+			mApp->mFrameProfile[0] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 			frameProfiler = std::chrono::high_resolution_clock::now();
 			mApp->privateUpdate01__();
-			mApp->mFrameProfile[0] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
+			mApp->mFrameProfile[1] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
+			frameProfiler = std::chrono::high_resolution_clock::now();
 			mApp->privateUpdate02__();
+			mApp->mFrameProfile[2] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
+			frameProfiler = std::chrono::high_resolution_clock::now();
 			mApp->privateUpdate1__();
+			mApp->mFrameProfile[3] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
+			frameProfiler = std::chrono::high_resolution_clock::now();
 			mApp->privateUpdate2__();
+			mApp->mFrameProfile[4] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 		}
 #pragma endregion
 #pragma region "DRAW + SWAP"
 		{ // draw
 			frameProfiler = std::chrono::high_resolution_clock::now();
 			RenderWindows();
-			mApp->mFrameProfile[1] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();			
+			mApp->mFrameProfile[5] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();			
 		}
 #pragma endregion		
 			
@@ -362,7 +370,7 @@ void AppImplMswBasic::runV2()
 
 			// sleep time for frame
 			const double cinderSleep = mNextFrameTime - currentSeconds;			
-			mApp->mFrameProfile[2] = (int)(cinderSleep * 1000000.0);
+			mApp->mFrameProfile[6] = (int)(cinderSleep * 1000000.0);
 
 			// sleep(cinderSleep);		
 			const int sleepDuration = (int)(cinderSleep * 1000000.0);
@@ -370,14 +378,14 @@ void AppImplMswBasic::runV2()
 				
 		} else {
 
-			mApp->mFrameProfile[2] = 0;
+			mApp->mFrameProfile[6] = 0;
 			/*MSG msg;
 			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 				::TranslateMessage(&msg);
 				::DispatchMessage(&msg);
 			}*/
 		}
-		mApp->mFrameProfile[4] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - fullFrameProfile).count();				
+		mApp->mFrameProfile[7] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - fullFrameProfile).count();				
 
 		if (mSyncRole == 2) { /* we are lead by someone else */ }
 		else {
