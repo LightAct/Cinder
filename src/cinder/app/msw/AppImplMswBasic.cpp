@@ -108,7 +108,11 @@ void AppImplMswBasic::run()
 		}
 
 		// update and draw
-		mApp->privateUpdate__();
+		if (mSyncRole == 2) {
+			mApp->privateUpdate2__();
+		} else {
+			mApp->privateUpdate__();
+		}
 
 		double drawTime = mApp->getElapsedSeconds();
 		for( auto &window : mWindows ) {

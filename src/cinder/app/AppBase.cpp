@@ -251,6 +251,43 @@ void AppBase::cinderFrameDone() {
 	cinderFrameUpdate_cv.notify_one();
 }
 
+void AppBase::privateUpdate2__()
+{
+	mFrameCount++;
+
+	// signals frame begin
+	// mBeginUpdate.emit();
+
+	// service asio::io_context
+	mIo->poll();
+
+	/*if (getNumWindows() > 0) {
+		WindowRef mainWin = getWindowIndex(0);
+		if (mainWin)
+			mainWin->getRenderer()->makeCurrentContext();
+	}*/
+
+	mSignalUpdate.emit();
+
+	update();
+
+	mTimeline->stepTo(static_cast<float>(getElapsedSeconds()));
+
+	double now = mTimer.getSeconds();
+	if (now > mFpsLastSampleTime + mFpsSampleInterval) {
+		//calculate average Fps over sample interval
+		uint32_t framesPassed = mFrameCount - mFpsLastSampleFrame;
+		mAverageFps = (float)(framesPassed / (now - mFpsLastSampleTime));
+
+		mFpsLastSampleTime = now;
+		mFpsLastSampleFrame = mFrameCount;
+	}
+
+	// signals frame end
+	// mEndUpdate.emit();
+
+}
+
 void AppBase::privateUpdate__()
 {
 	mFrameCount++;
