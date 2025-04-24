@@ -457,7 +457,10 @@ class CI_API AppBase {
 	virtual void	privateSetup__();
 	// virtual void	privateUpdate__();
 
-	virtual void	privateUpdate0__();
+	//virtual void	privateUpdate0__();
+	virtual void	privateUpdate00__();
+	virtual void	privateUpdate01__();
+	virtual void	privateUpdate02__();
 	virtual void	privateUpdate1__();
 	virtual void	privateUpdate2__();
 	

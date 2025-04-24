@@ -250,8 +250,26 @@ void AppBase::cinderFrameDone() {
 	std::unique_lock<std::mutex> lock(cinderFrameUpdate_mutex);
 	cinderFrameUpdate_cv.notify_one();
 }
-void AppBase::privateUpdate0__() {
-
+//void AppBase::privateUpdate0__() {
+//
+//	mFrameCount++;
+//
+//	// signals frame begin
+//	// mBeginUpdate.emit();
+//
+//	// service asio::io_context
+//	mIo->poll();
+//
+//	if (getNumWindows() > 0) {
+//		WindowRef mainWin = getWindowIndex(0);
+//		if (mainWin)
+//			mainWin->getRenderer()->makeCurrentContext();
+//	}
+//
+//	mSignalUpdate.emit();
+//
+//}
+void AppBase::privateUpdate00__() {
 	mFrameCount++;
 
 	// signals frame begin
@@ -259,15 +277,16 @@ void AppBase::privateUpdate0__() {
 
 	// service asio::io_context
 	mIo->poll();
-
+}
+void AppBase::privateUpdate01__() {
 	if (getNumWindows() > 0) {
 		WindowRef mainWin = getWindowIndex(0);
 		if (mainWin)
 			mainWin->getRenderer()->makeCurrentContext();
 	}
-
+}
+void AppBase::privateUpdate02__() {
 	mSignalUpdate.emit();
-
 }
 void AppBase::privateUpdate1__() {
 
