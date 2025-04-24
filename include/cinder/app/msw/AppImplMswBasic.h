@@ -96,7 +96,7 @@ private:
 	double			mNextFrameTime;
 	bool			mFrameRateEnabled;
 	bool			mAutoOffset = false;
-	int				mDebugFlag = 0;
+	int				mTestFlag = 0;
 	uint32_t		mTriggerFrame = 0;
 	bool			mReverseOrder = false;
 	uint32_t		mBaseFrameNumber = 0;

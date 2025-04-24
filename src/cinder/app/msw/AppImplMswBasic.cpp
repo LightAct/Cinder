@@ -272,10 +272,10 @@ void AppImplMswBasic::runV2()
 				}				
 			}
 			wglDelayBeforeSwapNV(mWindows.front()->getDc(), 0.01f);*/
-			setDebugFlag( 7 );
+			// setDebugFlag( 7 );
 		}
 
-#pragma region "UPATE"
+#pragma region "UPDATE"
 		{
 			frameProfiler = std::chrono::high_resolution_clock::now();
 			mApp->privateUpdate__();
@@ -307,19 +307,19 @@ void AppImplMswBasic::runV2()
 		// next frame modification
 
 		bool appendDefault = true;
-		if(mDebugFlag != 0) {
+		if(mTestFlag != 0) {
 			if(mTriggerFrame == (int)getElapsedFrames()) {
-				if(mDebugFlag == 3) {
+				if(mTestFlag == 3) {
 					// reset / same as setting application framerate
 					mNextFrameTime = currentSeconds;
-				} else if (mDebugFlag >= 4 && mDebugFlag <= 6) {
+				} else if (mTestFlag >= 4 && mTestFlag <= 6) {
 					// allow some sleep
-					mNextFrameTime = currentSeconds + (0.004 + (mDebugFlag - 4) * 0.002);
-				} else if (mDebugFlag == 7) {
+					mNextFrameTime = currentSeconds + (0.004 + (mTestFlag - 4) * 0.002);
+				} else if (mTestFlag == 7) {
 					// move onto vblank only
 					mNextFrameTime = currentSeconds - 0.500;
 				}
-				mDebugFlag = 0;
+				mTestFlag = 0;
 				appendDefault = false;
 			}
 		}
@@ -330,7 +330,9 @@ void AppImplMswBasic::runV2()
 		
 		bool makeCinderSleep = mFrameRateEnabled;
 		if (mNextFrameTime > currentSeconds) {
-			/* if (mSyncRole == 2) { makeCinderSleep = false; } */
+			if (mSyncRole == 2) { 
+				makeCinderSleep = false; 
+			}
 		} else {
 			makeCinderSleep = false;
 		}
@@ -579,7 +581,7 @@ void AppImplMswBasic::setDebugFlag( int val )
 	} else if (val == 2) {
 		mReverseOrder = true;
 	} else {
-		mDebugFlag = val;
+		mTestFlag = val;
 		mTriggerFrame = getElapsedFrames();
 		mTriggerFrame += (int)getFrameRate();
 	}
