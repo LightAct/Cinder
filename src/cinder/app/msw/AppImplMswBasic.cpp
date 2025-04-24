@@ -292,10 +292,11 @@ void AppImplMswBasic::runV2()
 		}
 #pragma region "UPDATE"
 		{
+			
+			mApp->privateUpdate00__();			
 			frameProfiler = std::chrono::high_resolution_clock::now();
-			mApp->privateUpdate00__();
-			mApp->mFrameProfile[0] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 			mApp->privateUpdate01__();
+			mApp->mFrameProfile[0] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 			mApp->privateUpdate02__();
 			mApp->privateUpdate1__();
 			mApp->privateUpdate2__();
