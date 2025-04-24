@@ -184,9 +184,19 @@ void AppImplMswBasic::RenderWindows() {
 			}
 		}
 	} else {
-		for (auto window : mWindows) {
-			if (!mShouldQuit) {
-				window->redraw();
+		if(mSyncRole == 2 && mWindows.size() > 1) {
+			bool render = false;
+			for (auto window : mWindows) {
+				if (!mShouldQuit && render) {
+					window->redraw();
+				}
+				render = true;
+			}
+		} else {
+			for (auto window : mWindows) {
+				if (!mShouldQuit) {
+					window->redraw();
+				}
 			}
 		}
 	}
