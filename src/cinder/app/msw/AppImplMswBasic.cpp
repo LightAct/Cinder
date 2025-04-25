@@ -176,31 +176,21 @@ void AppImplMswBasic::run()
 }
 void AppImplMswBasic::RenderWindows() {
 
-	if (mReverseOrder) {
-		for (std::list<cinder::app::WindowImplMswBasic*>::reverse_iterator rit = mWindows.rbegin();
-			rit != mWindows.rend(); rit++) {
-			if (!mShouldQuit) {
-				(*rit)->redraw();
+	if(mSyncRole == 2 && mWindows.size() > 1) {
+		bool render = false;
+		for (auto window : mWindows) {
+			if (!mShouldQuit && render) {
+				window->redraw();
 			}
+			render = true;
 		}
 	} else {
-		if(mSyncRole == 2 && mWindows.size() > 1) {
-			bool render = false;
-			for (auto window : mWindows) {
-				if (!mShouldQuit && render) {
-					window->redraw();
-				}
-				render = true;
-			}
-		} else {
-			for (auto window : mWindows) {
-				if (!mShouldQuit) {
-					window->redraw();
-				}
+		for (auto window : mWindows) {
+			if (!mShouldQuit) {
+				window->redraw();
 			}
 		}
 	}
-	// glFinish();
 }
 void AppImplMswBasic::SwapBuffers() {
 
@@ -331,26 +321,28 @@ void AppImplMswBasic::runV2()
 		// next frame modification
 
 		bool appendDefault = true;
-		if(mTestFlag != 0) {
-			if(mTriggerFrame == (int)getElapsedFrames()) {
-				if(mTestFlag == 3) {
-					// reset / same as setting application framerate
-					mNextFrameTime = currentSeconds;
-				} else if (mTestFlag >= 4 && mTestFlag <= 6) {
-					// allow some sleep
-					mNextFrameTime = currentSeconds + (0.004 + (mTestFlag - 4) * 0.002);
-				} else if (mTestFlag == 7) {
-					// move onto vblank only
-					mNextFrameTime = currentSeconds - 0.500;
-				}
-				mTestFlag = 0;
-				appendDefault = false;
-			}
-		}
-		// default workflow
-		if(appendDefault){
-			mNextFrameTime += secondsPerFrame;
-		}
+		//if(mTestFlag != 0) {
+		//	if(mTriggerFrame == (int)getElapsedFrames()) {
+		//		if(mTestFlag == 3) {
+		//			// reset / same as setting application framerate
+		//			mNextFrameTime = currentSeconds;
+		//		} else if (mTestFlag >= 4 && mTestFlag <= 6) {
+		//			// allow some sleep
+		//			mNextFrameTime = currentSeconds + (0.004 + (mTestFlag - 4) * 0.002);
+		//		} else if (mTestFlag == 7) {
+		//			// move onto vblank only
+		//			mNextFrameTime = currentSeconds - 0.500;
+		//		}
+		//		mTestFlag = 0;
+		//		appendDefault = false;
+		//	}
+		//}
+		//// default workflow
+		//if(appendDefault){
+		//	mNextFrameTime += secondsPerFrame;
+		//}
+
+		mNextFrameTime += secondsPerFrame;
 		
 		bool makeCinderSleep = mFrameRateEnabled;
 		if (mNextFrameTime > currentSeconds) {
@@ -614,15 +606,7 @@ uint32_t AppImplMswBasic::getAppTickNumber()
 }
 void AppImplMswBasic::setDebugFlag( int val ) 
 {
-	if (val == 1) {
-		mReverseOrder = false;
-	} else if (val == 2) {
-		mReverseOrder = true;
-	} else {
-		mTestFlag = val;
-		mTriggerFrame = getElapsedFrames();
-		mTriggerFrame += (int)getFrameRate();
-	}
+	mTestFlag = val;
 }
 void AppImplMswBasic::disableFrameRate()
 {
