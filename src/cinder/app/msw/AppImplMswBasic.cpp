@@ -457,6 +457,7 @@ void AppImplMswBasic::runV3() {
 		}
 #pragma endregion	
 
+		mBaseFrameNumber++;
 		mApp->cinderFrameUpdatedAndRendered();
 
 		frameProfiler = std::chrono::high_resolution_clock::now();
@@ -477,8 +478,6 @@ void AppImplMswBasic::runV3() {
 				(uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 		}
 #pragma endregion		
-
-		mBaseFrameNumber++;
 
 		// get current time in seconds
 		double currentSeconds = getElapsedSeconds();
