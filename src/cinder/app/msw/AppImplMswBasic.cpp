@@ -406,10 +406,13 @@ void AppImplMswBasic::runV3() {
 	// inner frame duration
 	auto frameProfiler = std::chrono::high_resolution_clock::now();
 
+	int runtimeSyncStage = 0;
+
 	// inner loop
 	while (!mShouldQuit) {
 
 		fullFrameProfile = std::chrono::high_resolution_clock::now();
+		runtimeSyncStage = mSyncRole;
 
 		// calculate time per frame in seconds
 		const double secondsPerFrame = 1.0 / (double)mFrameRate;
@@ -426,7 +429,7 @@ void AppImplMswBasic::runV3() {
 
 		frameProfiler = std::chrono::high_resolution_clock::now();		
 		// when in sync mode, wait for trigger		
-		if ( mSyncRole == 2 ) {
+		if (runtimeSyncStage == 2 ) {
 			std::unique_lock lk(frame_mutex);
 			frame_wait.wait(lk, [this] { return mSyncNextFrame; });
 			mSyncNextFrame = false;
@@ -436,7 +439,7 @@ void AppImplMswBasic::runV3() {
 #pragma region "UPDATE"
 		{
 			frameProfiler = std::chrono::high_resolution_clock::now();
-			mApp->privateUpdate__( mSyncRole != 2 );
+			mApp->privateUpdate__( runtimeSyncStage  != 2 );
 			{
 				MSG msg;
 				while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -462,7 +465,7 @@ void AppImplMswBasic::runV3() {
 
 		frameProfiler = std::chrono::high_resolution_clock::now();
 		// waits for swap command
-		if ( mSyncRole == 2 ) {
+		if ( runtimeSyncStage == 2 ) {
 			std::unique_lock lk(frame_mutex);
 			frame_wait.wait(lk, [this] { return mSyncSwapFrame; });
 			mSyncSwapFrame = false;
@@ -494,7 +497,7 @@ void AppImplMswBasic::runV3() {
 
 		bool makeCinderSleep = mFrameRateEnabled;
 		if (mNextFrameTime > currentSeconds) {
-			if (mSyncRole == 2) {
+			if ( runtimeSyncStage == 2) {
 				makeCinderSleep = false;
 			}
 		} else {
@@ -524,7 +527,7 @@ void AppImplMswBasic::runV3() {
 		}
 		mApp->mFrameProfile[4] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - fullFrameProfile).count();
 
-		if (mSyncRole == 2) { /* we are lead by someone else */ }
+		if ( runtimeSyncStage == 2) { /* we are lead by someone else */ }
 		else {
 			mAppTickNumber++;
 		}
