@@ -534,6 +534,7 @@ void AppImplMswBasic::runV3() {
 
 		// generally not needed
 		mBaseFrameNumber++;
+		mApp->cinderFrameUpdatedAndRendered();
 		mApp->cinderFrameDone();
 
 		mApp->privateEndFrame__();
