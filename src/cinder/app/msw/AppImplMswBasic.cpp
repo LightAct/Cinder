@@ -480,7 +480,7 @@ void AppImplMswBasic::runV3() {
 			mApp->mFrameProfile[1] += 
 				(uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 		}
-#pragma endregion		
+#pragma endregion	
 
 		// get current time in seconds
 		double currentSeconds = getElapsedSeconds();
@@ -533,7 +533,9 @@ void AppImplMswBasic::runV3() {
 		}
 
 		// generally not needed
+		mBaseFrameNumber++;
 		mApp->cinderFrameDone();
+
 		mApp->privateEndFrame__();
 
 	}
