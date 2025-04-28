@@ -431,7 +431,7 @@ void AppImplMswBasic::runV3() {
 		// when in sync mode, wait for trigger		
 		if (runtimeSyncStage == 2 ) {
 			std::unique_lock lk(frameUpdate_mutex);
-			frameUpdate_wait.wait(lk, [this] { return mSyncNextFrame; });
+			frameUpdate_wait.wait_for(lk, std::chrono::milliseconds(100), [this] { return mSyncNextFrame; });
 			mSyncNextFrame = false;
 		}
 		mApp->mFrameProfile[3] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
@@ -467,7 +467,7 @@ void AppImplMswBasic::runV3() {
 		// waits for swap command
 		if ( runtimeSyncStage == 2 ) {
 			std::unique_lock lk(frameSwap_mutex);
-			frameSwap_wait.wait(lk, [this] { return mSyncSwapFrame; });
+			frameSwap_wait.wait_for(lk, std::chrono::milliseconds(100), [this] { return mSyncSwapFrame; });
 			mSyncSwapFrame = false;
 		}
 		mApp->mFrameProfile[3] += 
