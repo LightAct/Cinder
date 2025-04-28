@@ -75,8 +75,10 @@ private:
 	void		setupBlankingWindows( DisplayRef fullScreenDisplay );
 	void		destroyBlankingWindows();
 private:
-	std::mutex frame_mutex;
-	std::condition_variable frame_wait;	
+	std::mutex frameUpdate_mutex;
+	std::mutex frameSwap_mutex;
+	std::condition_variable frameUpdate_wait;	
+	std::condition_variable frameSwap_wait;
 private:
 	std::vector<HDC> swapGroupHDCs;
 	int usingSwapGroupInt = -1;
