@@ -72,6 +72,7 @@ class AppImplMsw {
 	virtual void	setFrameRate( float aFrameRate ) = 0;
 		
 	virtual void syncNewFrame() = 0;	
+	virtual void syncSwapFrame() = 0;
 	virtual void	setSyncRole(int nrole) = 0;
 	virtual void	epochReset(float offset = 0.f) = 0;
 	virtual void	enableAutoEpochReset(bool val = true) = 0;
@@ -106,6 +107,7 @@ class AppImplMsw {
 	/// Syncing lock
 	/// </summary>
 	bool					mSyncNextFrame = false;
+	bool					mSyncSwapFrame = false;
 	/// <summary>
 	/// Syncing role; 0 = solo run, 1 = primary, 2 = secondary
 	/// </summary>

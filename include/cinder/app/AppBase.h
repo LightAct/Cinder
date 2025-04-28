@@ -347,6 +347,7 @@ class CI_API AppBase {
 	virtual void		setFrameRate( float frameRate ) = 0;
 	//! Sets frame lock
 	virtual void syncNewFrame() = 0;
+	virtual void syncSwapFrame() = 0;
 	virtual void		setSyncRole(int nrole) = 0;
 	virtual void		epochReset(float offset = 0.f) = 0;
 	virtual void		enableAutoEpochReset(bool val = true) = 0;
@@ -455,8 +456,7 @@ class CI_API AppBase {
 	void			setQuitRequested() { mQuitRequested = true; }	
 	
 	virtual void	privateSetup__();
-	virtual void	privateUpdate__();
-	virtual void	privateUpdate2__();
+	virtual void	privateUpdate__( bool swapToDefault = true );
 	
 	//virtual void	privateEndSwap__();
 	//virtual void	privateBeginFrame__();
@@ -465,9 +465,12 @@ class CI_API AppBase {
 	//virtual void	privateEndDraw__();
 
 	// cinder frame update cv
-	std::mutex cinderFrameUpdate_mutex;
+	std::mutex cinderFrameUpdate_mutex;	
 	std::condition_variable cinderFrameUpdate_cv;
+	std::condition_variable cinderFrameDrawn_cv;
+	std::condition_variable cinderFrameDone_cv;
 	virtual void	cinderFrameDone();
+	virtual void	cinderFrameUpdatedAndRendered();
 
 	bool			privateEmitShouldQuit()		{ return mSignalShouldQuit.emit(); }
 	//! \endcond
@@ -571,6 +574,7 @@ inline unsigned int	getEpochResetCounter() { return AppBase::get()->getEpochRese
 inline void		setFrameRate( float frameRate ) { AppBase::get()->setFrameRate( frameRate ); }
 //! Sets frame locking flag
 inline void syncNewFrame() { AppBase::get()->syncNewFrame(); }
+inline void syncSwapFrame() { AppBase::get()->syncSwapFrame(); }
 inline void		setSyncRole(int nrole) { AppBase::get()->setSyncRole(nrole); }
 inline void		epochReset(float offset = 0.f) { AppBase::get()->epochReset(offset); }
 inline void		enableAutoEpochReset(bool val = true) { AppBase::get()->enableAutoEpochReset(val); }

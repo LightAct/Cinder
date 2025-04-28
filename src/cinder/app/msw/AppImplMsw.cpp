@@ -1153,7 +1153,7 @@ void WindowImplMsw::draw()
 	mAppImpl->setWindow( mWindowRef );
 	mRenderer->startDraw();
 	mWindowRef->emitDraw();
-	mRenderer->finishDraw();
+	// mRenderer->finishDraw();
 }
 
 void WindowImplMsw::resize()

@@ -106,6 +106,13 @@ void AppScreenSaver::syncNewFrame() {
 	mImpl->syncNewFrame();
 #endif
 }
+void AppScreenSaver::syncSwapFrame() {
+#if defined( CINDER_MAC )
+	[mImpl setFrameRate : frameRate];
+#elif defined( CINDER_MSW )
+	mImpl->syncSwapFrame();
+#endif
+}
 
 void AppScreenSaver::setSyncRole(int nrole)
 {

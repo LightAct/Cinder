@@ -47,6 +47,7 @@ private:
 
 	void	run();
 	void	runV2();
+	void	runV3();
 
 	AppMsw*	getApp() { return mApp; }
 	
@@ -54,6 +55,7 @@ private:
 
 	void	setFrameRate( float frameRate ) override;
 	void syncNewFrame() override;
+	void syncSwapFrame() override;
 	void	setSyncRole(int nrole) override;
 	void	epochReset(float offset = 0.f) override;
 	void	enableAutoEpochReset(bool val = true) override;

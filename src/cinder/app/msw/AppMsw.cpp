@@ -89,7 +89,7 @@ void AppMsw::launch()
 		platformMsw->directConsoleToCout( true );
 	}
 
-	mImpl->runV2();
+	mImpl->runV3();
 }
 
 WindowRef AppMsw::createWindow( const Window::Format &format )
@@ -120,6 +120,9 @@ void AppMsw::setFrameRate( float frameRate )
 }
 void AppMsw::syncNewFrame() {
 	mImpl->syncNewFrame();
+}
+void AppMsw::syncSwapFrame() {
+	mImpl->syncSwapFrame();
 }
 void AppMsw::setSyncRole(int nrole) {
 	mImpl->setSyncRole(nrole);

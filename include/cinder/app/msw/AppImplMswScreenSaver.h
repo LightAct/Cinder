@@ -46,6 +46,7 @@ class AppImplMswScreenSaver : public AppImplMsw {
 	//! do nothing, can't control frame rate
 	void        setFrameRate( float /*frameRate*/ ) override {}	
 	void syncNewFrame() override {}	
+	void syncSwapFrame() override {}
 	void        setSyncRole(int nrole) override {}
 	void		epochReset(float) override {}
 	void		enableAutoEpochReset(bool) override {}

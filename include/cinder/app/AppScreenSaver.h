@@ -94,6 +94,7 @@ class AppScreenSaver : public AppBase {
 	//! Sets the maximum frame-rate the App will attempt to maintain.
 	void		setFrameRate( float frameRate ) override;	
 	void syncNewFrame() override;	
+	void syncSwapFrame() override;
 	void		setSyncRole(int nrole) override;
 	void		epochReset(float fval = 0.f) override {} // not working on screen saver
 	void		enableAutoEpochReset(bool val = true) override {} // not working on screen saver

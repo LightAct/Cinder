@@ -176,21 +176,17 @@ void AppImplMswBasic::run()
 }
 void AppImplMswBasic::RenderWindows() {
 
-	if(mSyncRole == 2 && mWindows.size() > 1) {
-		bool render = false;
-		for (auto window : mWindows) {
-			if (!mShouldQuit && render) {
-				window->redraw();
-			}
-			render = true;
+	bool redraw = (mSyncRole != 2);
+	if (!redraw)
+		redraw = mWindows.size() == 1;
+
+	for (auto window : mWindows) {
+		if (!mShouldQuit && redraw) {
+			window->redraw();
 		}
-	} else {
-		for (auto window : mWindows) {
-			if (!mShouldQuit) {
-				window->redraw();
-			}
-		}
+		redraw = true;
 	}
+	glFinish();
 }
 void AppImplMswBasic::SwapBuffers() {
 
@@ -242,7 +238,7 @@ void AppImplMswBasic::runV2()
 		// calculate time per frame in seconds
 		const double secondsPerFrame = 1.0 / (double)mFrameRate;
 		const unsigned int epochResetter = epochResetCounter;
-		
+
 		// all of our Windows will have marked this as true if the user has unplugged, plugged or modified a Monitor
 		if (mNeedsToRefreshDisplays) {
 			mNeedsToRefreshDisplays = false;
@@ -287,25 +283,21 @@ void AppImplMswBasic::runV2()
 		}
 #pragma region "UPDATE"
 		{
-			
+
 			frameProfiler = std::chrono::high_resolution_clock::now();
-			if (mSyncRole == 2) {
-				mApp->privateUpdate2__();
-			} else {
-				mApp->privateUpdate__();
-			}			
-			mApp->mFrameProfile[0] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();			
+			mApp->privateUpdate__(mSyncRole != 2);			
+			mApp->mFrameProfile[0] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 		}
 #pragma endregion
 #pragma region "DRAW + SWAP"
 		{ // draw
 			frameProfiler = std::chrono::high_resolution_clock::now();
 			RenderWindows();
-			mApp->mFrameProfile[1] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();			
+			mApp->mFrameProfile[1] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 		}
 #pragma endregion		
-			
-		mBaseFrameNumber++;		
+
+		mBaseFrameNumber++;
 
 		// get current time in seconds
 		double currentSeconds = getElapsedSeconds();
@@ -316,7 +308,7 @@ void AppImplMswBasic::runV2()
 		double elapsedSeconds = currentSeconds - mNextFrameTime;
 		if (elapsedSeconds > 1.0) {
 			int numSkipFrames = (int)(elapsedSeconds / secondsPerFrame);
-			mNextFrameTime += (numSkipFrames * secondsPerFrame);			
+			mNextFrameTime += (numSkipFrames * secondsPerFrame);
 		}
 		// next frame modification
 
@@ -343,11 +335,168 @@ void AppImplMswBasic::runV2()
 		//}
 
 		mNextFrameTime += secondsPerFrame;
-		
+
 		bool makeCinderSleep = mFrameRateEnabled;
 		if (mNextFrameTime > currentSeconds) {
-			if (mSyncRole == 2) { 
-				makeCinderSleep = false; 
+			if (mSyncRole == 2) {
+				makeCinderSleep = false;
+			}
+		}
+		else {
+			makeCinderSleep = false;
+		}
+
+		// mWindows.front()->getRenderer()->makeCurrentContext();
+
+		if (makeCinderSleep) {
+
+			// sleep time for frame
+			const double cinderSleep = mNextFrameTime - currentSeconds;
+			mApp->mFrameProfile[2] = (int)(cinderSleep * 1000000.0);
+
+			// sleep(cinderSleep);		
+			const int sleepDuration = (int)(cinderSleep * 1000000.0);
+			std::this_thread::sleep_for(std::chrono::microseconds(sleepDuration));
+
+		}
+		else {
+
+			mApp->mFrameProfile[2] = 0;
+			/*MSG msg;
+			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+				::TranslateMessage(&msg);
+				::DispatchMessage(&msg);
+			}*/
+		}
+		mApp->mFrameProfile[4] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - fullFrameProfile).count();
+
+		if (mSyncRole == 2) { /* we are lead by someone else */ }
+		else {
+			mAppTickNumber++;
+		}
+
+		mApp->cinderFrameDone();
+		mApp->privateEndFrame__();
+
+	}
+
+	//	killWindow( mFullScreen );
+	mApp->emitCleanup();
+	delete mApp;
+}
+
+void AppImplMswBasic::runV3() {
+
+	mApp->privateSetup__();
+	mSetupHasBeenCalled = true;
+
+	// issue initial app activation event
+	mApp->emitDidBecomeActive();
+
+	for (auto& window : mWindows)
+		window->resize();
+
+	// initialize our next frame time
+	mNextFrameTime = getElapsedSeconds();
+	epochResetCounter = 0;
+	size_t mWindowsSize = 1;
+
+	// entire frame drugation (prev.end till current.end)
+	auto fullFrameProfile = std::chrono::high_resolution_clock::now();
+	// inner frame duration
+	auto frameProfiler = std::chrono::high_resolution_clock::now();
+
+	// inner loop
+	while (!mShouldQuit) {
+
+		fullFrameProfile = std::chrono::high_resolution_clock::now();
+
+		// calculate time per frame in seconds
+		const double secondsPerFrame = 1.0 / (double)mFrameRate;
+
+		// all of our Windows will have marked this as true if the user has unplugged, plugged or modified a Monitor
+		if (mNeedsToRefreshDisplays) {
+			mNeedsToRefreshDisplays = false;
+			PlatformMsw::get()->refreshDisplays();
+			// if this app is high-DPI aware, we need to issue resizes with possible contentScale changes
+			if (getHighDensityDisplayEnabled())
+				for (auto& window : mWindows)
+					window->resize();
+		}
+
+		frameProfiler = std::chrono::high_resolution_clock::now();		
+		// when in sync mode, wait for trigger		
+		if ( mSyncRole == 2 ) {
+			std::unique_lock lk(frame_mutex);
+			frame_wait.wait(lk, [this] { return mSyncNextFrame; });
+			mSyncNextFrame = false;
+		}
+		mApp->mFrameProfile[3] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
+
+#pragma region "UPDATE"
+		{
+			frameProfiler = std::chrono::high_resolution_clock::now();
+			mApp->privateUpdate__( mSyncRole != 2 );
+			{
+				MSG msg;
+				while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+					::TranslateMessage(&msg);
+					::DispatchMessage(&msg);
+				}
+			}
+			mApp->mFrameProfile[0] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
+		}
+#pragma endregion
+#pragma region "DRAW (without swap)"
+		{ 
+			// draw
+			frameProfiler = std::chrono::high_resolution_clock::now();
+			RenderWindows();
+			mApp->mFrameProfile[1] = 
+				(uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
+		}
+#pragma endregion	
+
+		mApp->cinderFrameUpdatedAndRendered();
+
+		frameProfiler = std::chrono::high_resolution_clock::now();
+		// waits for swap command
+		if ( mSyncRole == 2 ) {
+			std::unique_lock lk(frame_mutex);
+			frame_wait.wait(lk, [this] { return mSyncSwapFrame; });
+			mSyncSwapFrame = false;
+		}
+		mApp->mFrameProfile[3] += 
+			(uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
+
+#pragma region "SWAP"
+		{
+			frameProfiler = std::chrono::high_resolution_clock::now();
+			SwapBuffers();
+			mApp->mFrameProfile[1] += 
+				(uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
+		}
+#pragma endregion		
+
+		mBaseFrameNumber++;
+
+		// get current time in seconds
+		double currentSeconds = getElapsedSeconds();
+		// for sleep time
+		frameProfiler = std::chrono::high_resolution_clock::now();
+
+		// determine if application was frozen for a while and adjust next frame time				
+		double elapsedSeconds = currentSeconds - mNextFrameTime;
+		if (elapsedSeconds > 1.0) {
+			int numSkipFrames = (int)(elapsedSeconds / secondsPerFrame);
+			mNextFrameTime += (numSkipFrames * secondsPerFrame);
+		}
+		mNextFrameTime += secondsPerFrame;
+
+		bool makeCinderSleep = mFrameRateEnabled;
+		if (mNextFrameTime > currentSeconds) {
+			if (mSyncRole == 2) {
+				makeCinderSleep = false;
 			}
 		} else {
 			makeCinderSleep = false;
@@ -355,16 +504,16 @@ void AppImplMswBasic::runV2()
 
 		// mWindows.front()->getRenderer()->makeCurrentContext();
 
-		if (makeCinderSleep) {	
+		if (makeCinderSleep) {
 
 			// sleep time for frame
-			const double cinderSleep = mNextFrameTime - currentSeconds;			
+			const double cinderSleep = mNextFrameTime - currentSeconds;
 			mApp->mFrameProfile[2] = (int)(cinderSleep * 1000000.0);
 
 			// sleep(cinderSleep);		
 			const int sleepDuration = (int)(cinderSleep * 1000000.0);
 			std::this_thread::sleep_for(std::chrono::microseconds(sleepDuration));
-				
+
 		} else {
 
 			mApp->mFrameProfile[2] = 0;
@@ -374,13 +523,14 @@ void AppImplMswBasic::runV2()
 				::DispatchMessage(&msg);
 			}*/
 		}
-		mApp->mFrameProfile[4] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - fullFrameProfile).count();				
+		mApp->mFrameProfile[4] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - fullFrameProfile).count();
 
 		if (mSyncRole == 2) { /* we are lead by someone else */ }
 		else {
 			mAppTickNumber++;
 		}
 
+		// generally not needed
 		mApp->cinderFrameDone();
 		mApp->privateEndFrame__();
 
@@ -572,6 +722,14 @@ void AppImplMswBasic::syncNewFrame()
 	{
 		std::lock_guard lk(frame_mutex);
 		mSyncNextFrame = true;		
+	}
+	frame_wait.notify_one();
+}
+void AppImplMswBasic::syncSwapFrame()
+{
+	{
+		std::lock_guard lk(frame_mutex);
+		mSyncSwapFrame = true;
 	}
 	frame_wait.notify_one();
 }

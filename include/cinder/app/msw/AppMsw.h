@@ -62,6 +62,7 @@ class CI_API AppMsw : public AppBase {
 	unsigned int getEpochResetCounter() const override;
 	void		setFrameRate( float frameRate ) override;	
 	void syncNewFrame() override;	
+	void syncSwapFrame() override;
 	void		setSyncRole(int nrole) override;
 	void		epochReset(float offset = 0.f) override;
 	void		enableAutoEpochReset(bool val = true) override;
