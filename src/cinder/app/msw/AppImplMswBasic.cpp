@@ -497,6 +497,12 @@ void AppImplMswBasic::runV3() {
 			makeCinderSleep = false;
 		}
 
+		MSG msg;
+		while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+			::TranslateMessage(&msg);
+			::DispatchMessage(&msg);
+		}
+
 		// mWindows.front()->getRenderer()->makeCurrentContext();
 
 		if (makeCinderSleep) {
@@ -512,11 +518,11 @@ void AppImplMswBasic::runV3() {
 		} else {
 
 			mApp->mFrameProfile[2] = 0;
-			MSG msg;
+			/*MSG msg;
 			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 				::TranslateMessage(&msg);
 				::DispatchMessage(&msg);
-			}
+			}*/
 		}
 		mApp->mFrameProfile[4] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - fullFrameProfile).count();
 
