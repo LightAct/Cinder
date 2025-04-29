@@ -439,7 +439,7 @@ void AppImplMswBasic::runV3() {
 #pragma region "UPDATE"
 		{
 			frameProfiler = std::chrono::high_resolution_clock::now();
-			mApp->privateUpdate__( runtimeSyncStage  != 2 );			
+			mApp->privateUpdate__();			
 			mApp->mFrameProfile[0] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 		}
 #pragma endregion
@@ -535,6 +535,13 @@ void AppImplMswBasic::runV3() {
 		mBaseFrameNumber++;
 		// mApp->cinderFrameUpdatedAndRendered();
 		mApp->cinderFrameDone();
+
+		// as primary, wait for swap done command
+		if (runtimeSyncStage == 1) {
+			std::unique_lock lk(frameSwap_mutex);
+			frameSwap_wait.wait_for(lk, std::chrono::milliseconds(200), [this] { return mSyncSwapFrame; });
+			mSyncSwapFrame = false;
+		}
 
 		mApp->privateEndFrame__();
 
