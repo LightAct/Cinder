@@ -439,14 +439,7 @@ void AppImplMswBasic::runV3() {
 #pragma region "UPDATE"
 		{
 			frameProfiler = std::chrono::high_resolution_clock::now();
-			mApp->privateUpdate__( runtimeSyncStage  != 2 );
-			{
-				MSG msg;
-				while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-					::TranslateMessage(&msg);
-					::DispatchMessage(&msg);
-				}
-			}
+			mApp->privateUpdate__( runtimeSyncStage  != 2 );			
 			mApp->mFrameProfile[0] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 		}
 #pragma endregion
@@ -519,11 +512,11 @@ void AppImplMswBasic::runV3() {
 		} else {
 
 			mApp->mFrameProfile[2] = 0;
-			/*MSG msg;
+			MSG msg;
 			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 				::TranslateMessage(&msg);
 				::DispatchMessage(&msg);
-			}*/
+			}
 		}
 		mApp->mFrameProfile[4] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - fullFrameProfile).count();
 
@@ -534,7 +527,7 @@ void AppImplMswBasic::runV3() {
 
 		// generally not needed
 		mBaseFrameNumber++;
-		mApp->cinderFrameUpdatedAndRendered();
+		// mApp->cinderFrameUpdatedAndRendered();
 		mApp->cinderFrameDone();
 
 		mApp->privateEndFrame__();
