@@ -174,8 +174,28 @@ void AppImplMswBasic::run()
 //	mApp->emitCleanup();
 //	delete mApp;
 }
-void AppImplMswBasic::RenderWindows( bool skipDefaultWindow ) {
+void AppImplMswBasic::RenderWindows( int runtimeSyncStage ) {
 
+	bool redraw = true;
+	if ( runtimeSyncStage == 2 ) {
+		redraw = mWindows.size() == 1;
+	}
+	for (auto window : mWindows) {
+		if (!mShouldQuit && redraw) {
+			window->redraw();
+		}
+		redraw = true;
+	}
+
+	/*if ( runtimeSyncStage == 2 || runtimeSyncStage == 3) {
+		bool redraw = mWindows.size() == 1;
+		for (auto window : mWindows) {
+			if (!mShouldQuit && redraw) {
+				window->redraw();
+			}
+			redraw = true;
+		}
+	} 
 	bool redraw = !skipDefaultWindow;
 	if (!redraw)
 		redraw = mWindows.size() == 1;
@@ -185,7 +205,7 @@ void AppImplMswBasic::RenderWindows( bool skipDefaultWindow ) {
 			window->redraw();
 		}
 		redraw = true;
-	}
+	}*/
 	/*
 	for (auto window : mWindows) {
 		if (!mShouldQuit) {
@@ -415,6 +435,9 @@ void AppImplMswBasic::runV3() {
 	// default to primary or standalone run
 	int runtimeSyncStage = 0;
 
+	size_t windowCount = 1;
+	int windowMode = 0;
+
 	// inner loop
 	while (!mShouldQuit) {
 
@@ -432,6 +455,22 @@ void AppImplMswBasic::runV3() {
 			if (getHighDensityDisplayEnabled())
 				for (auto& window : mWindows)
 					window->resize();
+		}
+
+		// primary mode mode switches
+		if ( windowCount != mWindows.size() || windowMode != runtimeSyncStage ) {			
+			windowMode = runtimeSyncStage;
+			windowCount = mWindows.size();
+			if (windowMode == 0 || windowMode == 1) {
+				GLint enable = (windowCount == 1) ? 1 : 0;
+				if (WGL_EXT_swap_control) {
+					for (auto& window : mWindows) {
+						window->getRenderer()->makeCurrentContext();
+						::wglSwapIntervalEXT(enable);
+						enable = 1;
+					}				
+				}
+			}			
 		}
 
 		frameProfiler = std::chrono::high_resolution_clock::now();		
@@ -454,7 +493,7 @@ void AppImplMswBasic::runV3() {
 		{ 
 			// draw
 			frameProfiler = std::chrono::high_resolution_clock::now();
-			RenderWindows( runtimeSyncStage == 2 || runtimeSyncStage == 3);
+			RenderWindows( runtimeSyncStage );
 			mApp->mFrameProfile[1] = 
 				(uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 		}
