@@ -406,13 +406,13 @@ void AppImplMswBasic::runV3() {
 	// initialize our next frame time
 	mNextFrameTime = getElapsedSeconds();
 	epochResetCounter = 0;
-	size_t mWindowsSize = 1;
 
 	// entire frame drugation (prev.end till current.end)
 	auto fullFrameProfile = std::chrono::high_resolution_clock::now();
 	// inner frame duration
 	auto frameProfiler = std::chrono::high_resolution_clock::now();
 
+	// default to primary or standalone run
 	int runtimeSyncStage = 0;
 
 	// inner loop
@@ -436,7 +436,7 @@ void AppImplMswBasic::runV3() {
 
 		frameProfiler = std::chrono::high_resolution_clock::now();		
 		// when in sync mode, wait for trigger		
-		if (runtimeSyncStage == 2 ) {
+		if (runtimeSyncStage == 2 || runtimeSyncStage == 3) {
 			std::unique_lock lk(frameUpdate_mutex);
 			frameUpdate_wait.wait_for(lk, std::chrono::milliseconds(200), [this] { return mSyncNextFrame; });
 			mSyncNextFrame = false;
@@ -454,7 +454,7 @@ void AppImplMswBasic::runV3() {
 		{ 
 			// draw
 			frameProfiler = std::chrono::high_resolution_clock::now();
-			RenderWindows( runtimeSyncStage == 2 );
+			RenderWindows( runtimeSyncStage == 2 || runtimeSyncStage == 3);
 			mApp->mFrameProfile[1] = 
 				(uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 		}
@@ -465,7 +465,7 @@ void AppImplMswBasic::runV3() {
 
 		frameProfiler = std::chrono::high_resolution_clock::now();
 		// waits for swap command
-		if ( runtimeSyncStage == 2 ) {
+		if ( runtimeSyncStage == 2 || runtimeSyncStage == 3) {
 			std::unique_lock lk(frameSwap_mutex);
 			frameSwap_wait.wait_for(lk, std::chrono::milliseconds(200), [this] { return mSyncSwapFrame; });
 			mSyncSwapFrame = false;
@@ -497,7 +497,7 @@ void AppImplMswBasic::runV3() {
 
 		bool makeCinderSleep = mFrameRateEnabled;
 		if (mNextFrameTime > currentSeconds) {
-			if ( runtimeSyncStage == 2) {
+			if ( runtimeSyncStage == 2 || runtimeSyncStage == 3 ) {
 				makeCinderSleep = false;
 			}
 		} else {
@@ -510,16 +510,13 @@ void AppImplMswBasic::runV3() {
 			::DispatchMessage(&msg);
 		}
 
-		// mWindows.front()->getRenderer()->makeCurrentContext();
-
 		if (makeCinderSleep) {
 
 			// sleep time for frame
 			const double cinderSleep = mNextFrameTime - currentSeconds;
-			mApp->mFrameProfile[2] = (int)(cinderSleep * 1000000.0);
-
-			// sleep(cinderSleep);		
 			const int sleepDuration = (int)(cinderSleep * 1000000.0);
+			mApp->mFrameProfile[2] = sleepDuration;
+			// sleep(cinderSleep);					
 			std::this_thread::sleep_for(std::chrono::microseconds(sleepDuration));
 
 		} else {
@@ -531,25 +528,30 @@ void AppImplMswBasic::runV3() {
 				::DispatchMessage(&msg);
 			}*/
 		}
+
+		// full frame "the important bits"
 		mApp->mFrameProfile[4] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - fullFrameProfile).count();
 
-		if ( runtimeSyncStage == 2) { /* we are lead by someone else */ }
-		else {
-			mAppTickNumber++;
-		}
+		if ( runtimeSyncStage == 2 || runtimeSyncStage == 3 ) { /* we are lead by someone else */ }
+		else { mAppTickNumber++; }
 
 		// generally not needed
 		mBaseFrameNumber++;
-		// mApp->cinderFrameUpdatedAndRendered();
 		mApp->cinderFrameDone();
 
 		// as primary, wait for swap done command
+		// accumulate as wait time
+		frameProfiler = std::chrono::high_resolution_clock::now();
 		if (runtimeSyncStage == 1) {
 			std::unique_lock lk(frameSwap_mutex);
 			frameSwap_wait.wait_for(lk, std::chrono::milliseconds(200), [this] { return mSyncSwapFrame; });
 			mSyncSwapFrame = false;
 		}
 
+		mApp->mFrameProfile[2] += 
+			(uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - fullFrameProfile).count();
+
+		// push stats out
 		mApp->privateEndFrame__();
 
 	}
