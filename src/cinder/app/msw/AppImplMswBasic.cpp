@@ -174,9 +174,9 @@ void AppImplMswBasic::run()
 //	mApp->emitCleanup();
 //	delete mApp;
 }
-void AppImplMswBasic::RenderWindows() {
+void AppImplMswBasic::RenderWindows( bool skipDefaultWindow ) {
 
-	bool redraw = (mSyncRole != 2);
+	bool redraw = !skipDefaultWindow;
 	if (!redraw)
 		redraw = mWindows.size() == 1;
 
@@ -454,7 +454,7 @@ void AppImplMswBasic::runV3() {
 		{ 
 			// draw
 			frameProfiler = std::chrono::high_resolution_clock::now();
-			RenderWindows();
+			RenderWindows( runtimeSyncStage == 2 );
 			mApp->mFrameProfile[1] = 
 				(uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 		}

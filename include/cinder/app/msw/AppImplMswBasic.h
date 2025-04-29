@@ -39,7 +39,7 @@ class WindowImplMswBasic;
 class AppImplMswBasic : public AppImplMsw {
 
 private:
-	void RenderWindows();
+	void RenderWindows( bool skipDefaultWindow = false );
 	void SwapBuffers();
 
   public:
