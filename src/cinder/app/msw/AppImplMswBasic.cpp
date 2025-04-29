@@ -734,7 +734,7 @@ void AppImplMswBasic::setFrameRate( float frameRate )
 {
 	mFrameRate = frameRate;
 	mFrameRateEnabled = true;
-	// mNextFrameTime = mApp->getElapsedSeconds();
+	mNextFrameTime = mApp->getElapsedSeconds();
 }
 void AppImplMswBasic::syncNewFrame()
 {
