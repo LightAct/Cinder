@@ -547,7 +547,7 @@ void AppImplMswBasic::runV3() {
 			frameSwap_wait.wait_for(lk, std::chrono::milliseconds(200), [this] { return mSyncSwapFrame; });
 			mSyncSwapFrame = false;
 		}
-		mApp->mFrameProfile[2] += 
+		mApp->mFrameProfile[3] += 
 			(uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 
 		// push stats out
