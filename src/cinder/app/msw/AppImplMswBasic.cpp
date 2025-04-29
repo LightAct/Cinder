@@ -176,7 +176,7 @@ void AppImplMswBasic::run()
 }
 void AppImplMswBasic::RenderWindows() {
 
-	bool redraw = (mSyncRole != 2);
+	/*bool redraw = (mSyncRole != 2);
 	if (!redraw)
 		redraw = mWindows.size() == 1;
 
@@ -185,6 +185,11 @@ void AppImplMswBasic::RenderWindows() {
 			window->redraw();
 		}
 		redraw = true;
+	}*/
+	for (auto window : mWindows) {
+		if (!mShouldQuit) {
+			window->redraw();
+		}		
 	}
 	glFinish();
 }
@@ -208,8 +213,8 @@ void AppImplMswBasic::SwapBuffers() {
 	}
 }
 
-void AppImplMswBasic::runV2()
-{
+//void AppImplMswBasic::runV2()
+//{
 
 //	mApp->privateSetup__();
 //	mSetupHasBeenCalled = true;
@@ -383,7 +388,7 @@ void AppImplMswBasic::runV2()
 //	//	killWindow( mFullScreen );
 //	mApp->emitCleanup();
 //	delete mApp;
-}
+//}
 
 void AppImplMswBasic::runV3() {
 
