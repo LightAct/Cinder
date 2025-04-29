@@ -176,7 +176,7 @@ void AppImplMswBasic::run()
 }
 void AppImplMswBasic::RenderWindows() {
 
-	/*bool redraw = (mSyncRole != 2);
+	bool redraw = (mSyncRole != 2);
 	if (!redraw)
 		redraw = mWindows.size() == 1;
 
@@ -185,12 +185,14 @@ void AppImplMswBasic::RenderWindows() {
 			window->redraw();
 		}
 		redraw = true;
-	}*/
+	}
+	/*
 	for (auto window : mWindows) {
 		if (!mShouldQuit) {
 			window->redraw();
 		}		
 	}
+	*/
 	glFinish();
 }
 void AppImplMswBasic::SwapBuffers() {
