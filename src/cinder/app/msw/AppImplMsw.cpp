@@ -859,7 +859,7 @@ void WindowImplMsw::setBorderless( bool borderless )
 	if( mBorderless != borderless ) {
 		mBorderless = borderless;		
 		if( mBorderless ) {
-			mWindowExStyle = WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | WS_EX_ACCEPTFILES;
+			mWindowExStyle = WS_EX_APPWINDOW | WS_EX_ACCEPTFILES;
 			mWindowStyle = WS_POPUP;
 		} else {
 			mWindowExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE | WS_EX_ACCEPTFILES;	// Window Extended Style
