@@ -123,6 +123,8 @@ class AppScreenSaver : public AppBase {
 	uint32_t	getBaseFrameNumber() override { return 0; }
 	void		setAppTickNumber(uint32_t n) override {};
 	uint32_t	getAppTickNumber() override { return 0; };
+	void setEngineVSync(bool val) override {}
+	bool getEngineVSync() override { return true; }
 	//! ignored on screensavers
 	bool		isFrameRateEnabled() const	{ return false; }
 

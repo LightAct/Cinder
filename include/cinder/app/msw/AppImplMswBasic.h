@@ -67,6 +67,8 @@ private:
 
 	void	setAppTickNumber(uint32_t n);
 	uint32_t	getAppTickNumber();
+	void setEngineVSync( bool val );
+	bool getEngineVSync();
 
 	size_t		getNumWindows() const;
 	WindowRef	getWindowIndex( size_t index );
@@ -103,6 +105,7 @@ private:
 	double			mNextFrameTime;
 	bool			mFrameRateEnabled;
 	bool			mAutoOffset = false;
+	bool			mEngineVsync = true;
 	int				mTestFlag = 0;
 	uint32_t		mTriggerFrame = 0;
 	uint32_t		mBaseFrameNumber = 0;

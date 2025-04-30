@@ -467,11 +467,15 @@ void WindowImplMsw::setWindowStyleValues()
 {
 
 	if (mBorderless) {
-		// mWindowExStyle = WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE;
-		mWindowExStyle = WS_EX_APPWINDOW | WS_EX_ACCEPTFILES;
+		// prevent taskbar window,
+		// prevent stealing focus
+		// allow accept frames
+		mWindowExStyle = WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | WS_EX_ACCEPTFILES;
+		// mWindowExStyle = WS_EX_ACCEPTFILES | WS_EX_NOACTIVATE /* never steals fokus */ | WS_EX_TOOLWINDOW /* prevents taksbar button */;
 		mWindowStyle = WS_POPUP;
 	} else if( mFullScreen ) {
-		mWindowExStyle = WS_EX_APPWINDOW | WS_EX_ACCEPTFILES;								// Window Extended Style
+		mWindowExStyle = WS_EX_APPWINDOW;								// Window Extended Style
+		// mWindowExStyle = WS_EX_APPWINDOW | WS_EX_ACCEPTFILES;								// Window Extended Style
 		mWindowStyle = WS_POPUP;										// Windows Style
 	} else {
 		mWindowExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE | WS_EX_ACCEPTFILES;				// Window Extended Style
@@ -856,12 +860,12 @@ void WindowImplMsw::setBorderless( bool borderless )
 {
 	if( mBorderless != borderless ) {
 		mBorderless = borderless;
+		mWindowExStyle = WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | WS_EX_ACCEPTFILES;
 		if( mBorderless ) {
-			mWindowExStyle = WS_EX_APPWINDOW;
+			// mWindowExStyle = WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | WS_EX_ACCEPTFILES;
 			mWindowStyle = WS_POPUP;
-		}
-		else {
-			mWindowExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE | WS_EX_ACCEPTFILES;	// Window Extended Style
+		} else {
+			// mWindowExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE | WS_EX_ACCEPTFILES;	// Window Extended Style
 			mWindowStyle = ( mResizable ) ? WS_OVERLAPPEDWINDOW
 				:	( WS_OVERLAPPEDWINDOW & ~WS_THICKFRAME );							// Windows Style
 		}

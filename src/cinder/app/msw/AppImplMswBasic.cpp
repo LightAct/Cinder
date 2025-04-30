@@ -443,7 +443,8 @@ void AppImplMswBasic::runV3() {
 	// default to primary or standalone run
 	int runtimeSyncStage = 0;
 
-	size_t windowCount = 1;
+	size_t windowsCount = 1;
+	bool windowsVsync = mEngineVsync;
 
 	// inner loop
 	while (!mShouldQuit) {
@@ -465,16 +466,22 @@ void AppImplMswBasic::runV3() {
 		}
 
 		// primary mode mode switches
-		if ( windowCount != mWindows.size() ) {			
-			GLint enable = (windowCount == 1) ? 1 : 0;
+		// either by adding windows or changing vsync mode
+		if ( windowsCount != mWindows.size() || windowsVsync != mEngineVsync ) {
+			windowsCount = mWindows.size();
+			windowsVsync = mEngineVsync;
 			if (WGL_EXT_swap_control) {
+				// turn all windows vsync off
 				for (auto& window : mWindows) {
 					window->getRenderer()->makeCurrentContext();
-					::wglSwapIntervalEXT(enable);
-					enable = 1;
-				}				
-			}
-			windowCount = mWindows.size();
+					::wglSwapIntervalEXT((GLint)0);
+				}
+				// if we are supposed to have vsync on, turn last window on
+				if(windowsVsync) {
+					mWindows.back()->getRenderer()->makeCurrentContext();
+					::wglSwapIntervalEXT((GLint)1);
+				}
+			}			
 		}
 
 		frameProfiler = std::chrono::high_resolution_clock::now();		
@@ -824,6 +831,15 @@ uint32_t AppImplMswBasic::getAppTickNumber()
 {
 	return mAppTickNumber;
 }
+void AppImplMswBasic::setEngineVSync(bool val) 
+{
+	mEngineVsync = val;
+}
+bool AppImplMswBasic::getEngineVSync() 
+{
+	return mEngineVsync;
+}
+
 void AppImplMswBasic::setDebugFlag( int val ) 
 {
 	mTestFlag = val;

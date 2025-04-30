@@ -72,6 +72,10 @@ class CI_API AppMsw : public AppBase {
 	uint32_t	getBaseFrameNumber() override;;
 	void		setAppTickNumber(uint32_t n) override;
 	uint32_t	getAppTickNumber() override;
+
+	void setEngineVSync(bool val) override;
+	bool getEngineVSync() override;
+
 	bool		isFrameRateEnabled() const override;
 
 	WindowRef	getWindow() const override;
