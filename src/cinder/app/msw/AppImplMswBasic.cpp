@@ -439,7 +439,7 @@ void AppImplMswBasic::runV3() {
 	auto fullFrameProfile = std::chrono::high_resolution_clock::now();
 	// inner frame duration
 	auto frameProfiler = std::chrono::high_resolution_clock::now();
-
+	
 	// default to primary or standalone run
 	int runtimeSyncStage = 0;
 

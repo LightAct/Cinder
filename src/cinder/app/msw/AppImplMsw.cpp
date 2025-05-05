@@ -1035,6 +1035,13 @@ LRESULT CALLBACK WndProc(	HWND	mWnd,			// Handle For This Window
 			return 0;
 		}
 		break;
+		case WM_MOUSEACTIVATE: {
+			HWND handle = (HWND)impl->getWindow()->getNative();
+			LONG_PTR exStyle = GetWindowLongPtr(handle, GWL_EXSTYLE);
+			if(exStyle & WS_EX_NOACTIVATE)
+				return MA_NOACTIVATE;
+		}
+		break;
 		case WM_MOUSEWHEEL: {
 			POINT pt = { ((int)(short)LOWORD(lParam)), ((int)(short)HIWORD(lParam)) };
 			::MapWindowPoints( NULL, mWnd, &pt, 1 );
