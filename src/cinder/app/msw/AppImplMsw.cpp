@@ -465,13 +465,13 @@ WindowImplMsw::WindowImplMsw( HWND hwnd, RendererRef renderer, RendererRef share
 
 void WindowImplMsw::setWindowStyleValues() {
 
-	if (mBorderless) {
+	if (mBorderless) { // gui window
 		// GUI window runs in this mode by default, it never goes actual "fullscreen"
 		// mWindowExStyle = WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | WS_EX_ACCEPTFILES;
 		mWindowExStyle = WS_EX_APPWINDOW | WS_EX_ACCEPTFILES;
 		// mWindowExStyle = WS_EX_ACCEPTFILES | WS_EX_NOACTIVATE /* never steals fokus */ | WS_EX_TOOLWINDOW /* prevents taksbar button */;
 		mWindowStyle = WS_POPUP;
-	} else if( mFullScreen ) {
+	} else if( mFullScreen ) { // output windows
 		mWindowExStyle = WS_EX_APPWINDOW;					// Window Extended Style
 		// mWindowExStyle = WS_EX_APPWINDOW | WS_EX_ACCEPTFILES;								// Window Extended Style
 		mWindowStyle = WS_POPUP;										// Windows Style
