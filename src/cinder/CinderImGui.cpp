@@ -538,8 +538,8 @@ static bool ImGui_ImplCinder_Init( const ci::app::WindowRef& window, const ImGui
 	sWindowConnections[window] += window->getSignalResize().connect( signalPriority, std::bind( ImGui_ImplCinder_Resize, window ) );
 	sWindowConnections[window] += window->getSignalFocus().connect(signalPriority, ImGui_ImplCinder_Focus);
 	if( options.isAutoRenderEnabled() ) {
-		sWindowConnections[window] += ci::app::App::get()->getSignalUpdate().connect( std::bind( ImGui_ImplCinder_NewFrameGuard, window ) );
-		// sWindowConnections[window] += window->getSignalDraw().connect(std::bind(ImGui_ImplCinder_NewFrameGuard, window));
+		// sWindowConnections[window] += ci::app::App::get()->getSignalUpdate().connect( std::bind( ImGui_ImplCinder_NewFrameGuard, window ) );
+		sWindowConnections[window] += window->getSignalDraw().connect(std::bind(ImGui_ImplCinder_NewFrameGuard, window));
 		sWindowConnections[window] += window->getSignalPostDraw().connect( ImGui_ImplCinder_PostDraw );
 	}
 
