@@ -255,6 +255,38 @@ void AppBase::cinderFrameUpdatedAndRendered() {
 	std::unique_lock<std::mutex> lock(cinderFrameUpdate_mutex);
 	cinderFrameDrawn_cv.notify_one();
 }
+
+void AppBase::privateUpdate_0__() {
+	mFrameCount++;
+	// signals frame begin
+	// mBeginUpdate.emit();
+	// service asio::io_context
+	mIo->poll();	
+}
+void AppBase::privateUpdate_1__(bool swapToDefault) {
+
+	if (getNumWindows() > 0 && swapToDefault) {
+		WindowRef mainWin = getWindowIndex(0);
+		if (mainWin)
+			mainWin->getRenderer()->makeCurrentContext();
+	}
+
+	mSignalUpdate.emit();
+	update();
+}
+void AppBase::privateUpdate_2__() {
+	mTimeline->stepTo(static_cast<float>(getElapsedSeconds()));
+	double now = mTimer.getSeconds();
+	if (now > mFpsLastSampleTime + mFpsSampleInterval) {
+		//calculate average Fps over sample interval
+		uint32_t framesPassed = mFrameCount - mFpsLastSampleFrame;
+		mAverageFps = (float)(framesPassed / (now - mFpsLastSampleTime));
+		mFpsLastSampleTime = now;
+		mFpsLastSampleFrame = mFrameCount;
+	}
+}
+
+/*
 void AppBase::privateUpdate__( bool swapToDefault )
 {
 	mFrameCount++;
@@ -282,15 +314,13 @@ void AppBase::privateUpdate__( bool swapToDefault )
 		//calculate average Fps over sample interval
 		uint32_t framesPassed = mFrameCount - mFpsLastSampleFrame;
 		mAverageFps = (float)(framesPassed / (now - mFpsLastSampleTime));
-
 		mFpsLastSampleTime = now;
 		mFpsLastSampleFrame = mFrameCount;
 	}
-
 	// signals frame end
 	// mEndUpdate.emit();
-
 }
+*/
 
 void AppBase::emitCleanup()
 {

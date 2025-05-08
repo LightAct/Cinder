@@ -435,8 +435,6 @@ void AppImplMswBasic::runV3() {
 	mNextFrameTime = getElapsedSeconds();
 	epochResetCounter = 0;
 
-	// entire frame drugation (prev.end till current.end)
-	auto fullFrameProfile = std::chrono::high_resolution_clock::now();
 	// inner frame duration
 	auto frameProfiler = std::chrono::high_resolution_clock::now();
 	
@@ -448,8 +446,8 @@ void AppImplMswBasic::runV3() {
 
 	// inner loop
 	while (!mShouldQuit) {
-
-		fullFrameProfile = std::chrono::high_resolution_clock::now();
+				
+		bool pushPacerReset = (runtimeSyncStage != mSyncRole);
 		runtimeSyncStage = mSyncRole;
 
 		// calculate time per frame in seconds
@@ -481,7 +479,8 @@ void AppImplMswBasic::runV3() {
 					mWindows.back()->getRenderer()->makeCurrentContext();
 					::wglSwapIntervalEXT((GLint)1);
 				}
-			}			
+			}
+			pushPacerReset = true;			
 		}
 
 		frameProfiler = std::chrono::high_resolution_clock::now();		
@@ -495,8 +494,10 @@ void AppImplMswBasic::runV3() {
 
 #pragma region "UPDATE"
 		{
+			mApp->privateUpdate_0__();
 			frameProfiler = std::chrono::high_resolution_clock::now();
-			mApp->privateUpdate__( );			
+			mApp->privateUpdate_1__();			
+			mApp->privateUpdate_2__();
 			mApp->mFrameProfile[0] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
 		}
 #pragma endregion
@@ -521,7 +522,7 @@ void AppImplMswBasic::runV3() {
 			mSyncSwapFrame = false;
 		}
 		mApp->mFrameProfile[3] += 
-			(uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
+			(uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();		
 
 #pragma region "SWAP"
 		{
@@ -534,6 +535,9 @@ void AppImplMswBasic::runV3() {
 
 		// get current time in seconds
 		double currentSeconds = getElapsedSeconds();
+		if (pushPacerReset) {
+			mNextFrameTime = currentSeconds;
+		}
 		// for sleep time
 		frameProfiler = std::chrono::high_resolution_clock::now();
 
@@ -546,7 +550,6 @@ void AppImplMswBasic::runV3() {
 		mNextFrameTime += secondsPerFrame;*/
 
 		mNextFrameTime += secondsPerFrame;
-
 		bool makeCinderSleep = mFrameRateEnabled;
 		if(makeCinderSleep) {
 			// next frame time fell behind current seconds
@@ -583,9 +586,6 @@ void AppImplMswBasic::runV3() {
 			}
 		}
 
-		// full frame "the important bits"
-		mApp->mFrameProfile[4] = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - fullFrameProfile).count();
-
 		if ( runtimeSyncStage == 2 || runtimeSyncStage == 3 ) { /* we are lead by someone else */ }
 		else { mAppTickNumber++; }
 
@@ -601,8 +601,8 @@ void AppImplMswBasic::runV3() {
 			frameSwap_wait.wait_for(lk, std::chrono::milliseconds(200), [this] { return mSyncSwapFrame; });
 			mSyncSwapFrame = false;
 		}
-		mApp->mFrameProfile[3] += 
-			(uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
+		const uint32_t waitTime = (uint32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - frameProfiler).count();
+		mApp->mFrameProfile[3] += waitTime;	
 
 		// push stats out
 		mApp->privateEndFrame__();
