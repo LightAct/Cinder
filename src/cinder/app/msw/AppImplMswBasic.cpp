@@ -538,14 +538,24 @@ void AppImplMswBasic::runV3() {
 		frameProfiler = std::chrono::high_resolution_clock::now();
 
 		// determine if application was frozen for a while and adjust next frame time				
-		double elapsedSeconds = currentSeconds - mNextFrameTime;
+		/*double elapsedSeconds = currentSeconds - mNextFrameTime;
 		if (elapsedSeconds > 1.0) {
 			int numSkipFrames = (int)(elapsedSeconds / secondsPerFrame);
 			mNextFrameTime += (numSkipFrames * secondsPerFrame);
 		}
+		mNextFrameTime += secondsPerFrame;*/
+
 		mNextFrameTime += secondsPerFrame;
 
 		bool makeCinderSleep = mFrameRateEnabled;
+		if(makeCinderSleep) {
+			// next frame time fell behind current seconds
+			if (currentSeconds > mNextFrameTime) {
+				double frames_behind = floor((currentSeconds - mNextFrameTime) / secondsPerFrame) + 1;
+				mNextFrameTime += frames_behind * secondsPerFrame;
+			}
+		}
+		
 		if (mNextFrameTime > currentSeconds) {
 			if ( runtimeSyncStage == 2 || runtimeSyncStage == 3 ) {
 				makeCinderSleep = false;
@@ -554,29 +564,23 @@ void AppImplMswBasic::runV3() {
 			makeCinderSleep = false;
 		}
 
-		MSG msg;
-		while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-			::TranslateMessage(&msg);
-			::DispatchMessage(&msg);
-		}
-
 		if (makeCinderSleep) {
 
 			// sleep time for frame
 			const double cinderSleep = mNextFrameTime - currentSeconds;
 			const int sleepDuration = (int)(cinderSleep * 1000000.0);
 			mApp->mFrameProfile[2] = sleepDuration;
-			// sleep(cinderSleep);					
-			std::this_thread::sleep_for(std::chrono::microseconds(sleepDuration));
+			sleep(cinderSleep);					
+			// std::this_thread::sleep_for(std::chrono::microseconds(sleepDuration));
 
 		} else {
 
 			mApp->mFrameProfile[2] = 0;
-			/*MSG msg;
+			MSG msg;
 			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 				::TranslateMessage(&msg);
 				::DispatchMessage(&msg);
-			}*/
+			}
 		}
 
 		// full frame "the important bits"
