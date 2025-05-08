@@ -557,9 +557,9 @@ void AppImplMswBasic::runV3() {
 		}
 		
 		if (mNextFrameTime > currentSeconds) {
-			if ( runtimeSyncStage == 2 || runtimeSyncStage == 3 ) {
+			// sleep only if you are in a single setup only
+			if ( runtimeSyncStage != 0 )
 				makeCinderSleep = false;
-			}
 		} else {
 			makeCinderSleep = false;
 		}
