@@ -563,6 +563,8 @@ void AppImplMswBasic::runV3() {
 			// sleep only if you are in a single setup only
 			if ( runtimeSyncStage != 0 )
 				makeCinderSleep = false;
+			if( windowsCount > 1 )
+				makeCinderSleep = false;
 		} else {
 			makeCinderSleep = false;
 		}
