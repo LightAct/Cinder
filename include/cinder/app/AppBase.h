@@ -462,8 +462,8 @@ class CI_API AppBase {
 	
 	virtual void	privateSetup__();
 	//virtual void	privateUpdate__( bool swapToDefault = true );
-	virtual void	privateUpdate_0__();
-	virtual void	privateUpdate_1__(bool swapToDefault = true);
+	virtual void	privateUpdate_0__(bool swapToDefault = true);
+	virtual void	privateUpdate_1__();
 	virtual void	privateUpdate_2__();
 	
 	//virtual void	privateEndSwap__();

@@ -103,6 +103,7 @@ private:
 	AppMsw*	mApp;
 	HINSTANCE		mInstance;
 	double			mNextFrameTime;
+	bool			mResetFramePacer = false;
 	bool			mFrameRateEnabled;
 	bool			mAutoOffset = false;
 	bool			mEngineVsync = true;

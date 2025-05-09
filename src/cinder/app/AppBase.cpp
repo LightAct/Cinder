@@ -139,7 +139,7 @@ void AppBase::Settings::setShouldQuit( bool shouldQuit )
 // AppBase
 
 AppBase::AppBase()
-	: mFrameCount( 0 ), mAverageFps( 0 ), mFpsSampleInterval( 1 ), mTimer( true ), mTimeline( Timeline::create() ),
+	: mFrameCount( 0 ), mAverageFps( 0 ), mFpsSampleInterval( .10 ), mTimer( true ), mTimeline( Timeline::create() ),
 		mFpsLastSampleFrame( 0 ), mFpsLastSampleTime( 0 ), mLaunchCalled( false ), mQuitRequested( false )
 {
 	sInstance = this;
@@ -256,21 +256,19 @@ void AppBase::cinderFrameUpdatedAndRendered() {
 	cinderFrameDrawn_cv.notify_one();
 }
 
-void AppBase::privateUpdate_0__() {
+void AppBase::privateUpdate_0__(bool swapToDefault) {
 	mFrameCount++;
 	// signals frame begin
 	// mBeginUpdate.emit();
 	// service asio::io_context
 	mIo->poll();	
-}
-void AppBase::privateUpdate_1__(bool swapToDefault) {
-
 	if (getNumWindows() > 0 && swapToDefault) {
 		WindowRef mainWin = getWindowIndex(0);
 		if (mainWin)
 			mainWin->getRenderer()->makeCurrentContext();
 	}
-
+}
+void AppBase::privateUpdate_1__() {
 	mSignalUpdate.emit();
 	update();
 }

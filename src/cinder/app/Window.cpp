@@ -470,13 +470,17 @@ void Window::emitKeyUp( KeyEvent *event )
 		getApp()->keyUp( *event );
 }
 
-void Window::emitDraw()
-{
+void Window::emitDraw() {
+
 	applyCurrentContext();
-	
-	mSignalDraw.emit();
-	getApp()->draw( mImpl->getWindowIndex() );
-	mSignalPostDraw.emit();
+	std::chrono::steady_clock::time_point renderTime = std::chrono::high_resolution_clock::now();
+	{
+		mSignalDraw.emit();
+		getApp()->draw( mImpl->getWindowIndex() );
+		mSignalPostDraw.emit();
+	}
+	windowRenderTime = 
+		(int32_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - renderTime).count();
 }
 
 void Window::emitFileDrop( FileDropEvent *event )

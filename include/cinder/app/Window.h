@@ -482,6 +482,7 @@ class CI_API Window : public std::enable_shared_from_this<Window> {
 	//! \endcond
 
 	AppBase*			getApp() const { return mApp; }
+	int32_t				getRenderTime() { return windowRenderTime; }
 	
   protected:
 	Window() : mValid( true ), mImpl( 0 ) {}
@@ -511,6 +512,7 @@ class CI_API Window : public std::enable_shared_from_this<Window> {
 #endif
 
 	AppBase							*mApp;
+	int32_t						windowRenderTime = 0;
 	bool						mValid;
 	std::shared_ptr<void>		mUserData;
 	
