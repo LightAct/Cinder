@@ -563,14 +563,15 @@ void AppImplMswBasic::runV3() {
 				double frames_behind = floor((currentSeconds - mNextFrameTime) / secondsPerFrame) + 1;
 				mNextFrameTime += frames_behind * secondsPerFrame;
 			}
-		}
-		
+		}		
 		if (mNextFrameTime > currentSeconds) {
-			// sleep only if you are in a single setup only
-			if ( runtimeSyncStage != 0 )
+			if(runtimeSyncStage == 0) { /* do not change anything */ }
+			else if(runtimeSyncStage == 1 /* as primary in sync */) {
+				if (windowsCount > 1)
+					makeCinderSleep = false;
+			} else if(runtimeSyncStage == 2 /* as secondary in sysnc */) {
 				makeCinderSleep = false;
-			if( windowsCount > 1 )
-				makeCinderSleep = false;
+			}
 		} else {
 			makeCinderSleep = false;
 		}
