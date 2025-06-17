@@ -161,6 +161,7 @@ class CI_API AppBase {
 		//! Sets maximum frameRate the update/draw loop will execute at, specified in frames per second. FrameRate limiting is on by default, at 60 FPS.
 		void	setFrameRate( float frameRate );
 		//! Disables the frameRate limiting, which is on by default. Restore using setFrameRate(). See also enableVerticalSync().
+		void	enableFrameRate();
 		void	disableFrameRate();
 		//! Returns whether frameRate limiting is enabled. On by default, at 60 FPS.
 		bool	isFrameRateEnabled() const							{ return mFrameRateEnabled; }
@@ -352,6 +353,7 @@ class CI_API AppBase {
 	virtual void		epochReset(float offset = 0.f) = 0;
 	virtual void		enableAutoEpochReset(bool val = true) = 0;
 	//! Disables frameRate limiting.
+	virtual void		enableFrameRate() = 0;
 	virtual void		disableFrameRate() = 0;
 	//! Debug feature
 	virtual void		setDebugFlag( int val ) = 0;

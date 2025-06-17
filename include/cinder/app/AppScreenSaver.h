@@ -117,6 +117,7 @@ class AppScreenSaver : public AppBase {
 	WindowRef	getForegroundWindow() const override	{ return getWindow(); }
 
 	//! ignored on screensavers
+	void		enableFrameRate() override {}
 	void		disableFrameRate() override {}
 	void		setDebugFlag( int val ) override {}
 	void		setBaseFrameNumber(uint32_t n) override {};

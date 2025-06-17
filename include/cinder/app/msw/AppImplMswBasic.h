@@ -59,6 +59,7 @@ private:
 	void	setSyncRole(int nrole) override;
 	void	epochReset(float offset = 0.f) override;
 	void	enableAutoEpochReset(bool val = true) override;
+	void	enableFrameRate();
 	void	disableFrameRate();
 	void	setDebugFlag( int val );
 	void	setBaseFrameNumber(uint32_t n);

@@ -796,7 +796,7 @@ void AppImplMswBasic::quit()
 void AppImplMswBasic::setFrameRate( float frameRate )
 {
 	mFrameRate = frameRate;
-	mFrameRateEnabled = true;
+	// mFrameRateEnabled = true;
 	mResetFramePacer = true;
 	// mNextFrameTime = mApp->getElapsedSeconds();
 }
@@ -857,6 +857,10 @@ bool AppImplMswBasic::getEngineVSync()
 void AppImplMswBasic::setDebugFlag( int val ) 
 {
 	mTestFlag = val;
+}
+void AppImplMswBasic::enableFrameRate()
+{
+	mFrameRateEnabled = true;
 }
 void AppImplMswBasic::disableFrameRate()
 {

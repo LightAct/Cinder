@@ -135,7 +135,10 @@ void AppMsw::epochReset( float fval )
 {
 	mImpl->epochReset(fval);
 }
-
+void AppMsw::enableFrameRate()
+{
+	mImpl->enableFrameRate();
+}
 void AppMsw::disableFrameRate()
 {
 	mImpl->disableFrameRate();
