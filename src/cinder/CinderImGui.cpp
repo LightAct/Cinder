@@ -358,7 +358,7 @@ static void ImGui_ImplCinder_MouseDown( ci::app::MouseEvent& event )
 	io.MouseDown[0] = event.isLeftDown();
 	io.MouseDown[1] = event.isRightDown();
 	io.MouseDown[2] = event.isMiddleDown();
-	event.setHandled( io.WantCaptureMouse );
+	// event.setHandled( io.WantCaptureMouse );
 }
 static void ImGui_ImplCinder_MouseUp( ci::app::MouseEvent& event )
 {
@@ -371,21 +371,21 @@ static void ImGui_ImplCinder_MouseWheel( ci::app::MouseEvent& event )
 {
 	ImGuiIO& io = ImGui::GetIO();
 	io.MouseWheel += event.getWheelIncrement();
-	event.setHandled( io.WantCaptureMouse );
+	// event.setHandled( io.WantCaptureMouse );
 }
 
 static void ImGui_ImplCinder_MouseMove( ci::app::MouseEvent& event )
 {
 	ImGuiIO& io = ImGui::GetIO();
 	io.MousePos = event.getWindow()->toPixels( event.getPos() );
-	event.setHandled( io.WantCaptureMouse );
+	// event.setHandled( io.WantCaptureMouse );
 }
 //! sets the right mouseDrag IO values in imgui
 static void ImGui_ImplCinder_MouseDrag( ci::app::MouseEvent& event )
 {
 	ImGuiIO& io = ImGui::GetIO();
 	io.MousePos = event.getWindow()->toPixels( event.getPos() );
-	event.setHandled( io.WantCaptureMouse );
+	// event.setHandled( io.WantCaptureMouse );
 }
 
 static void ImGui_ImplCinder_KeyDown( ci::app::KeyEvent& event )
@@ -415,7 +415,7 @@ static void ImGui_ImplCinder_KeyDown( ci::app::KeyEvent& event )
 	io.KeyAlt = event.isAltDown();
 	io.KeySuper = event.isMetaDown();
 
-	event.setHandled( io.WantCaptureKeyboard );
+	// event.setHandled( io.WantCaptureKeyboard );
 }
 
 static void ImGui_ImplCinder_KeyUp( ci::app::KeyEvent& event )
@@ -434,7 +434,7 @@ static void ImGui_ImplCinder_KeyUp( ci::app::KeyEvent& event )
 	io.KeyAlt = event.isAltDown();
 	io.KeySuper = event.isMetaDown();
 
-	event.setHandled( io.WantCaptureKeyboard );
+	// event.setHandled( io.WantCaptureKeyboard );
 }
 
 static void ImGui_ImplCinder_NewFrameGuard( const ci::app::WindowRef& window );
