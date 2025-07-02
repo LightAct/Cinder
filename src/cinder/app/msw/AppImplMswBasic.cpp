@@ -565,8 +565,10 @@ void AppImplMswBasic::runV3() {
 			}
 		}		
 		if (mNextFrameTime > currentSeconds) {
-			if(runtimeSyncStage == 0) { /* do not change anything */ }
-			else if(runtimeSyncStage == 1 /* as primary in sync */) {
+			if(runtimeSyncStage == 0) { 
+				if (windowsCount > 1)
+					makeCinderSleep = false;
+			} else if(runtimeSyncStage == 1 /* as primary in sync */) {
 				if (windowsCount > 1)
 					makeCinderSleep = false;
 			} else if(runtimeSyncStage == 2 /* as secondary in sysnc */) {
