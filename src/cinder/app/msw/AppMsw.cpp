@@ -163,13 +163,13 @@ uint32_t AppMsw::getAppTickNumber()
 {
 	return mImpl->getAppTickNumber();
 }
-void AppMsw::setEngineVSync(bool val) 
+void AppMsw::SetEngineVSyncType(int val) 
 {
-	mImpl->setEngineVSync(val);
+	mImpl->SetEngineVSyncType(val);
 }
-bool AppMsw::getEngineVSync() 
+int AppMsw::GetEngineVSyncType() 
 {
-	return mImpl->getEngineVSync();
+	return mImpl->GetEngineVSyncType();
 }
 bool AppMsw::isFrameRateEnabled() const
 {

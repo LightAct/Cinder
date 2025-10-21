@@ -443,7 +443,7 @@ void AppImplMswBasic::runV3() {
 	int runtimeSyncStage = 0;
 
 	size_t windowsCount = 1;
-	bool windowsVsync = mEngineVsync;
+	int windowsVSyncType = mEngineVSyncType;	
 
 	// inner loop
 	while (!mShouldQuit) {
@@ -468,19 +468,27 @@ void AppImplMswBasic::runV3() {
 
 		// primary mode mode switches
 		// either by adding windows or changing vsync mode
-		if ( windowsCount != mWindows.size() || windowsVsync != mEngineVsync ) {
+		if ( windowsCount != mWindows.size() || windowsVSyncType != mEngineVSyncType ) {
 			windowsCount = mWindows.size();
-			windowsVsync = mEngineVsync;
+			windowsVSyncType = mEngineVSyncType;
 			if (WGL_EXT_swap_control) {
 				// turn all windows vsync off
-				for (auto& window : mWindows) {
-					window->getRenderer()->makeCurrentContext();
-					::wglSwapIntervalEXT((GLint)0);
-				}
-				// if we are supposed to have vsync on, turn last window on
-				if(windowsVsync) {
-					mWindows.back()->getRenderer()->makeCurrentContext();
-					::wglSwapIntervalEXT((GLint)1);
+				if(windowsVSyncType == 1) {
+					for (auto& window : mWindows) {
+						window->getRenderer()->makeCurrentContext();
+						::wglSwapIntervalEXT((GLint)1);
+					}
+				} else {
+					for (auto& window : mWindows) {
+						window->getRenderer()->makeCurrentContext();
+						::wglSwapIntervalEXT((GLint)0);
+					}
+					// if we are supposed to have vsync on, turn last window on
+					if (windowsVSyncType == 0) {
+						// one window
+						mWindows.back()->getRenderer()->makeCurrentContext();
+						::wglSwapIntervalEXT((GLint)1);
+					}
 				}
 			}
 			mResetFramePacer = true;
@@ -847,13 +855,13 @@ uint32_t AppImplMswBasic::getAppTickNumber()
 {
 	return mAppTickNumber;
 }
-void AppImplMswBasic::setEngineVSync(bool val) 
+void AppImplMswBasic::SetEngineVSyncType(int val) 
 {
-	mEngineVsync = val;
+	mEngineVSyncType = val;
 }
-bool AppImplMswBasic::getEngineVSync() 
+int AppImplMswBasic::GetEngineVSyncType() 
 {
-	return mEngineVsync;
+	return mEngineVSyncType;
 }
 
 void AppImplMswBasic::setDebugFlag( int val ) 

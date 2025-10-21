@@ -363,8 +363,8 @@ class CI_API AppBase {
 	virtual uint32_t	getAppTickNumber() = 0;
 
 	// vsync flag
-	virtual void		setEngineVSync(bool val) = 0;
-	virtual bool		getEngineVSync() = 0;
+	virtual void		SetEngineVSyncType(int val) = 0;
+	virtual int			GetEngineVSyncType() = 0;
 
 	//! Returns whether frameRate limiting is enabled.
 	virtual bool		isFrameRateEnabled() const = 0;

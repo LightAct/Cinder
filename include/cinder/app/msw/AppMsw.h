@@ -74,8 +74,8 @@ class CI_API AppMsw : public AppBase {
 	void		setAppTickNumber(uint32_t n) override;
 	uint32_t	getAppTickNumber() override;
 
-	void setEngineVSync(bool val) override;
-	bool getEngineVSync() override;
+	void		SetEngineVSyncType(int val) override;
+	int			GetEngineVSyncType() override;
 
 	bool		isFrameRateEnabled() const override;
 
