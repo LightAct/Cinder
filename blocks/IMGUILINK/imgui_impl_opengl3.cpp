@@ -278,11 +278,11 @@ static void ImGui_ImplOpenGL3_SetupRenderState(ImDrawData* draw_data, int fb_wid
     glVertexAttribPointer(g_AttribLocationVtxColor, 4, GL_UNSIGNED_BYTE, GL_TRUE,  sizeof(ImDrawVert), (GLvoid*)IM_OFFSETOF(ImDrawVert, col));
 }
 
-struct LARenderData {
-    GLsizeiptr VertexBufferSize = 0;
-    GLsizeiptr IndexBufferSize = 0;
-    bool useSub = true;
-};
+//struct LARenderData {
+//    GLsizeiptr VertexBufferSize = 0;
+//    GLsizeiptr IndexBufferSize = 0;
+//    bool useSub = true;
+//};
 
 // OpenGL3 Render function.
 // (this used to be set in io.RenderDrawListsFn and called by ImGui::Render(), but you can now call this directly from your main loop)
@@ -336,7 +336,31 @@ void    ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
     ImVec2 clip_off = draw_data->DisplayPos;         // (0,0) unless using multi-viewports
     ImVec2 clip_scale = draw_data->FramebufferScale; // (1,1) unless using retina display which are often (2,2)
 
-    static LARenderData renderData;
+    // static LARenderData renderData;
+    static bool UseTrippleVertexBuffering = true;
+
+#define BUFFER_COUNT 3
+    static GLuint vbo_handles[BUFFER_COUNT] = { 0 };
+    static GLuint ebo_handles[BUFFER_COUNT] = { 0 };
+    static GLsizeiptr vbo_sizes[BUFFER_COUNT] = { 0 };
+    static GLsizeiptr ebo_sizes[BUFFER_COUNT] = { 0 };
+    static int frame_index = 0;
+
+    // Create buffers on first run
+    if (vbo_handles[0] == 0)
+    {
+        glGenBuffers(BUFFER_COUNT, vbo_handles);
+        glGenBuffers(BUFFER_COUNT, ebo_handles);
+    }
+
+    // Get index for this frame
+    int buffer_index = frame_index % BUFFER_COUNT;
+    GLuint current_vbo = vbo_handles[buffer_index];
+    GLuint current_ebo = ebo_handles[buffer_index];
+
+    // Bind our rotating buffers
+    glBindBuffer(GL_ARRAY_BUFFER, current_vbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, current_ebo);
 
     // Render command lists
     for (int n = 0; n < draw_data->CmdListsCount; n++)
@@ -345,8 +369,28 @@ void    ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
 
         const GLsizeiptr vtx_buffer_size = (GLsizeiptr)cmd_list->VtxBuffer.Size * (int)sizeof(ImDrawVert);
         const GLsizeiptr idx_buffer_size = (GLsizeiptr)cmd_list->IdxBuffer.Size * (int)sizeof(ImDrawIdx);
-        if (renderData.useSub) {
-            if (renderData.VertexBufferSize < vtx_buffer_size) {
+        if (UseTrippleVertexBuffering) {
+
+            if (vbo_sizes[buffer_index] < vtx_buffer_size)
+            {
+                // Re-allocate *this* buffer (orphaning)
+                // This is NOT a leak. It only runs when the UI grows.
+                glBufferData(GL_ARRAY_BUFFER, vtx_buffer_size, nullptr, GL_STREAM_DRAW);
+                vbo_sizes[buffer_index] = vtx_buffer_size;
+            }
+            if (ebo_sizes[buffer_index] < idx_buffer_size)
+            {
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, idx_buffer_size, nullptr, GL_STREAM_DRAW);
+                ebo_sizes[buffer_index] = idx_buffer_size;
+            }
+            
+            // Upload data to * this * buffer using SubData.
+            // This is STALL-FREE because the GPU is busy reading from
+            // vbo_handles[(buffer_index + 1) % BUFFER_COUNT] or 2.
+            glBufferSubData(GL_ARRAY_BUFFER, 0, vtx_buffer_size, (const GLvoid*)cmd_list->VtxBuffer.Data);
+            glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, idx_buffer_size, (const GLvoid*)cmd_list->IdxBuffer.Data);
+
+            /*if (renderData.VertexBufferSize < vtx_buffer_size) {
                 renderData.VertexBufferSize = vtx_buffer_size;
                 glBufferData(GL_ARRAY_BUFFER, renderData.VertexBufferSize, nullptr, GL_STREAM_DRAW);
             }
@@ -355,7 +399,8 @@ void    ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
                 glBufferData(GL_ELEMENT_ARRAY_BUFFER, renderData.IndexBufferSize, nullptr, GL_STREAM_DRAW);
             }
             glBufferSubData(GL_ARRAY_BUFFER, 0, vtx_buffer_size, (const GLvoid*)cmd_list->VtxBuffer.Data);
-            glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, idx_buffer_size, (const GLvoid*)cmd_list->IdxBuffer.Data);
+            glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, idx_buffer_size, (const GLvoid*)cmd_list->IdxBuffer.Data);*/
+
         }
         else {
             // Upload vertex/index buffers
@@ -366,6 +411,16 @@ void    ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
         // Upload vertex/index buffers
         // glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)cmd_list->VtxBuffer.Size * (int)sizeof(ImDrawVert), (const GLvoid*)cmd_list->VtxBuffer.Data, GL_STREAM_DRAW);
         // glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)cmd_list->IdxBuffer.Size * (int)sizeof(ImDrawIdx), (const GLvoid*)cmd_list->IdxBuffer.Data, GL_STREAM_DRAW);
+
+        // == CRITICAL: RESET VERTEX ATTRIB POINTERS ==
+        // SetupRenderState set pointers for g_VboHandle. We've bound
+        // our own VBO, so we must re-set the pointers for the VAO.
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)IM_OFFSETOF(ImDrawVert, pos));
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)IM_OFFSETOF(ImDrawVert, uv));
+        glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ImDrawVert), (GLvoid*)IM_OFFSETOF(ImDrawVert, col));
 
         for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
         {
@@ -405,6 +460,8 @@ void    ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
             }
         }
     }
+
+    frame_index++;
 
     // Destroy the temporary VAO
 #ifndef IMGUI_IMPL_OPENGL_ES2
