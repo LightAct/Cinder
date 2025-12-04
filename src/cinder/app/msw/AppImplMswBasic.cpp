@@ -182,7 +182,7 @@ void AppImplMswBasic::runV3() {
 
 		frameProfiler = std::chrono::high_resolution_clock::now();		
 		// when in sync mode, wait for trigger		
-		if (runtimeSyncStage == 2 || runtimeSyncStage == 3) {
+		if (runtimeSyncStage == 2) {
 			std::unique_lock lk(frameUpdate_mutex);
 			frameUpdate_wait.wait_for(lk, std::chrono::milliseconds(100), [this] { return mSyncNextFrame; });
 			mSyncNextFrame = false;
@@ -216,7 +216,7 @@ void AppImplMswBasic::runV3() {
 
 		frameProfiler = std::chrono::high_resolution_clock::now();
 		// waits for swap command
-		if ( runtimeSyncStage == 2 || runtimeSyncStage == 3) {
+		if ( runtimeSyncStage == 2) {
 			std::unique_lock lk(frameSwap_mutex);
 			frameSwap_wait.wait_for(lk, std::chrono::milliseconds(100), [this] { return mSyncSwapFrame; });
 			mSyncSwapFrame = false;
@@ -260,12 +260,20 @@ void AppImplMswBasic::runV3() {
 		}		
 		if (mNextFrameTime > currentSeconds) {
 			if(runtimeSyncStage == 0) { 
+				// if output windows are present, we are led by output windows
 				if (windowsCount > 1)
 					makeCinderSleep = false;
-			} else if(runtimeSyncStage == 1 /* as primary in sync */) {
+			} else if(runtimeSyncStage == 1 ) {
+				// as primary in sync (solo primary mode)
+				// if output windows are present, we are led by output windows
 				if (windowsCount > 1)
 					makeCinderSleep = false;
-			} else if(runtimeSyncStage == 2 /* as secondary in sysnc */) {
+			} else if(runtimeSyncStage == 2) {
+				// as secondary, we are led by sync controller
+				makeCinderSleep = false;
+			} else if(runtimeSyncStage == 3) {
+				// as primary in sync with other machines connected
+				// we trust outer sources to run correctly and not sleep on primary at all
 				makeCinderSleep = false;
 			}
 		} else {
@@ -291,7 +299,7 @@ void AppImplMswBasic::runV3() {
 			}
 		}
 
-		if ( runtimeSyncStage == 2 || runtimeSyncStage == 3 ) { /* we are lead by someone else */ }
+		if ( runtimeSyncStage == 2 ) { /* we are lead by someone else */ }
 		else { mAppTickNumber++; }
 
 		// generally not needed
@@ -301,7 +309,7 @@ void AppImplMswBasic::runV3() {
 		// as primary, wait for swap done command
 		// accumulate as wait time
 		frameProfiler = std::chrono::high_resolution_clock::now();
-		if (runtimeSyncStage == 1) {
+		if (runtimeSyncStage == 1 || runtimeSyncStage == 3 /* primary in sync */) {
 			std::unique_lock lk(frameSwap_mutex);
 			frameSwap_wait.wait_for(lk, std::chrono::milliseconds(200), [this] { return mSyncSwapFrame; });
 			mSyncSwapFrame = false;
