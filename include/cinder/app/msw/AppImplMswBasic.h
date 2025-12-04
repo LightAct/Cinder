@@ -45,8 +45,6 @@ private:
   public:
 	AppImplMswBasic( AppMsw *app, const AppMsw::Settings &settings );
 
-	void	run();
-	//void	runV2();
 	void	runV3();
 
 	AppMsw*	getApp() { return mApp; }
