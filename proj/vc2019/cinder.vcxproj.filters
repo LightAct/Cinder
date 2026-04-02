@@ -250,6 +250,12 @@
     <Filter Include="Resource Files\imgui">
       <UniqueIdentifier>{25d4c75e-81df-4fd4-9e79-2ebec1987901}</UniqueIdentifier>
     </Filter>
+    <Filter Include="blocks">
+      <UniqueIdentifier>{7711ac3f-2295-4f29-8efe-7c175298e3e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="blocks\PortAudio">
+      <UniqueIdentifier>{bfcd1830-c794-4d65-8c9d-08af81656478}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\cinder\Area.cpp">
@@ -1082,6 +1088,24 @@
     </ClCompile>
     <ClCompile Include="..\..\blocks\IMGUILINK\imgui_stdlib.cpp">
       <Filter>Resource Files\imguilink</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\blocks\Cinder-PortAudio\src\cinder\audio\ContextPortAudio.cpp">
+      <Filter>blocks\PortAudio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\blocks\Cinder-PortAudio\lib\ASIOSDK\common\asio.cpp">
+      <Filter>blocks\PortAudio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\blocks\Cinder-PortAudio\lib\ASIOSDK\host\asiodrivers.cpp">
+      <Filter>blocks\PortAudio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\blocks\Cinder-PortAudio\lib\ASIOSDK\host\pc\asiolist.cpp">
+      <Filter>blocks\PortAudio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\blocks\Cinder-PortAudio\lib\portaudio\src\hostapi\asio\pa_asio.cpp">
+      <Filter>blocks\PortAudio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\blocks\Cinder-PortAudio\src\cinder\audio\DeviceManagerPortAudio.cpp">
+      <Filter>blocks\PortAudio</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
