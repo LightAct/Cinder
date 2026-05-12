@@ -91,18 +91,35 @@ bool CaptureImplDirectShow::Device::isConnected() const
 	return getVideoInput().isDeviceConnected( mUniqueId );
 }
 
+static int GetDeviceCountSafe()
+{
+	int count = 0;
+	__try {
+		// pandoras box bad driver crash?
+		count = getVideoInput().listDevices(true);
+	} __except (EXCEPTION_EXECUTE_HANDLER) {		
+		return -1;
+	}
+	return count;
+}
+
 const vector<Capture::DeviceRef>& CaptureImplDirectShow::getDevices( bool forceRefresh )
 {
 	static bool firstCall = true;
 	static std::vector<Capture::DeviceRef>	devices;
 
 	if( firstCall || forceRefresh ) {
-		const int devCnt = getVideoInput().listDevices( true );
+
+		const int devCnt = GetDeviceCountSafe();
+		if (devCnt < 0) {
+			// handled crash or empty list
+			firstCall = false;
+			return devices;
+		}
 		devices.resize( devCnt );
 		for ( int i = 0; i < devCnt; ++i ) {
 			devices[i] = std::make_shared<CaptureImplDirectShow::Device>( videoInput::getDeviceName( i ), i );
 		}
-
 		firstCall = false;
 	}
 	return devices;
