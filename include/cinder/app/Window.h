@@ -380,6 +380,9 @@ class CI_API Window : public std::enable_shared_from_this<Window> {
 	EventSignalMouse&	getSignalMouseUp() { return mSignalMouseUp; }
 	void				emitMouseUp( MouseEvent *event );
 
+	cinder::signals::Signal<void(int)>& getSignalVSyncChanged() { return mSignalVSyncChanged; }
+	void				emitVsyncChanged( int newState );
+
 	EventSignalMouse&	getSignalMouseMove() { return mSignalMouseMove; }
 	void				emitMouseMove( MouseEvent *event );
 
@@ -442,6 +445,8 @@ class CI_API Window : public std::enable_shared_from_this<Window> {
 
 	EventSignalFocus& getSignalFocus() { return mSignalFocus; }
 	void				emitFocus(FocusEvent* event);
+		
+	cinder::signals::Signal<void(int)> mSignalVSyncChanged;
 
 	EventSignalFileDrop&	getSignalFileDrop() { return mSignalFileDrop; }
 	void					emitFileDrop( FileDropEvent *event );

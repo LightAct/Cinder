@@ -391,7 +391,10 @@ void Window::emitMouseWheel( MouseEvent *event )
 	if( ! event->isHandled() )
 		getApp()->mouseWheel( *event );
 }
-
+void Window::emitVsyncChanged(int newState) {
+	// no need to change context as we are already in it when emitting
+	mSignalVSyncChanged.emit(newState);
+}
 void Window::emitMouseMove( MouseEvent *event )
 {
 	applyCurrentContext();
