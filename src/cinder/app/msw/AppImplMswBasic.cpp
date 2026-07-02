@@ -262,7 +262,7 @@ void AppImplMswBasic::runV3() {
 			}
 		}		
 		if (mNextFrameTime > currentSeconds) {
-			if(runtimeSyncStage == 0) { 
+			if(runtimeSyncStage == 0 || runtimeSyncStage == 4) {
 				// if output windows are present, we are led by output windows
 				if (windowsCount > 1)
 					makeCinderSleep = false;
@@ -302,7 +302,7 @@ void AppImplMswBasic::runV3() {
 			}
 		}
 
-		if ( runtimeSyncStage == 2 ) { /* we are lead by someone else */ }
+		if ( runtimeSyncStage == 2 || runtimeSyncStage == 4 ) { /* we are lead by someone else */ }
 		else { mAppTickNumber++; }
 
 		// generally not needed
