@@ -172,7 +172,7 @@ void AppImplMswBasic::runV3() {
 						window->getWindow()->emitVsyncChanged(0);
 					}
 					// if we are supposed to have vsync on, turn last window on
-					if (windowsVSyncType == 0) {
+					if (windowsVSyncType == 0 || windowsVSyncType == 4) {
 						// one window
 						mWindows.back()->getRenderer()->makeCurrentContext();
 						::wglSwapIntervalEXT((GLint)1);
