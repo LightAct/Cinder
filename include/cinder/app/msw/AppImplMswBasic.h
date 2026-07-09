@@ -112,7 +112,7 @@ private:
 	int				mTestFlag = 0;
 	uint32_t		mTriggerFrame = 0;
 	uint32_t		mBaseFrameNumber = 0;
-	uint32_t		mAppTickNumber = 0;
+	std::atomic<uint32_t>		mAppTickNumber = 0;
 	bool			mShouldQuit;
 	bool			mQuitOnLastWindowClosed;
 

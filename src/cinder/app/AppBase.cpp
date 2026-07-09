@@ -252,6 +252,7 @@ void AppBase::cinderFrameDone() {
 	cinderFrameUpdate_cv.notify_one();
 }
 void AppBase::cinderFrameUpdatedAndRendered() {
+	frameUpdatedAndRendered();
 	std::unique_lock<std::mutex> lock(cinderFrameUpdate_mutex);
 	cinderFrameDrawn_cv.notify_one();
 }

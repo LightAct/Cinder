@@ -211,6 +211,7 @@ class CI_API AppBase {
 	virtual void	update() {}
 	//! Override to perform any rendering once-per-loop or in response to OS-prompted requests for refreshes.
 	virtual void	draw( int windowIndd ) {}
+	virtual void	frameUpdatedAndRendered() {}
 	
 	//! Override to receive mouse-down events.
 	virtual void	mouseDown( MouseEvent event ) {}

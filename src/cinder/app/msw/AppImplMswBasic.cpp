@@ -215,7 +215,7 @@ void AppImplMswBasic::runV3() {
 #pragma endregion	
 
 		mBaseFrameNumber++;
-		mApp->cinderFrameUpdatedAndRendered();
+		mApp->cinderFrameUpdatedAndRendered();		
 
 		frameProfiler = std::chrono::high_resolution_clock::now();
 		// waits for swap command
@@ -302,7 +302,7 @@ void AppImplMswBasic::runV3() {
 			}
 		}
 
-		if ( runtimeSyncStage == 2 /*|| runtimeSyncStage == 4*/ ) { /* we are lead by someone else */ }
+		if ( runtimeSyncStage == 2 || runtimeSyncStage == 4 ) { /* we are lead by someone else */ }
 		else { mAppTickNumber++; }
 
 		// generally not needed
