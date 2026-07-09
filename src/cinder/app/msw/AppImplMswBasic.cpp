@@ -302,7 +302,7 @@ void AppImplMswBasic::runV3() {
 			}
 		}
 
-		if ( runtimeSyncStage == 2 || runtimeSyncStage == 4 ) { /* we are lead by someone else */ }
+		if ( runtimeSyncStage == 2 /*|| runtimeSyncStage == 4*/ ) { /* we are lead by someone else */ }
 		else { mAppTickNumber++; }
 
 		// generally not needed
